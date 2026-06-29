@@ -802,7 +802,7 @@ async function tryFetch(url) {
 async function fetchFresh() {
     const errors = [];
 
-    for (const url of ["/api/trucky/conductores", "http://127.0.0.1:3001/api/trucky/conductores", "/api/conductores"]) {
+    for (const url of ["/api/trucky/conductores", "http://127.0.0.1:3001/api/trucky/conductores"]) {
         try { const d = await tryFetch(url); applyData(d, "Servidor"); return; } catch { errors.push(url); continue; }
     }
 

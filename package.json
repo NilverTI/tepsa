@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "start": "node server.js",
-    "vercel": "vercel",
+    "dev-start": "node server.js",
     "dev": "vercel dev"
   }
 }
