@@ -1,40 +1,22 @@
+const FOUNDER_NAMES = ["Alexander", "Cesar", "Cristofer", "admpsv"];
+
 const fallbackTruckyData = {
   source: "demo",
   updatedAt: new Date().toISOString(),
-  stats: {
-    kilometers: 8643,
-    drivers: 15,
-    active: 3,
-    founded: 2026,
-  },
+  stats: { kilometers: 249734, drivers: 14, active: 6, founded: 2026 },
   ranking: [
-    { name: "Cesar", kilometers: 8643, points: 11927, lastJob: "hoy" },
-    { name: "Conductor TEPSA", kilometers: 6200, points: 5400, lastJob: "hace 2 días" },
-    { name: "Nuevo Piloto", kilometers: 4100, points: 2800, lastJob: "hace 4 días" },
+    { name: "[TPS] Joker", kilometers: 35229, points: 36230, lastJobDays: 1, role: "Conductor", avatar: "", damage: 3355, level: 6, revenue: 27920645, cargo: 388 },
+    { name: "[TPS]KANIEL_OUT", kilometers: 28400, points: 30100, lastJobDays: 0, role: "Conductor", avatar: "", damage: 569, level: 3, revenue: 8326510, cargo: 101 },
+    { name: "[TPS]RENZITO", kilometers: 22100, points: 25800, lastJobDays: 2, role: "Conductor", avatar: "", damage: 2124, level: 3, revenue: 5282808, cargo: 64 },
+    { name: "[TPS]EMPERADOR", kilometers: 19800, points: 22400, lastJobDays: 1, role: "Conductor", avatar: "", damage: 1625, level: 2, revenue: 3037086, cargo: 34 },
+    { name: "[TPS] Lexus", kilometers: 16200, points: 18900, lastJobDays: 5, role: "Conductor", avatar: "", damage: 16448, level: 6, revenue: 13398366, cargo: 155 },
+    { name: "[ TPS ]?KEVIN? ?", kilometers: 12800, points: 15400, lastJobDays: 0, role: "Conductor", avatar: "", damage: 1928, level: 5, revenue: 19590207, cargo: 212 },
+    { name: "[TPS] Angel", kilometers: 9500, points: 11200, lastJobDays: 3, role: "Conductor", avatar: "", damage: 3610, level: 4, revenue: 13414766, cargo: 127 },
+    { name: "[TPS] Johan-19", kilometers: 7200, points: 8900, lastJobDays: 7, role: "Conductor", avatar: "", damage: 12929, level: 4, revenue: 14940683, cargo: 170 },
+    { name: "[TPS] juan david", kilometers: 5100, points: 6400, lastJobDays: 10, role: "Conductor", avatar: "", damage: 308, level: 3, revenue: 781421, cargo: 32 },
+    { name: "banco bcp", kilometers: 0, points: 0, lastJobDays: 9999, role: "Conductor", avatar: "", damage: 1146, level: 2, revenue: 2052853, cargo: 79 },
   ],
-  recentJobs: [
-    {
-      driver: "Cesar",
-      route: "Lima - Arequipa",
-      kilometers: 1024,
-      damage: 2,
-      status: "Completado",
-    },
-    {
-      driver: "Conductor TEPSA",
-      route: "Trujillo - Lima",
-      kilometers: 560,
-      damage: 1,
-      status: "Completado",
-    },
-    {
-      driver: "Nuevo Piloto",
-      route: "Cusco - Puno",
-      kilometers: 390,
-      damage: 0,
-      status: "Completado",
-    },
-  ],
+  recentJobs: [],
 };
 
 const numberFormat = new Intl.NumberFormat("es-PE", {
@@ -44,23 +26,32 @@ const sections = document.querySelectorAll("section");
 
 function setText(id, value) {
   const element = document.getElementById(id);
-  if (element) {
-    element.textContent = value;
-  }
+  if (element) element.textContent = value;
 }
 
 function formatNumber(value) {
-  const number = Number(value) || 0;
-  return numberFormat.format(number);
+  return numberFormat.format(Number(value) || 0);
 }
 
 function escapeHtml(value) {
   return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;").replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function getInitials(name) {
+  return (name || "?").charAt(0).toUpperCase();
+}
+
+function isFounder(member) {
+  const role = (member.role || "").toLowerCase();
+  if (/owner|fundador|founder|administrador|moderador/.test(role)) return true;
+  const name = (member.name || "").toLowerCase();
+  for (const fn of FOUNDER_NAMES) {
+    if (name.includes(fn.toLowerCase())) return true;
+  }
+  return false;
 }
 
 function renderStats(stats = {}) {
@@ -69,79 +60,79 @@ function renderStats(stats = {}) {
   setText("stat-activos", formatNumber(stats.active));
 }
 
+function avatarHTML(driver) {
+  const hasAvatar = driver.avatar && driver.avatar.startsWith("http");
+  const initials = escapeHtml(getInitials(driver.name));
+  if (hasAvatar) {
+    return `<img src="${escapeHtml(driver.avatar)}" alt="${escapeHtml(driver.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="podium-avatar-fallback" style="display:none">${initials}</div>`;
+  }
+  return `<div class="podium-avatar-fallback">${initials}</div>`;
+}
+
 function renderRanking(ranking = []) {
-  const container = document.getElementById("ranking-top3");
+  const container = document.getElementById("ranking-podium");
   if (!container) return;
 
-  const top3 = ranking.slice(0, 3);
+  const filtered = ranking.filter(m => !isFounder(m));
+  const top3 = filtered.slice(0, 3);
 
   if (!top3.length) {
-    container.innerHTML = `<p style="text-align:center;color:#888;grid-column:1/-1;">Aún no hay conductores para mostrar.</p>`;
+    container.innerHTML = `<p style="text-align:center;color:#888;">A\u00fan no hay conductores para mostrar.</p>`;
     return;
   }
 
-  const medals = ["1st", "2nd", "3rd"];
+  const podiumOrder = [1, 0, 2];
+  const labels = ["ORO", "PLATA", "BRONCE"];
 
-  container.innerHTML = top3
-    .map((driver, index) => {
-      const pos = index + 1;
-      return `
-        <div class="rank-card rank-${pos}">
-          <div class="rank-medal">${medals[index]}</div>
-          <div class="rank-avatar">${escapeHtml((driver.name || "?").charAt(0).toUpperCase())}</div>
-          <h3>${escapeHtml(driver.name || "Sin nombre")}</h3>
-          <div class="rank-stats">
-            <div class="rank-stat">
-              <span class="rank-stat-value">${formatNumber(driver.kilometers)}</span>
-              <span class="rank-stat-label">KM</span>
-            </div>
-            <div class="rank-stat">
-              <span class="rank-stat-value">${formatNumber(driver.points)}</span>
-              <span class="rank-stat-label">Puntos</span>
-            </div>
+  container.innerHTML = podiumOrder.map(i => {
+    const d = top3[i];
+    const isFirst = i === 0;
+    const posClass = ["podium-1","podium-2","podium-3"][i];
+    const lastStr = d.lastJobDays == null || d.lastJobDays >= 9999 ? "Sin registro" : d.lastJobDays === 0 ? "Hoy" : `Hace ${d.lastJobDays} d\u00edas`;
+
+    return `
+      <div class="podium-item ${posClass}">
+        <span class="podium-number">${["1\u00ba","2\u00ba","3\u00ba"][i]}</span>
+        ${isFirst ? '<span class="podium-crown">\uD83D\uDC51</span>' : ""}
+        <span class="podium-label">${labels[i]}</span>
+        <div class="podium-avatar-wrap">${avatarHTML(d)}</div>
+        <div class="podium-name">${escapeHtml(d.name || "Sin nombre")}</div>
+        <span class="podium-role">${escapeHtml(d.role || "")}</span>
+        <div class="podium-info-grid">
+          <div class="podium-info-item">
+            <span class="podium-info-value">${formatNumber(d.kilometers)}</span>
+            <span class="podium-info-label">KM</span>
           </div>
-          <span class="rank-lastjob">${escapeHtml(driver.lastJob || "Sin registro")}</span>
+          <div class="podium-info-item">
+            <span class="podium-info-value">${d.damage != null ? formatNumber(d.damage) : "N/D"}</span>
+            <span class="podium-info-label">Da\u00f1o</span>
+          </div>
+          <div class="podium-info-item">
+            <span class="podium-info-value">${d.level != null ? d.level : "?"}</span>
+            <span class="podium-info-label">Nivel</span>
+          </div>
         </div>
-      `;
-    })
-    .join("");
+        <span class="podium-footer">\uD83D\uDFE2 ${lastStr}</span>
+      </div>
+    `;
+  }).join("");
 }
 
 function renderJobs(jobs = []) {
   const jobsGrid = document.getElementById("jobs-grid");
   if (!jobsGrid) return;
-
   if (!jobs.length) {
-    jobsGrid.innerHTML = `<div class="job-card"><p>Aún no hay trabajos recientes para mostrar con este endpoint.</p></div>`;
+    jobsGrid.innerHTML = `<div class="job-card"><p>A\u00fan no hay trabajos recientes para mostrar.</p></div>`;
     return;
   }
-
-  jobsGrid.innerHTML = jobs
-    .map(
-      (job) => `
-        <article class="job-card">
-          <h3>${escapeHtml(job.driver || "Conductor TEPSA")}</h3>
-          <p><strong>Ruta:</strong> ${escapeHtml(job.route || "Sin ruta")}</p>
-          <p><strong>Kilómetros:</strong> ${formatNumber(job.kilometers)}</p>
-          <p><strong>Daño:</strong> ${formatNumber(job.damage)}</p>
-          <p><strong>Estado:</strong> ${escapeHtml(job.status || "Registrado")}</p>
-        </article>
-      `,
-    )
-    .join("");
-}
-
-function renderConductores(ranking = []) {
-  const grid = document.getElementById("conductores-grid");
-
-  if (!grid) return;
-
-  grid.innerHTML = ranking.map(driver => `
-    <div class="conductor-card">
-      <img src="img/conductores/default.png" alt="${driver.name}">
-      <h3>${driver.name}</h3>
-      <p>Conductor TEPSA PSV</p>
-    </div>
+  jobsGrid.innerHTML = jobs.map(j => `
+    <article class="job-card">
+      <h3>${escapeHtml(j.driver || "Conductor TEPSA")}</h3>
+      <p><strong>Ruta:</strong> ${escapeHtml(j.route || "Sin ruta")}</p>
+      <p><strong>KM:</strong> ${formatNumber(j.kilometers)}</p>
+      <p><strong>Da\u00f1o:</strong> ${formatNumber(j.damage)}</p>
+      <p><strong>Estado:</strong> ${escapeHtml(j.status || "Registrado")}</p>
+    </article>
   `).join("");
 }
 
@@ -149,22 +140,15 @@ function renderTruckyData(data) {
   renderStats(data.stats);
   renderRanking(data.ranking);
   renderJobs(data.recentJobs);
-  renderConductores(data.ranking);
 
   const status = document.getElementById("trucky-status");
   if (!status) return;
-
-  const updatedAt = data.updatedAt
-    ? new Date(data.updatedAt).toLocaleString("es-PE")
-    : "sin fecha";
-
+  const updatedAt = data.updatedAt ? new Date(data.updatedAt).toLocaleString("es-PE") : "sin fecha";
   if (data.source === "demo") {
-    status.textContent =
-      "Mostrando datos de ejemplo. Falta colocar el endpoint real de Trucky Hub.";
+    status.textContent = "Mostrando datos de ejemplo.";
     return;
   }
-
-  status.textContent = `Datos conectados con Trucky Hub. Última actualización: ${updatedAt}.`;
+  status.innerHTML = `\uD83D\uDCE1 <strong>Trucky Hub</strong> \u00B7 Actualizado: ${updatedAt}`;
 }
 
 const CACHE_KEY = "tepsa_index";
@@ -184,111 +168,143 @@ function setCache(data) {
   try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch { }
 }
 
+function transformMember(m) {
+  return {
+    name: m.name,
+    kilometers: m.total_driven_distance_km || 0,
+    points: m.points || 0,
+    lastJobDays: m.last_job_days,
+    role: m.role?.name || "",
+    avatar: m.avatar_url || "",
+    damage: null,
+    level: m.level || 0,
+    revenue: m.total_revenue || 0,
+    cargo: m.total_cargo_mass_t || 0,
+  };
+}
+
+async function tryFetch(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json();
+}
+
+async function fetchJobsDamage() {
+  const damageMap = new Map();
+  try {
+    const page1 = await tryFetch("https://e.truckyapp.com/api/v1/company/44302/jobs?per_page=20&page=1");
+    const totalPages = Math.min(page1.last_page || 1, 5);
+    const pages = [page1];
+    const promises = [];
+    for (let p = 2; p <= totalPages; p++) {
+      promises.push(tryFetch(`https://e.truckyapp.com/api/v1/company/44302/jobs?per_page=20&page=${p}`));
+    }
+    const rest = await Promise.all(promises);
+    pages.push(...rest);
+    for (const page of pages) {
+      for (const job of (page.data || [])) {
+        const name = job.in_game_profile_name || "";
+        if (!name) continue;
+        const damage = (job.vehicle_damage || 0) + (job.cargo_damage || 0) + (job.trailers_damage || 0);
+        if (damage > 0) damageMap.set(name, (damageMap.get(name) || 0) + Math.round(damage));
+      }
+    }
+  } catch { }
+  return damageMap;
+}
+
+function matchDamage(driver, damageMap) {
+  const raw = (driver.name || "").toLowerCase().trim();
+  const stripped = raw.replace(/\[?\s*tps\s*\]?\s*/gi, "").replace(/[\[\]?]/g, "").trim();
+  for (const [jobName, dmg] of damageMap) {
+    const jn = jobName.toLowerCase().trim();
+    if (!jn) continue;
+    if (raw.includes(jn) || jn.includes(stripped) || jn.includes(raw)) return dmg;
+    const jnClean = jn.replace(/[\._\-]/g, "");
+    if (jnClean.includes(stripped) || stripped.includes(jnClean)) return dmg;
+    const sw = stripped.split(/[\s_\-\.]+/);
+    for (const w of sw) { if (w.length > 2 && jn.includes(w)) return dmg; }
+    const jw = jn.split(/[\s_\-\.]+/);
+    for (const w of jw) { if (w.length > 2 && stripped.includes(w)) return dmg; }
+  }
+  return null;
+}
+
 async function loadTruckyData() {
   const cached = getCache();
-  if (cached) {
-    renderTruckyData(cached);
+  if (cached) renderTruckyData(cached);
+
+  let data = null;
+
+  for (const url of ["/api/trucky/conductores", "http://127.0.0.1:3000/api/trucky/conductores"]) {
+    try {
+      const d = await tryFetch(url);
+      data = {
+        source: "trucky",
+        updatedAt: new Date().toISOString(),
+        stats: d.stats || {},
+        ranking: (d.ranking || []).map(transformMember),
+        recentJobs: d.recentJobs || [],
+      };
+      break;
+    } catch { continue; }
   }
 
-  try {
-    const response = await fetch(
-      "https://e.truckyapp.com/api/v1/company/44302/members",
-      { cache: "no-store" }
-    );
+  if (!data) {
+    try {
+      const raw = await tryFetch("https://e.truckyapp.com/api/v1/company/44302/members");
+      const members = (raw.data || []).map(transformMember);
+      const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
+      const active = members.filter(d => d.lastJobDays === 0).length;
+      const drivers = members.filter(d => d.kilometers > 0).length;
+      members.sort((a, b) => b.kilometers - a.kilometers);
 
-    if (!response.ok) throw new Error("Error HTTP");
+      const damageMap = await fetchJobsDamage();
+      for (const d of members) {
+        const dmg = matchDamage(d, damageMap);
+        if (dmg != null) d.damage = dmg;
+      }
 
-    const trucky = await response.json();
+      data = {
+        source: "trucky",
+        updatedAt: new Date().toISOString(),
+        stats: { kilometers: Math.round(totalKm), drivers, active },
+        ranking: members,
+        recentJobs: [],
+      };
+    } catch { }
+  }
 
-    const members = trucky.data || [];
-
-    const totalKm = members.reduce(
-      (sum, member) => sum + (member.total_driven_distance_km || 0), 0
-    );
-
-    const activeDrivers = members.filter(
-      (member) => member.last_job_days === 0
-    ).length;
-
-    const drivers = members.filter(
-      member => member.total_driven_distance_km > 0
-    ).length;
-
-    const adaptedData = {
-      source: "trucky",
-      updatedAt: new Date().toISOString(),
-      stats: { kilometers: Math.round(totalKm), drivers, active: activeDrivers },
-      ranking: members
-        .sort((a, b) => b.total_driven_distance_km - a.total_driven_distance_km)
-        .slice(0, 3)
-        .map(member => ({
-          name: member.name,
-          kilometers: member.total_driven_distance_km,
-          points: member.points,
-          lastJob: member.last_job_days === 0 ? "Hoy" : `Hace ${member.last_job_days} días`
-        })),
-      recentJobs: []
-    };
-
-    setCache(adaptedData);
-    renderTruckyData(adaptedData);
-  } catch (error) {
-    if (!cached) renderTruckyData(fallbackTruckyData);
+  if (data) {
+    setCache(data);
+    renderTruckyData(data);
+  } else if (!cached) {
+    renderTruckyData(fallbackTruckyData);
   }
 }
 
 function setupRevealAnimation() {
-  sections.forEach((section) => {
-    section.style.opacity = "0";
-    section.style.transform = "translateY(50px)";
-    section.style.transition = "all 1s ease";
-  });
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = "1";
-          entry.target.style.transform = "translateY(0)";
-        }
-      });
-    },
-    { threshold: 0.12 },
-  );
-
-  sections.forEach((section) => observer.observe(section));
+  sections.forEach(s => { s.style.opacity = "0"; s.style.transform = "translateY(50px)"; s.style.transition = "all 1s ease"; });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = "1"; e.target.style.transform = "translateY(0)"; } });
+  }, { threshold: 0.12 });
+  sections.forEach(s => observer.observe(s));
 }
 
 function setupBackToTopButton() {
-  const btnTop = document.createElement("button");
-
-  btnTop.textContent = "↑";
-  btnTop.setAttribute("aria-label", "Volver arriba");
-  btnTop.style.position = "fixed";
-  btnTop.style.bottom = "20px";
-  btnTop.style.right = "20px";
-  btnTop.style.width = "50px";
-  btnTop.style.height = "50px";
-  btnTop.style.borderRadius = "50%";
-  btnTop.style.border = "none";
-  btnTop.style.background = "#ff2d2d";
-  btnTop.style.color = "white";
-  btnTop.style.fontSize = "22px";
-  btnTop.style.cursor = "pointer";
-  btnTop.style.zIndex = "999";
-
-  document.body.appendChild(btnTop);
-
-  btnTop.addEventListener("click", () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+  const btn = document.createElement("button");
+  btn.textContent = "\u2191";
+  btn.setAttribute("aria-label", "Volver arriba");
+  Object.assign(btn.style, {
+    position: "fixed", bottom: "20px", right: "20px", width: "50px", height: "50px",
+    borderRadius: "50%", border: "none", background: "#ff2d2d", color: "white",
+    fontSize: "22px", cursor: "pointer", zIndex: "999"
   });
+  document.body.appendChild(btn);
+  btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 }
 
 setupRevealAnimation();
 setupBackToTopButton();
 loadTruckyData();
-setInterval(loadTruckyData, 1800000); //30 minutos
-
+setInterval(loadTruckyData, 1800000);
