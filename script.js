@@ -167,60 +167,73 @@ function renderTruckyData(data) {
   status.textContent = `Datos conectados con Trucky Hub. Última actualización: ${updatedAt}.`;
 }
 
+const CACHE_KEY = "tepsa_index";
+const CACHE_TTL = 30 * 60 * 1000;
+
+function getCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const entry = JSON.parse(raw);
+    if (Date.now() - entry.ts > CACHE_TTL) { localStorage.removeItem(CACHE_KEY); return null; }
+    return entry.data;
+  } catch { return null; }
+}
+
+function setCache(data) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch { }
+}
+
 async function loadTruckyData() {
+  const cached = getCache();
+  if (cached) {
+    renderTruckyData(cached);
+  }
+
   try {
     const response = await fetch(
-  "https://e.truckyapp.com/api/v1/company/44302/members",
-  { cache: "no-store" }
+      "https://e.truckyapp.com/api/v1/company/44302/members",
+      { cache: "no-store" }
     );
 
-    if (!response.ok) {
-      throw new Error("No se pudo leer la conexión local.");
-    }
+    if (!response.ok) throw new Error("Error HTTP");
 
     const trucky = await response.json();
 
-const members = trucky.data || [];
+    const members = trucky.data || [];
 
-const totalKm = members.reduce(
-  (sum, member) => sum + (member.total_driven_distance_km || 0),
-  0
-);
+    const totalKm = members.reduce(
+      (sum, member) => sum + (member.total_driven_distance_km || 0), 0
+    );
 
-const activeDrivers = members.filter(
-  (member) => member.last_job_days === 0
-).length;
+    const activeDrivers = members.filter(
+      (member) => member.last_job_days === 0
+    ).length;
 
-const drivers = members.filter(
-  member => member.total_driven_distance_km > 0
-).length;
+    const drivers = members.filter(
+      member => member.total_driven_distance_km > 0
+    ).length;
 
-const adaptedData = {
-  source: "trucky",
-  updatedAt: new Date().toISOString(),
-  stats: {
-  kilometers: Math.round(totalKm),
-    drivers: drivers,
-  active: activeDrivers
-},
-  ranking: members
-    .sort((a, b) => b.total_driven_distance_km - a.total_driven_distance_km)
-    .slice(0, 12)
-    .map(member => ({
-      name: member.name,
-      kilometers: member.total_driven_distance_km,
-      points: member.points,
-      lastJob:
-        member.last_job_days === 0
-          ? "Hoy"
-          : `Hace ${member.last_job_days} días`
-    })),
-  recentJobs: []
-};
+    const adaptedData = {
+      source: "trucky",
+      updatedAt: new Date().toISOString(),
+      stats: { kilometers: Math.round(totalKm), drivers, active: activeDrivers },
+      ranking: members
+        .sort((a, b) => b.total_driven_distance_km - a.total_driven_distance_km)
+        .slice(0, 3)
+        .map(member => ({
+          name: member.name,
+          kilometers: member.total_driven_distance_km,
+          points: member.points,
+          lastJob: member.last_job_days === 0 ? "Hoy" : `Hace ${member.last_job_days} días`
+        })),
+      recentJobs: []
+    };
 
-renderTruckyData(adaptedData);
+    setCache(adaptedData);
+    renderTruckyData(adaptedData);
   } catch (error) {
-    renderTruckyData(fallbackTruckyData);
+    if (!cached) renderTruckyData(fallbackTruckyData);
   }
 }
 
