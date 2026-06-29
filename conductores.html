@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conductores - TEPSA PSV</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+.conductores-hero {
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a0000 50%, #0f0f0f 100%);
+  padding: 140px 10% 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.conductores-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(255,45,45,.03) 0%, transparent 50%);
+  animation: heroGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(5%, 5%); }
+}
+
+.conductores-hero h1 {
+  font-size: 52px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  position: relative;
+  background: linear-gradient(135deg, #fff 0%, #ff2d2d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.conductores-hero p {
+  color: #999;
+  font-size: 18px;
+  position: relative;
+}
+
+.conductores-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 40px 10% 0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #1d1d1d 0%, #222 100%);
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  transition: .3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ff2d2d, transparent);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: #ff2d2d;
+  box-shadow: 0 8px 30px rgba(255,45,45,.1);
+}
+
+.stat-card .stat-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.stat-card .stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.stat-card .stat-label {
+  font-size: 13px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.conductores-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 30px 10% 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+  max-width: 400px;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 14px 20px 14px 48px;
+  background: #1d1d1d;
+  border: 1px solid #333;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  transition: .3s;
+  outline: none;
+}
+
+.search-wrapper input:focus {
+  border-color: #ff2d2d;
+  box-shadow: 0 0 0 3px rgba(255,45,45,.15);
+}
+
+.search-wrapper input::placeholder {
+  color: #666;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-btn {
+  padding: 10px 22px;
+  background: #1d1d1d;
+  border: 1px solid #333;
+  color: #aaa;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: .3s;
+  white-space: nowrap;
+}
+
+.filter-btn:hover {
+  border-color: #ff2d2d;
+  color: #fff;
+}
+
+.filter-btn.active {
+  background: #ff2d2d;
+  border-color: #ff2d2d;
+  color: #fff;
+}
+
+.status-filter {
+  display: flex;
+  gap: 8px;
+}
+
+.status-btn {
+  padding: 8px 18px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #888;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: .3s;
+}
+
+.status-btn:hover {
+  border-color: #555;
+  color: #fff;
+}
+
+.status-btn.active {
+  background: rgba(255,45,45,.15);
+  border-color: #ff2d2d;
+  color: #ff2d2d;
+}
+
+.drivers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 24px;
+  padding: 40px 10% 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.driver-card {
+  background: linear-gradient(145deg, #1a1a1a, #1f1f1f);
+  border: 1px solid #2a2a2a;
+  border-radius: 18px;
+  padding: 28px;
+  transition: .4s;
+  position: relative;
+  overflow: hidden;
+}
+
+.driver-card:hover {
+  transform: translateY(-6px);
+  border-color: #ff2d2d;
+  box-shadow: 0 12px 40px rgba(255,45,45,.12);
+}
+
+.driver-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at top right, rgba(255,45,45,.05), transparent 60%);
+  pointer-events: none;
+}
+
+.driver-card .card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.driver-card .driver-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.driver-card .driver-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 2px solid #333;
+  transition: .3s;
+  background: linear-gradient(135deg, #2a2a2a, #333);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ff2d2d;
+}
+
+.driver-card:hover .driver-avatar {
+  border-color: #ff2d2d;
+}
+
+.driver-card .driver-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.driver-card .driver-meta {
+  min-width: 0;
+}
+
+.driver-card .driver-meta h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.driver-card .driver-meta .driver-role {
+  font-size: 13px;
+  color: #ff2d2d;
+  font-weight: 500;
+}
+
+.driver-card .driver-meta .driver-country {
+  font-size: 12px;
+  color: #777;
+  margin-top: 1px;
+}
+
+.driver-card .driver-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.driver-card .driver-rank {
+  background: rgba(255,45,45,.1);
+  border: 1px solid rgba(255,45,45,.2);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ff2d2d;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  white-space: nowrap;
+}
+
+.driver-card .driver-level {
+  font-size: 12px;
+  color: #ffd93d;
+  font-weight: 600;
+  background: rgba(255,217,61,.1);
+  padding: 3px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,217,61,.15);
+}
+
+.driver-card .driver-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.driver-card .ds-item {
+  background: rgba(255,255,255,.03);
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: center;
+  transition: .2s;
+}
+
+.driver-card:hover .ds-item {
+  border-color: #333;
+}
+
+.driver-card .ds-item .ds-value {
+  font-size: 19px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.driver-card .ds-item .ds-label {
+  font-size: 10px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-top: 2px;
+}
+
+.driver-card .ds-item.km .ds-value { color: #4ecdc4; }
+.driver-card .ds-item.damage .ds-value { color: #ff6b6b; }
+.driver-card .ds-item.points .ds-value { color: #ffd93d; }
+.driver-card .ds-item.jobs .ds-value { color: #6c5ce7; }
+.driver-card .ds-item.cargo .ds-value { color: #a29bfe; }
+.driver-card .ds-item.revenue .ds-value { color: #00b894; }
+
+.driver-card .card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.driver-card .last-job {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #999;
+}
+
+.driver-card .last-job .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #555;
+  flex-shrink: 0;
+}
+
+.driver-card .last-job .status-dot.active {
+  background: #4ecdc4;
+  box-shadow: 0 0 8px rgba(78,205,196,.4);
+}
+
+.driver-card .last-job .status-dot.inactive {
+  background: #666;
+}
+
+.driver-card .last-job .status-dot.no-data {
+  background: #444;
+}
+
+.driver-card .driver-position {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+}
+
+.data-status {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  padding: 0 10%;
+  margin-top: -10px;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 80px 0;
+  color: #666;
+  grid-column: 1 / -1;
+}
+
+.loading-spinner .spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #2a2a2a;
+  border-top-color: #ff2d2d;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.no-results {
+  text-align: center;
+  padding: 80px 0;
+  color: #666;
+  grid-column: 1 / -1;
+}
+
+.no-results h3 {
+  font-size: 22px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .conductores-hero { padding: 120px 5% 40px; }
+  .conductores-hero h1 { font-size: 32px; }
+  .conductores-stats { padding: 30px 5% 0; grid-template-columns: 1fr 1fr; }
+  .conductores-controls { padding: 20px 5% 0; flex-direction: column; align-items: stretch; }
+  .search-wrapper { max-width: 100%; }
+  .filter-buttons { justify-content: center; }
+  .drivers-grid { padding: 30px 5% 60px; grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .conductores-stats { grid-template-columns: 1fr; }
+  .status-filter { justify-content: center; }
+  .driver-card .driver-stats { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+</head>
+<body>
+
+<header>
+    <nav class="navbar">
+        <div class="logo">TEPSA PSV</div>
+        <ul class="menu">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="index.html#nosotros">Nosotros</a></li>
+            <li><a href="index.html#flota">Flota</a></li>
+            <li><a href="index.html#ranking">Ranking</a></li>
+            <li><a href="conductores.html">Conductores</a></li>
+            <li><a href="index.html#reclutamiento">Reclutamiento</a></li>
+            <li><a href="index.html#galeria">Galería</a></li>
+            <li><a href="index.html#contacto">Contacto</a></li>
+            <li><a href="index.html#fundadores">Fundadores</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="conductores-hero">
+    <h1>Nuestros Conductores</h1>
+    <p>Conoce a todos los miembros de TEPSA PSV y su desempeño en carretera</p>
+</section>
+
+<div id="stats-bar" class="conductores-stats"></div>
+
+<div class="conductores-controls">
+    <div class="search-wrapper">
+        <span class="search-icon">&#x1F50D;</span>
+        <input type="text" id="searchInput" placeholder="Buscar conductor..." autocomplete="off">
+    </div>
+    <div class="filter-buttons">
+        <div class="status-filter">
+            <button class="status-btn active" data-status="all">Todos</button>
+            <button class="status-btn" data-status="active">Activos</button>
+            <button class="status-btn" data-status="inactive">Inactivos</button>
+        </div>
+        <button class="filter-btn active" data-sort="km">KM</button>
+        <button class="filter-btn" data-sort="damage">Daño</button>
+        <button class="filter-btn" data-sort="points">Puntos</button>
+        <button class="filter-btn" data-sort="name">Nombre</button>
+    </div>
+</div>
+
+<p class="data-status" id="data-status">Cargando datos...</p>
+
+<div id="drivers-grid" class="drivers-grid">
+    <div class="loading-spinner" id="loading-spinner">
+        <div class="spinner"></div>
+        <p>Cargando conductores...</p>
+    </div>
+</div>
+
+<footer>
+    <h3>TEPSA PSV</h3>
+    <p>&copy; 2026 Todos los derechos reservados</p>
+</footer>
+
+<script>
+const numberFormat = new Intl.NumberFormat("es-PE", { maximumFractionDigits: 0 });
+const currencyFormat = new Intl.NumberFormat("es-PE", { maximumFractionDigits: 0 });
+let allDrivers = [];
+let currentSort = "km";
+let currentStatus = "all";
+let searchTerm = "";
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function formatNumber(value) {
+    return numberFormat.format(Number(value) || 0);
+}
+
+function getSortFn(sort) {
+    switch (sort) {
+        case "damage": return (a, b) => (a.damage || 0) - (b.damage || 0) || (b.kilometers || 0) - (a.kilometers || 0);
+        case "points": return (a, b) => (b.points || 0) - (a.points || 0) || (b.kilometers || 0) - (a.kilometers || 0);
+        case "name": return (a, b) => a.name.localeCompare(b.name);
+        default: return (a, b) => (b.kilometers || 0) - (a.kilometers || 0) || (a.damage || 0) - (b.damage || 0);
+    }
+}
+
+function getStatus(driver) {
+    const days = Number(driver.lastJobDays);
+    if (days <= 7) return "active";
+    return "inactive";
+}
+
+function getStatusLabel(driver) {
+    const days = Number(driver.lastJobDays);
+    if (days === 0) return "Conectado ahora";
+    if (days <= 7) return `Activo (${driver.lastJob})`;
+    if (days === 9999) return "Sin actividad";
+    return `Inactivo (${driver.lastJob})`;
+}
+
+function getStatusDotClass(driver) {
+    const days = Number(driver.lastJobDays);
+    if (days <= 7) return "active";
+    if (days === 9999) return "no-data";
+    return "inactive";
+}
+
+function getInitials(name) {
+    const clean = String(name).replace(/\[.*?\]/g, '').trim();
+    return clean.charAt(0).toUpperCase() || '?';
+}
+
+function renderStats(stats = {}) {
+    const bar = document.getElementById("stats-bar");
+    if (!bar) return;
+    bar.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-icon">&#x1F3CE;</div>
+            <div class="stat-value">${formatNumber(stats.kilometers)}</div>
+            <div class="stat-label">Kilómetros Totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">&#x1F465;</div>
+            <div class="stat-value">${formatNumber(stats.drivers)}</div>
+            <div class="stat-label">Miembros</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">&#x26A1;</div>
+            <div class="stat-value">${formatNumber(stats.active)}</div>
+            <div class="stat-label">Activos (7 días)</div>
+        </div>
+    `;
+}
+
+function renderDrivers() {
+    const grid = document.getElementById("drivers-grid");
+    const statusEl = document.getElementById("data-status");
+    if (!grid) return;
+
+    let filtered = allDrivers;
+
+    if (currentStatus !== "all") {
+        filtered = filtered.filter(d => getStatus(d) === currentStatus);
+    }
+
+    if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        filtered = filtered.filter(d =>
+            d.name.toLowerCase().includes(term) ||
+            d.role.toLowerCase().includes(term) ||
+            d.rank.toLowerCase().includes(term)
+        );
+    }
+
+    const sorted = [...filtered].sort(getSortFn(currentSort));
+
+    if (!sorted.length) {
+        grid.innerHTML = `
+            <div class="no-results">
+                <h3>Sin resultados</h3>
+                <p>No se encontraron conductores con los filtros actuales.</p>
+            </div>
+        `;
+        if (statusEl) statusEl.textContent = "0 conductores encontrados";
+        return;
+    }
+
+    grid.innerHTML = sorted.map((driver, index) => {
+        const pos = index + 1;
+        const dotClass = getStatusDotClass(driver);
+        const hasAvatar = driver.avatar && driver.avatar.startsWith("http");
+        const avatarImg = hasAvatar
+            ? `<img src="${escapeHtml(driver.avatar)}" alt="${escapeHtml(driver.name)}" loading="lazy" onerror="this.parentElement.innerHTML=this.parentElement.getAttribute('data-fallback')">`
+            : '';
+        const avatarContent = hasAvatar
+            ? avatarImg
+            : `${getInitials(driver.name)}`;
+        const showRevenue = driver.revenue > 0;
+
+        return `
+        <div class="driver-card">
+            <div class="card-top">
+                <div class="driver-info">
+                    <div class="driver-avatar" data-fallback="${escapeHtml(getInitials(driver.name))}">${avatarContent}</div>
+                    <div class="driver-meta">
+                        <h3>${escapeHtml(driver.name)}</h3>
+                        ${driver.role ? `<span class="driver-role">${escapeHtml(driver.role)}</span>` : ''}
+                        ${driver.country ? `<span class="driver-country">${escapeHtml(driver.country)}</span>` : ''}
+                    </div>
+                </div>
+                <div class="driver-badges">
+                    ${driver.rank ? `<span class="driver-rank">${escapeHtml(driver.rank)}</span>` : ''}
+                    ${driver.level > 0 ? `<span class="driver-level">Nv. ${driver.level}</span>` : ''}
+                </div>
+            </div>
+            <div class="driver-stats">
+                <div class="ds-item km">
+                    <div class="ds-value">${formatNumber(driver.kilometers)}</div>
+                    <div class="ds-label">KM</div>
+                </div>
+                <div class="ds-item damage">
+                    <div class="ds-value">${formatNumber(driver.damage)}</div>
+                    <div class="ds-label">Daño Total</div>
+                </div>
+                <div class="ds-item points">
+                    <div class="ds-value">${formatNumber(driver.points)}</div>
+                    <div class="ds-label">Puntos</div>
+                </div>
+                <div class="ds-item jobs">
+                    <div class="ds-value">${formatNumber(driver.totalJobs)}</div>
+                    <div class="ds-label">Viajes</div>
+                </div>
+                ${driver.cargoMass > 0 ? `
+                <div class="ds-item cargo">
+                    <div class="ds-value">${formatNumber(driver.cargoMass)}t</div>
+                    <div class="ds-label">Carga</div>
+                </div>` : ''}
+                ${showRevenue ? `
+                <div class="ds-item revenue">
+                    <div class="ds-value">$${formatNumber(driver.revenue)}</div>
+                    <div class="ds-label">Ganancias</div>
+                </div>` : ''}
+            </div>
+            <div class="card-bottom">
+                <div class="last-job">
+                    <span class="status-dot ${dotClass}"></span>
+                    <span>${escapeHtml(getStatusLabel(driver))}</span>
+                </div>
+                <div class="driver-position">#${pos}</div>
+            </div>
+        </div>`;
+    }).join("");
+
+    const sortLabel = { km: "kilometraje", damage: "menor daño", points: "puntos", name: "nombre" };
+    if (statusEl) {
+        const statusText = currentStatus === "all" ? "Todos" : currentStatus === "active" ? "Activos" : "Inactivos";
+        statusEl.textContent = `${sorted.length} conductor(es) - Filtro: ${statusText} - Orden: ${sortLabel[currentSort] || "km"}`;
+    }
+}
+
+function formatLastJob(days) {
+    if (days == null || days === "") return "Sin registro";
+    const n = Number(days);
+    if (!Number.isFinite(n)) return "Sin registro";
+    if (n === 0) return "hoy";
+    if (n === 1) return "ayer";
+    return `hace ${n} días`;
+}
+
+function transformTruckyMember(m) {
+    const lastJobDays = m.last_job_days != null && Number.isFinite(Number(m.last_job_days))
+        ? Number(m.last_job_days) : 9999;
+    return {
+        name: m.name || m.username || "Sin nombre",
+        kilometers: Math.round(m.total_driven_distance_km || 0),
+        damage: 0,
+        totalJobs: 0,
+        points: Math.round(m.points || 0),
+        lastJob: formatLastJob(m.last_job_days),
+        lastJobDays,
+        rank: m.rank?.name || "",
+        role: m.role?.name || "",
+        avatar: m.avatar_url || "",
+        level: m.level || 0,
+        country: m.country || "",
+        cargoMass: Math.round(m.total_cargo_mass_t || 0),
+        revenue: Math.round(m.total_revenue || 0),
+    };
+}
+
+async function loadData() {
+    const statusEl = document.getElementById("data-status");
+
+    async function tryFetch(url) {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+    }
+
+    // Try 1: Node server API (enriched data with damage & jobs)
+    for (const url of ["/api/trucky/conductores", "http://127.0.0.1:3001/api/trucky/conductores"]) {
+        try {
+            const data = await tryFetch(url);
+            allDrivers = data.ranking || [];
+            renderStats(data.stats);
+            renderDrivers();
+            if (statusEl) {
+                const updated = data.updatedAt ? new Date(data.updatedAt).toLocaleString("es-PE") : "";
+                statusEl.textContent = `Datos de Trucky Hub · ${allDrivers.length} miembros · Actualizado: ${updated}`;
+            }
+            return;
+        } catch { continue; }
+    }
+
+    // Try 2: Direct Trucky API (works from any origin, no Node server needed)
+    try {
+        const raw = await tryFetch("https://e.truckyapp.com/api/v1/company/44302/members");
+        const members = raw.data || [];
+        allDrivers = members.map(transformTruckyMember).sort((a, b) => b.kilometers - a.kilometers);
+        const totalKm = allDrivers.reduce((s, d) => s + d.kilometers, 0);
+        const active = allDrivers.filter(d => d.lastJobDays <= 7).length;
+        renderStats({ kilometers: totalKm, drivers: allDrivers.length, active });
+        renderDrivers();
+        if (statusEl) statusEl.textContent = `Datos de Trucky Hub · ${allDrivers.length} miembros · Conexión directa`;
+        return;
+    } catch { }
+
+    // Fallback: demo data with all 14 members
+    if (statusEl) statusEl.textContent = "Error al conectar. Mostrando datos de ejemplo.";
+    allDrivers = [
+        { name: "[TPS]SABROSAURIO", kilometers: 43400, damage: 3263, totalJobs: 78, points: 63897, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Administrador", avatar: "", level: 8, country: "PE", cargoMass: 663, revenue: 34542506 },
+        { name: "[TPS] Cristofer Jonathan QM", kilometers: 35229, damage: 3289, totalJobs: 51, points: 36230, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 6, country: "", cargoMass: 350, revenue: 28848413 },
+        { name: "[TPS] Lexus", kilometers: 27203, damage: 16448, totalJobs: 27, points: 30305, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 155, revenue: 13398366 },
+        { name: "[TPS] Joker", kilometers: 26369, damage: 3355, totalJobs: 64, points: 41526, lastJob: "hace 3 días", lastJobDays: 3, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 388, revenue: 27920645 },
+        { name: "[ TPS ] KEVIN", kilometers: 22888, damage: 1928, totalJobs: 32, points: 24089, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Conductor", avatar: "", level: 5, country: "", cargoMass: 212, revenue: 19590207 },
+        { name: "[TPS]KIRITO", kilometers: 20512, damage: 416, totalJobs: 33, points: 23113, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 5, country: "", cargoMass: 238, revenue: 15645932 },
+        { name: "[TPS] Johan-19", kilometers: 16337, damage: 12929, totalJobs: 31, points: 19138, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 170, revenue: 14940683 },
+        { name: "[TPS] Angel", kilometers: 15896, damage: 3610, totalJobs: 22, points: 18097, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 127, revenue: 13414766 },
+        { name: "[TPS]KANIEL_OUT", kilometers: 9452, damage: 569, totalJobs: 15, points: 11424, lastJob: "hace 19 días", lastJobDays: 19, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "PE", cargoMass: 101, revenue: 8326510 },
+        { name: "[TPS]RENZITO", kilometers: 6362, damage: 2124, totalJobs: 15, points: 7963, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 64, revenue: 5282808 },
+        { name: "[TPS]EMPERADOR", kilometers: 3719, damage: 1625, totalJobs: 10, points: 4119, lastJob: "hace 16 días", lastJobDays: 16, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 34, revenue: 3037086 },
+        { name: "banco bcp", kilometers: 2606, damage: 1146, totalJobs: 9, points: 4567, lastJob: "hace 35 días", lastJobDays: 35, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 79, revenue: 2052853 },
+        { name: "[TPS] juan david", kilometers: 1850, damage: 308, totalJobs: 5, points: 7981, lastJob: "hoy", lastJobDays: 0, rank: "novato", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 32, revenue: 781421 },
+        { name: "admpsv", kilometers: 0, damage: 0, totalJobs: 0, points: 1, lastJob: "Sin registro", lastJobDays: 9999, rank: "", role: "Owner", avatar: "", level: 0, country: "", cargoMass: 0, revenue: 0 },
+    ];
+    const totalKm = allDrivers.reduce((s, d) => s + d.kilometers, 0);
+    const active = allDrivers.filter(d => d.lastJobDays <= 7).length;
+    renderStats({ kilometers: totalKm, drivers: allDrivers.length, active });
+    renderDrivers();
+}
+
+document.getElementById("searchInput")?.addEventListener("input", (e) => {
+    searchTerm = e.target.value.trim();
+    renderDrivers();
+});
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentSort = btn.dataset.sort;
+        renderDrivers();
+    });
+});
+
+document.querySelectorAll(".status-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".status-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentStatus = btn.dataset.status;
+        renderDrivers();
+    });
+});
+
+loadData();
+setInterval(loadData, 1800000);
+</script>
+
+</body>
+</html>
