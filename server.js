@@ -5,6 +5,9 @@ const path = require("path");
 const publicDir = __dirname;
 loadEnvFile();
 
+const COMPANY_ID = "44302";
+const MEMBERS_URL = `https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/members`;
+
 const port = Number(process.env.PORT) || 3000;
 
 const CACHE_TTL = 5 * 60 * 1000;
@@ -146,17 +149,16 @@ server.listen(port, "127.0.0.1", () => {
 });
 
 async function warmUpCache() {
-  if (!process.env.TRUCKY_API_URL) return;
   try {
     console.log(" Precargando datos de Trucky...");
-    const companyId = process.env.TRUCKY_API_URL.match(/\/company\/(\d+)/)?.[1];
-    if (!companyId) return;
+    const membersUrl = process.env.TRUCKY_API_URL || MEMBERS_URL;
+    const companyId = process.env.TRUCKY_COMPANY_ID || COMPANY_ID;
 
     const headers = { ...TRUCKY_HEADERS };
     if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
 
     const [membersRaw, jobsRaw] = await Promise.all([
-      fetchJSON(process.env.TRUCKY_API_URL, headers),
+      fetchJSON(membersUrl, headers),
       fetchAllPages(`https://e.truckyapp.com/api/v1/company/${companyId}/jobs`, headers),
     ]);
 
@@ -220,11 +222,6 @@ async function warmUpCache() {
 }
 
 async function handleTruckyRequest(response) {
-  if (!process.env.TRUCKY_API_URL) {
-    sendJson(response, demoData);
-    return;
-  }
-
   const cacheKey = "trucky:members";
   const cached = getCache(cacheKey);
   if (cached) {
@@ -233,13 +230,11 @@ async function handleTruckyRequest(response) {
   }
 
   try {
+    const membersUrl = process.env.TRUCKY_API_URL || MEMBERS_URL;
     const headers = { ...TRUCKY_HEADERS };
+    if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
 
-    if (process.env.TRUCKY_API_TOKEN) {
-      headers.Authorization = `Bearer ${process.env.TRUCKY_API_TOKEN}`;
-    }
-
-    const rawData = await fetchJSON(process.env.TRUCKY_API_URL, headers);
+    const rawData = await fetchJSON(membersUrl, headers);
     const result = normalizeTruckyData(rawData);
     setCache(cacheKey, result);
     sendJson(response, result);
@@ -249,24 +244,11 @@ async function handleTruckyRequest(response) {
       sendJson(response, cached);
       return;
     }
-    sendJson(
-      response,
-      {
-        ...demoData,
-        source: "demo",
-        error: "No se pudo conectar con Trucky Hub. Revisa TRUCKY_API_URL.",
-      },
-      502,
-    );
+    sendJson(response, { ...demoData, source: "demo", error: error.message }, 502);
   }
 }
 
 async function handleTruckyJobsRequest(response) {
-  if (!process.env.TRUCKY_API_URL) {
-    sendJson(response, { source: "demo", jobs: [] });
-    return;
-  }
-
   const cacheKey = "trucky:jobs";
   const cached = getCache(cacheKey);
   if (cached) {
@@ -275,14 +257,10 @@ async function handleTruckyJobsRequest(response) {
   }
 
   try {
-    const companyId = process.env.TRUCKY_API_URL.match(/\/company\/(\d+)/)?.[1];
-    if (!companyId) throw new Error("No se pudo extraer company ID");
-
+    const companyId = process.env.TRUCKY_COMPANY_ID || COMPANY_ID;
     const jobsUrl = `https://e.truckyapp.com/api/v1/company/${companyId}/jobs`;
     const headers = { ...TRUCKY_HEADERS };
-    if (process.env.TRUCKY_API_TOKEN) {
-      headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
-    }
+    if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
 
     const rawJobs = await fetchAllPages(jobsUrl, headers);
     const jobs = rawJobs
@@ -312,15 +290,11 @@ async function handleConductoresRanking(response) {
   }
 
   try {
-    const membersUrl = process.env.TRUCKY_API_URL || "https://e.truckyapp.com/api/v1/company/44302/members";
-    const companyId = membersUrl.match(/\/company\/(\d+)/)?.[1];
-    if (!companyId) throw new Error("No se pudo extraer company ID");
-
+    const membersUrl = process.env.TRUCKY_API_URL || MEMBERS_URL;
+    const companyId = process.env.TRUCKY_COMPANY_ID || COMPANY_ID;
     const jobsUrl = `https://e.truckyapp.com/api/v1/company/${companyId}/jobs`;
     const headers = { ...TRUCKY_HEADERS };
-    if (process.env.TRUCKY_API_TOKEN) {
-      headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
-    }
+    if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
 
     const [membersRaw, jobsRaw] = await Promise.all([
       fetchJSON(membersUrl, headers),

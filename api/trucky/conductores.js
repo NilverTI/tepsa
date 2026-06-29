@@ -5,11 +5,12 @@ const TRUCKY_HEADERS = {
   Origin: "https://hub.truckyapp.com",
 };
 
+const COMPANY_ID = process.env.TRUCKY_COMPANY_ID || "44302";
+const MEMBERS_URL = process.env.TRUCKY_API_URL || `https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/members`;
+
 async function fetchJSON(url) {
   const headers = { ...TRUCKY_HEADERS };
-  if (process.env.TRUCKY_API_TOKEN) {
-    headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
-  }
+  if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
   const res = await fetch(url, { headers });
   if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
   return res.json();
@@ -22,9 +23,7 @@ async function fetchAllPages(baseUrl) {
   if (totalPages <= 1) return items;
   const sep = baseUrl.includes("?") ? "&" : "?";
   const pages = await Promise.all(
-    Array.from({ length: totalPages - 1 }, (_, i) =>
-      fetchJSON(`${baseUrl}${sep}page=${i + 2}`)
-    )
+    Array.from({ length: totalPages - 1 }, (_, i) => fetchJSON(`${baseUrl}${sep}page=${i + 2}`))
   );
   for (const p of pages) {
     const pi = p.data || p.jobs || [];
@@ -76,13 +75,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const COMPANY_ID = process.env.TRUCKY_COMPANY_ID || "44302";
-    const membersUrl = process.env.TRUCKY_API_URL || `https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/members`;
-    const jobsUrl = `https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/jobs`;
-
     const [membersRaw, jobsRaw] = await Promise.all([
-      fetchJSON(membersUrl),
-      fetchAllPages(jobsUrl),
+      fetchJSON(MEMBERS_URL),
+      fetchAllPages(`https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/jobs`),
     ]);
 
     const members = Array.isArray(membersRaw?.data) ? membersRaw.data : [];
@@ -118,7 +113,7 @@ export default async function handler(req, res) {
       };
     }).sort((a, b) => (b.kilometers || 0) - (a.kilometers || 0) || (a.damage || 0) - (b.damage || 0));
 
-    const result = {
+    sendJson(res, {
       source: "trucky",
       updatedAt: new Date().toISOString(),
       ranking,
@@ -127,15 +122,8 @@ export default async function handler(req, res) {
         drivers: ranking.length,
         active: ranking.filter(d => d.lastJobDays <= 7).length,
       },
-    };
-
-    sendJson(res, result);
+    });
   } catch (error) {
-    sendJson(res, {
-      source: "error",
-      ranking: [],
-      stats: { kilometers: 0, drivers: 0, active: 0 },
-      error: error.message,
-    }, 502);
+    sendJson(res, { source: "error", ranking: [], stats: { kilometers: 0, drivers: 0, active: 0 }, error: error.message }, 502);
   }
 }
