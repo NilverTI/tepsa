@@ -48,6 +48,8 @@ transition:.3s;
 color:#ff2d2d;
 }
 
+.hamburger{ display:none; }
+
 .hero{
 height:100vh;
 background:url("img/portada.png") center center/cover no-repeat;
@@ -537,58 +539,7 @@ color:#ff2d2d;
 margin-bottom:10px;
 }
 
-@media(max-width:768px){
 
-.hero-content h1{
-font-size:50px;
-}
-
-.hero-content p{
-font-size:18px;
-}
-
-.menu{
-display:none;
-}
-
-section{
-padding:80px 5%;
-}
-
-.ranking-podium{
-flex-direction:column;
-align-items:center;
-gap:14px;
-}
-
-.podium-item{
-max-width:320px;
-width:100%;
-}
-
-.podium-1{
-transform:none;
-order:0;
-}
-
-.podium-2,.podium-3{
-order:0;
-}
-
-.podium-1:hover{
-transform:translateY(-6px);
-}
-
-.card-link{
-text-decoration:none;
-color:inherit;
-display:block;
-}
-.convocatoria-link{
-    text-decoration:none;
-    color:#ffffff;
-}
-}
 #conductores{
     text-align:center;
     padding:80px 10%;
@@ -717,4 +668,118 @@ display:block;
 .corona{
     font-size:40px;
     margin-bottom:10px;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media(max-width:768px){
+  .navbar{ padding:15px 5%; }
+  .menu{
+    display:none;
+    position:fixed;
+    top:70px;
+    left:0;
+    width:100%;
+    background:rgba(0,0,0,.95);
+    backdrop-filter:blur(10px);
+    flex-direction:column;
+    gap:0;
+    padding:10px 0;
+    border-bottom:1px solid #1a1a1a;
+  }
+  .menu.show{ display:flex; }
+  .menu a{ display:block; padding:14px 5%; border-bottom:1px solid rgba(255,255,255,.05); }
+  .menu li:last-child a{ border-bottom:none; }
+
+  .hamburger{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    cursor:pointer;
+    background:none;
+    border:none;
+    padding:5px;
+  }
+  .hamburger span{
+    display:block;
+    width:24px;
+    height:2px;
+    background:#fff;
+    border-radius:2px;
+    transition:.3s;
+  }
+
+  .hero-content h1{ font-size:50px; }
+  .hero-content p{ font-size:18px; }
+
+  .stats{ padding:60px 5%; gap:15px; }
+  .stat-box{ padding:20px; }
+  .stat-box h2{ font-size:28px; }
+
+  section{ padding:60px 5%; }
+  section h2{ font-size:28px; margin-bottom:20px; }
+  #nosotros p{ font-size:15px; }
+
+  .cards{ gap:16px; grid-template-columns:1fr; }
+  .card img{ height:200px; }
+  .card h3{ padding:14px; font-size:16px; }
+
+  .ranking-podium{
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+  .podium-item{ max-width:320px; width:100%; }
+  .podium-1{ transform:none; order:0; padding:22px 14px 16px; }
+  .podium-2,.podium-3{ order:0; }
+  .podium-1:hover{ transform:translateY(-6px); }
+  .podium-avatar-wrap{ width:50px; height:50px; }
+  .podium-1 .podium-avatar-wrap{ width:60px; height:60px; }
+  .podium-name{ font-size:12px; }
+  .podium-1 .podium-name{ font-size:13px; }
+
+  .jobs-grid{ grid-template-columns:1fr; }
+  .job-card{ padding:18px; }
+  .job-card h3{ font-size:17px; }
+
+  .reclutamiento-box{ padding:25px; }
+  form input, form textarea{ padding:12px; font-size:14px; }
+
+  .galeria{ grid-template-columns:1fr 1fr; gap:12px; }
+  .galeria img{ height:180px; }
+
+  .contact-box{ font-size:16px; }
+
+  footer{ padding:30px 5%; margin-top:30px; }
+  footer h3{ font-size:18px; }
+
+  #fundadores{ padding:50px 16px; }
+  .fundadores-hero{ height:280px; margin-bottom:40px; border-radius:16px; }
+  .fundadores-overlay h2{ font-size:2.2rem; }
+  .fundadores-overlay p{ font-size:1rem; }
+  .fundadores-grid{ gap:20px; }
+  .fundador-card{ width:100%; max-width:320px; padding:20px; }
+  .fundador-card img{ width:140px; height:140px; }
+  .principal{ transform:none; }
+
+  #conductores{ padding:50px 5%; }
+  .conductor-card img{ height:200px; }
+
+  .card-link{ text-decoration:none; color:inherit; display:block; }
+  .convocatoria-link{ text-decoration:none; color:#fff; }
+}
+
+@media(max-width:480px){
+  .hero-content h1{ font-size:36px; }
+  .hero-content p{ font-size:15px; margin-bottom:25px; }
+  .btn, .btn2{ padding:12px 24px; font-size:13px; }
+  .stats{ grid-template-columns:1fr; }
+  .galeria{ grid-template-columns:1fr; }
+  .galeria img{ height:220px; }
+  .fundadores-hero{ height:220px; }
+  .fundadores-overlay h2{ font-size:1.6rem; }
+  .podium-item{ max-width:100%; }
+  .podium-1 .podium-avatar-wrap{ width:52px; height:52px; }
+  .podium-info-value{ font-size:11px; }
+  .podium-1 .podium-info-value{ font-size:12px; }
 }

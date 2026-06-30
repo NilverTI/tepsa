@@ -7,6 +7,137 @@
 
 <link rel="stylesheet" href="style.css">
 
+<style>
+.nosotros-wrapper {
+  display: flex;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.nosotros-text { max-width: 800px; }
+.nosotros-text h2 {
+  font-size: 42px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+.nosotros-text p {
+  max-width: 100%;
+  line-height: 1.8;
+  text-align: center;
+  font-size: 18px;
+  color: #ccc;
+}
+
+@media (max-width: 768px) {
+  .nosotros-text h2 { font-size: 28px; }
+  .nosotros-text p { font-size: 15px; }
+}
+
+.company-brand {
+  position: relative;
+  overflow: hidden;
+  padding: 60px 10%;
+  background: #0a0a0a;
+  border-top: 1px solid #1a1a1a;
+  border-bottom: 1px solid #1a1a1a;
+}
+.company-brand-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 600px 300px at 20% 50%, rgba(255,45,45,.08), transparent),
+    radial-gradient(ellipse 400px 400px at 80% 50%, rgba(255,217,61,.04), transparent);
+  pointer-events: none;
+}
+.company-brand-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.company-brand-logo {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #ff2d2d44;
+  box-shadow: 0 0 40px rgba(255,45,45,.15), 0 0 80px rgba(255,45,45,.05);
+  transition: .4s;
+}
+.company-brand-logo:hover {
+  border-color: #ff2d2d;
+  box-shadow: 0 0 60px rgba(255,45,45,.25), 0 0 120px rgba(255,45,45,.08);
+  transform: scale(1.03);
+}
+.company-brand-logo img { width: 100%; height: 100%; object-fit: cover; }
+.company-brand-info { text-align: center; }
+.company-brand-info h2 {
+  font-size: 44px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+.company-brand-info h2 span {
+  background: linear-gradient(135deg, #ff2d2d, #ff6b35);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.company-brand-info p { color: #666; font-size: 14px; letter-spacing: 1px; font-weight: 400; }
+
+.brand-ranking { margin-top: 6px; }
+.brand-ranking-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+.brand-rank-num {
+  font-size: 52px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffd93d, #ff6b35);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  text-shadow: none;
+  filter: drop-shadow(0 0 20px rgba(255,107,53,.3));
+}
+.brand-rank-label {
+  font-size: 13px;
+  color: #888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.brand-ranking-sub {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  color: #555;
+}
+.brand-ranking-sub span { white-space: nowrap; }
+.brand-ranking-sub .brs-divider { color: #333; }
+.brand-ranking-sub .brs-stat { color: #999; font-weight: 600; }
+
+@media (max-width: 600px) {
+  .company-brand { padding: 40px 5%; }
+  .company-brand-content { flex-direction: column; gap: 20px; }
+  .company-brand-logo { width: 90px; height: 90px; }
+  .company-brand-info h2 { font-size: 30px; }
+  .brand-rank-num { font-size: 38px; }
+  .brand-rank-label { font-size: 11px; }
+  .brand-ranking-sub { font-size: 10px; gap: 10px; flex-wrap: wrap; justify-content: center; }
+}
+</style>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -16,8 +147,7 @@
 <header>
     <nav class="navbar">
         <div class="logo">TEPSA PSV</div>
-
-        <ul class="menu">
+        <ul class="menu" id="mainMenu">
             <li><a href="#inicio">Inicio</a></li>
             <li><a href="#nosotros">Nosotros</a></li>
             <li><a href="#flota">Flota</a></li>
@@ -28,6 +158,9 @@
             <li><a href="#contacto">Contacto</a></li>
             <li><a href="#fundadores">Fundadores</a></li>
         </ul>
+        <button class="hamburger" id="hamburger" aria-label="Menú">
+            <span></span><span></span><span></span>
+        </button>
     </nav>          
 </header>
 
@@ -61,6 +194,31 @@
 
 </section>
 
+<div class="company-brand">
+    <div class="company-brand-bg"></div>
+    <div class="company-brand-content">
+        <div class="company-brand-logo">
+            <img src="https://cdn.truckyapp.com/public/companies/44302/irXFJdDFa6kNSXmKZRXH.jfif" alt="TEPSA PSV">
+        </div>
+        <div class="company-brand-info">
+            <h2>TEPSA <span>PSV</span></h2>
+            <div class="brand-ranking" id="brand-ranking">
+                <div class="brand-ranking-main">
+                    <span class="brand-rank-num" id="brand-rank-num">#4</span>
+                    <span class="brand-rank-label">en Ranking Mensual</span>
+                </div>
+                <div class="brand-ranking-sub" id="brand-ranking-sub">
+                    <span>PeruServer · Ranking Mensual</span>
+                    <span class="brs-divider">|</span>
+                    <span class="brs-stat">156.7k KM</span>
+                    <span class="brs-divider">|</span>
+                    <span class="brs-stat">210 Viajes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <section class="stats">
 
     <div class="stat-box">
@@ -86,17 +244,17 @@
 </section>
 
 <section id="nosotros">
-
-    <h2>Quiénes Somos</h2>
-
-    <p>
-        TEPSA PSV es una empresa virtual peruana dedicada al transporte
-        de pasajeros dentro de Euro Truck Simulator 2.
-
-        Nuestro objetivo es brindar una experiencia profesional,
-        organizada y divertida para todos nuestros conductores.
-    </p>
-
+    <div class="nosotros-wrapper">
+        <div class="nosotros-text">
+            <h2>Quiénes Somos</h2>
+            <p>
+                TEPSA PSV es una empresa virtual peruana dedicada al transporte
+                de pasajeros dentro de Euro Truck Simulator 2.
+                Nuestro objetivo es brindar una experiencia profesional,
+                organizada y divertida para todos nuestros conductores.
+            </p>
+        </div>
+    </div>
 </section>
 
 <section id="flota">
@@ -285,6 +443,29 @@
 </footer>
 
 <script src="script.js"></script>
+
+<script>
+document.getElementById("hamburger")?.addEventListener("click", () => {
+  document.getElementById("mainMenu")?.classList.toggle("show");
+});
+async function loadPSRanking() {
+  const rankNum = document.getElementById("brand-rank-num");
+  const rankSub = document.getElementById("brand-ranking-sub");
+  if (!rankNum || !rankSub) return;
+  const setData = (pos, km, jobs) => {
+    rankNum.textContent = "#" + pos;
+    rankSub.innerHTML = '<span>PeruServer · Ranking Mensual</span><span class="brs-divider">|</span><span class="brs-stat">' + km + ' KM</span><span class="brs-divider">|</span><span class="brs-stat">' + jobs + ' Viajes</span>';
+  };
+  const fallback = (url) => fetch(url).then(r => r.json()).then(d => {
+    if (d.ok && d.item) { setData(d.position, (d.item.total_distance / 1000).toFixed(1) + "k", d.item.total_jobs); return true; }
+    if (d.items) { const items = d.items; const i = items.findIndex(x => x.id === 44302); if (i >= 0) { setData(i+1, (items[i].total_distance / 1000).toFixed(1) + "k", items[i].total_jobs); return true; } }
+    return false;
+  });
+  try { if (await fallback("/api/ps-ranking")) return; } catch {}
+  try { if (await fallback("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100")) return; } catch {}
+}
+loadPSRanking();
+</script>
 
 </body>
 </html>

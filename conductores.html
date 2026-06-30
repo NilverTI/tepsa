@@ -279,7 +279,7 @@
 <header>
     <nav class="navbar">
         <div class="logo">TEPSA PSV</div>
-        <ul class="menu">
+        <ul class="menu" id="mainMenu">
             <li><a href="index.html">Inicio</a></li>
             <li><a href="index.html#nosotros">Nosotros</a></li>
             <li><a href="index.html#flota">Flota</a></li>
@@ -290,6 +290,9 @@
             <li><a href="index.html#contacto">Contacto</a></li>
             <li><a href="index.html#fundadores">Fundadores</a></li>
         </ul>
+        <button class="hamburger" id="hamburger" aria-label="Menú">
+            <span></span><span></span><span></span>
+        </button>
     </nav>
 </header>
 
@@ -627,6 +630,9 @@ document.querySelectorAll(".status-btn").forEach(btn => {
 
 loadData();
 setInterval(loadData, 1800000);
+document.getElementById("hamburger")?.addEventListener("click", () => {
+  document.getElementById("mainMenu")?.classList.toggle("show");
+});
 </script>
 
 </body>
