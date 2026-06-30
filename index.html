@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TEPSA PSV</title>
+<meta property="og:title" content="TEPSA PSV">
+<meta property="og:description" content="Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2">
+<meta property="og:image" content="https://tepsa.vercel.app/img/galeria3.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="stylesheet" href="style.css">
 
@@ -33,108 +40,75 @@
   .nosotros-text p { font-size: 15px; }
 }
 
-.company-brand {
-  position: relative;
-  overflow: hidden;
-  padding: 60px 10%;
-  background: #0a0a0a;
-  border-top: 1px solid #1a1a1a;
-  border-bottom: 1px solid #1a1a1a;
-}
-.company-brand-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 600px 300px at 20% 50%, rgba(255,45,45,.08), transparent),
-    radial-gradient(ellipse 400px 400px at 80% 50%, rgba(255,217,61,.04), transparent);
-  pointer-events: none;
-}
-.company-brand-content {
-  position: relative;
-  display: flex;
+/* Hero rank badge — compact, imposing */
+.hero-rank-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 40px;
-  max-width: 1000px;
-  margin: 0 auto;
+  gap: 14px;
+  padding: 6px 18px;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.06);
+  border-left: 3px solid #ff2d2d;
+  border-radius: 6px;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 30px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
 }
-.company-brand-logo {
-  flex-shrink: 0;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid #ff2d2d44;
-  box-shadow: 0 0 40px rgba(255,45,45,.15), 0 0 80px rgba(255,45,45,.05);
-  transition: .4s;
-}
-.company-brand-logo:hover {
-  border-color: #ff2d2d;
-  box-shadow: 0 0 60px rgba(255,45,45,.25), 0 0 120px rgba(255,45,45,.08);
-  transform: scale(1.03);
-}
-.company-brand-logo img { width: 100%; height: 100%; object-fit: cover; }
-.company-brand-info { text-align: center; }
-.company-brand-info h2 {
-  font-size: 44px;
-  font-weight: 800;
-  margin-bottom: 8px;
-  letter-spacing: 2px;
-}
-.company-brand-info h2 span {
-  background: linear-gradient(135deg, #ff2d2d, #ff6b35);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.company-brand-info p { color: #666; font-size: 14px; letter-spacing: 1px; font-weight: 400; }
-
-.brand-ranking { margin-top: 6px; }
-.brand-ranking-main {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 2px;
-}
-.brand-rank-num {
-  font-size: 52px;
+.hrb-rank {
+  font-size: 30px;
   font-weight: 900;
+  line-height: 1;
   background: linear-gradient(135deg, #ffd93d, #ff6b35);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  line-height: 1;
-  text-shadow: none;
-  filter: drop-shadow(0 0 20px rgba(255,107,53,.3));
+  filter: drop-shadow(0 0 12px rgba(255,107,53,.4));
+  letter-spacing: -1px;
 }
-.brand-rank-label {
-  font-size: 13px;
-  color: #888;
+.hrb-sep {
+  display: block;
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,.08);
+}
+.hrb-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+.hrb-title {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #666;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: .5px;
 }
-.brand-ranking-sub {
+.hrb-stats {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 14px;
-  font-size: 11px;
-  color: #555;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #eee;
 }
-.brand-ranking-sub span { white-space: nowrap; }
-.brand-ranking-sub .brs-divider { color: #333; }
-.brand-ranking-sub .brs-stat { color: #999; font-weight: 600; }
+.hrb-dot {
+  color: #ff2d2d;
+  font-size: 6px;
+}
 
-@media (max-width: 600px) {
-  .company-brand { padding: 40px 5%; }
-  .company-brand-content { flex-direction: column; gap: 20px; }
-  .company-brand-logo { width: 90px; height: 90px; }
-  .company-brand-info h2 { font-size: 30px; }
-  .brand-rank-num { font-size: 38px; }
-  .brand-rank-label { font-size: 11px; }
-  .brand-ranking-sub { font-size: 10px; gap: 10px; flex-wrap: wrap; justify-content: center; }
+@media (max-width: 768px) {
+  .hero-rank-badge { gap: 10px; padding: 5px 14px; }
+  .hrb-rank { font-size: 24px; }
+  .hrb-sep { height: 22px; }
+  .hrb-stats { font-size: 11px; gap: 6px; }
+  .hrb-title { font-size: 8px; letter-spacing: 1px; }
+}
+@media (max-width: 480px) {
+  .hero-rank-badge { flex-wrap: wrap; gap: 6px 10px; padding: 5px 12px; }
+  .hrb-rank { font-size: 20px; }
+  .hrb-stats { font-size: 10px; }
+  .hrb-title { font-size: 7px; }
 }
 </style>
 
@@ -176,6 +150,19 @@
             Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2
         </p>
 
+        <div class="hero-rank-badge">
+            <span class="hrb-rank" id="hrb-rank">#4</span>
+            <span class="hrb-sep"></span>
+            <div class="hrb-body">
+                <span class="hrb-title">PeruServer · Ranking Mensual</span>
+                <span class="hrb-stats" id="hrb-stats">
+                    <span class="hrb-stat">156.7k KM</span>
+                    <span class="hrb-dot">◆</span>
+                    <span class="hrb-stat">210 Viajes</span>
+                </span>
+            </div>
+        </div>
+
         <div class="hero-buttons">
 
             <a href="https://discord.gg/PmWfc9fM"
@@ -193,31 +180,6 @@
     </div>
 
 </section>
-
-<div class="company-brand">
-    <div class="company-brand-bg"></div>
-    <div class="company-brand-content">
-        <div class="company-brand-logo">
-            <img src="https://cdn.truckyapp.com/public/companies/44302/irXFJdDFa6kNSXmKZRXH.jfif" alt="TEPSA PSV">
-        </div>
-        <div class="company-brand-info">
-            <h2>TEPSA <span>PSV</span></h2>
-            <div class="brand-ranking" id="brand-ranking">
-                <div class="brand-ranking-main">
-                    <span class="brand-rank-num" id="brand-rank-num">#4</span>
-                    <span class="brand-rank-label">en Ranking Mensual</span>
-                </div>
-                <div class="brand-ranking-sub" id="brand-ranking-sub">
-                    <span>PeruServer · Ranking Mensual</span>
-                    <span class="brs-divider">|</span>
-                    <span class="brs-stat">156.7k KM</span>
-                    <span class="brs-divider">|</span>
-                    <span class="brs-stat">210 Viajes</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <section class="stats">
 
@@ -449,12 +411,12 @@ document.getElementById("hamburger")?.addEventListener("click", () => {
   document.getElementById("mainMenu")?.classList.toggle("show");
 });
 async function loadPSRanking() {
-  const rankNum = document.getElementById("brand-rank-num");
-  const rankSub = document.getElementById("brand-ranking-sub");
+  const rankNum = document.getElementById("hrb-rank");
+  const rankSub = document.getElementById("hrb-stats");
   if (!rankNum || !rankSub) return;
   const setData = (pos, km, jobs) => {
     rankNum.textContent = "#" + pos;
-    rankSub.innerHTML = '<span>PeruServer · Ranking Mensual</span><span class="brs-divider">|</span><span class="brs-stat">' + km + ' KM</span><span class="brs-divider">|</span><span class="brs-stat">' + jobs + ' Viajes</span>';
+    rankSub.innerHTML = '<span class="hrb-stat">' + km + ' KM</span><span class="hrb-dot">◆</span><span class="hrb-stat">' + jobs + ' Viajes</span>';
   };
   const fallback = (url) => fetch(url).then(r => r.json()).then(d => {
     if (d.ok && d.item) { setData(d.position, (d.item.total_distance / 1000).toFixed(1) + "k", d.item.total_jobs); return true; }
