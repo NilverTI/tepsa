@@ -104,7 +104,7 @@ function renderRanking(ranking = []) {
             <span class="podium-info-label">KM</span>
           </div>
           <div class="podium-info-item">
-            <span class="podium-info-value">${d.damage != null ? formatNumber(d.damage) : "N/D"}</span>
+            <span class="podium-info-value">${formatNumber(d.damage)}</span>
             <span class="podium-info-label">Da\u00f1o</span>
           </div>
           <div class="podium-info-item">
@@ -176,7 +176,7 @@ function transformMember(m) {
     lastJobDays: m.last_job_days,
     role: m.role?.name || "",
     avatar: m.avatar_url || "",
-    damage: null,
+    damage: m.damage != null ? m.damage : 0,
     level: m.level || 0,
     revenue: m.total_revenue || 0,
     cargo: m.total_cargo_mass_t || 0,
@@ -192,24 +192,33 @@ async function tryFetch(url) {
 async function fetchJobsDamage() {
   const damageMap = new Map();
   try {
-    const page1 = await tryFetch("https://e.truckyapp.com/api/v1/company/44302/jobs?per_page=20&page=1");
-    const totalPages = Math.min(page1.last_page || 1, 5);
-    const pages = [page1];
-    const promises = [];
-    for (let p = 2; p <= totalPages; p++) {
-      promises.push(tryFetch(`https://e.truckyapp.com/api/v1/company/44302/jobs?per_page=20&page=${p}`));
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
+    const base = `https://e.truckyapp.com/api/v1/company/44302/jobs?dateFrom=${y}-${m}-01&dateTo=${y}-${m}-${lastDay}`;
+    const p1 = await tryFetch(base + "&page=1");
+    if (!p1 || !p1.data) return damageMap;
+    const total = p1.last_page || 1;
+    const pages = [p1];
+    for (let s = 2; s <= total; s += 4) {
+      const batch = [];
+      for (let p = s; p < s + 4 && p <= total; p++) batch.push(tryFetch(base + "&page=" + p));
+      const results = await Promise.allSettled(batch);
+      for (const r of results) if (r.status === "fulfilled" && r.value) pages.push(r.value);
     }
-    const rest = await Promise.all(promises);
-    pages.push(...rest);
     for (const page of pages) {
-      for (const job of (page.data || [])) {
-        const name = job.in_game_profile_name || "";
+      if (!page || !page.data) continue;
+      for (const job of page.data) {
+        const name = job.in_game_profile_name || job.driver?.name || "";
         if (!name) continue;
-        const damage = (job.vehicle_damage || 0) + (job.cargo_damage || 0) + (job.trailers_damage || 0);
-        if (damage > 0) damageMap.set(name, (damageMap.get(name) || 0) + Math.round(damage));
+        const dmg = (job.vehicle_damage || 0) + (job.cargo_damage || 0) + (job.trailers_damage || 0);
+        if (dmg > 0) damageMap.set(name, (damageMap.get(name) || 0) + Math.round(dmg));
       }
     }
-  } catch { }
+  } catch (e) {
+    console.error("fetchJobsDamage:", e);
+  }
   return damageMap;
 }
 
