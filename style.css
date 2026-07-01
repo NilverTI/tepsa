@@ -462,44 +462,127 @@ padding:40px;
 border-radius:20px;
 }
 
-.reclutamiento-box ul{
-margin-bottom:30px;
-padding-left:25px;
+.reclutamiento-box .requisitos{
+list-style:none;
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin-bottom:24px;
+padding:0;
+justify-content:center;
 }
 
-.reclutamiento-box li{
-margin-bottom:12px;
+.reclutamiento-box .requisitos li{
+display:flex;
+align-items:center;
+gap:6px;
+background:#0f0f0f;
+border:1px solid #222;
+padding:7px 16px;
+border-radius:8px;
+font-size:13px;
+color:#ccc;
 }
 
-form{
+.reclutamiento-box .requisitos .req-icon{
+color:#4ecdc4;
+font-weight:700;
+font-size:12px;
+}
+
+.form-postulacion{
 display:flex;
 flex-direction:column;
-gap:15px;
+gap:18px;
 }
 
-input,
-textarea{
-padding:15px;
-border:none;
+.form-row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:18px;
+}
+
+.form-group{
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.form-label{
+font-size:13px;
+font-weight:500;
+color:#aaa;
+letter-spacing:.3px;
+}
+
+.form-postulacion input,
+.form-postulacion textarea{
+padding:14px 16px;
+border:1px solid #2a2a2a;
 border-radius:10px;
-background:#2b2b2b;
-color:white;
+background:#0f0f0f;
+color:#f0f0f0;
+font-size:14px;
+outline:none;
+transition:border-color .25s, box-shadow .25s;
 }
 
-textarea{
-height:120px;
-resize:none;
+.form-postulacion input:focus,
+.form-postulacion textarea:focus{
+border-color:#ff2d2d;
+box-shadow:0 0 0 3px rgba(255,45,45,.08);
 }
 
-button{
-padding:15px;
+.form-postulacion input::placeholder,
+.form-postulacion textarea::placeholder{
+color:#444;
+}
+
+.form-postulacion textarea{
+height:110px;
+resize:vertical;
+min-height:80px;
+}
+
+.form-error{
+color:#ff6b6b;
+font-size:12px;
+min-height:18px;
+}
+
+.form-error-global{
+color:#ff6b6b;
+font-size:13px;
+text-align:center;
+margin-top:4px;
+}
+
+.form-submit{
+padding:15px 32px;
 background:#ff2d2d;
 border:none;
 color:white;
-font-size:16px;
+font-size:15px;
 font-weight:600;
 border-radius:10px;
 cursor:pointer;
+transition:background .25s, transform .2s;
+letter-spacing:.5px;
+margin-top:4px;
+}
+
+.form-submit:hover{
+background:#e62626;
+}
+
+.form-submit:active{
+transform:scale(.98);
+}
+
+.form-submit:disabled{
+opacity:.5;
+cursor:not-allowed;
+transform:none;
 }
 
 .galeria{
@@ -743,7 +826,10 @@ margin-bottom:10px;
   .job-card h3{ font-size:17px; }
 
   .reclutamiento-box{ padding:25px; }
-  form input, form textarea{ padding:12px; font-size:14px; }
+  .form-row{ grid-template-columns:1fr; gap:14px; }
+  .form-postulacion{ gap:14px; }
+  .form-postulacion input, .form-postulacion textarea{ padding:12px 14px; font-size:13px; }
+  .form-submit{ padding:13px 24px; font-size:14px; }
 
   .galeria{ grid-template-columns:1fr 1fr; gap:12px; }
   .galeria img{ height:180px; }

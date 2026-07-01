@@ -275,29 +275,58 @@
 
         <h2>Buscamos Conductores</h2>
 
-        <ul>
-            <li>Ser activo en Perú Server</li>
-            <li>Tener Discord</li>
-            <li>Ser comunicativo</li>
-            <li>Cumplir las normas</li>
-            <li>Mantener bajo daño</li>
+        <ul class="requisitos">
+            <li><span class="req-icon">✓</span> Ser activo en Perú Server</li>
+            <li><span class="req-icon">✓</span> Tener Discord</li>
+            <li><span class="req-icon">✓</span> Ser comunicativo</li>
+            <li><span class="req-icon">✓</span> Cumplir las normas</li>
+            <li><span class="req-icon">✓</span> Mantener bajo daño</li>
         </ul>
 
-        <form action="https://formspree.io/f/xqevyzbe" method="POST">
+        <div id="success-msg" style="display:none;text-align:center;padding:32px 24px;background:#0f0f0f;border:1px solid #222;border-radius:12px;">
+            <p style="color:#4ecdc4;font-size:20px;font-weight:600;margin:0;">¡Gracias!</p>
+            <p style="color:#999;font-size:14px;margin:8px 0 0;line-height:1.5;">Nos pondremos en contacto contigo.</p>
+        </div>
 
-            <input type="text" name="nombre" placeholder="Nombre Completo" required>
+        <form id="form-postulacion" class="form-postulacion">
 
-            <input type="number" name="edad" placeholder="Edad" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Nombre Completo</label>
+                    <input type="text" name="nombre" placeholder="Ej: Juan Pérez" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" name="telefono" placeholder="Ej: 999 888 777" required>
+                </div>
+            </div>
 
-            <input type="text" name="discord" placeholder="Usuario Discord" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Edad</label>
+                    <input type="number" name="edad" placeholder="Ej: 25" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Horas en ETS2</label>
+                    <input type="number" name="horas_ets2" placeholder="Ej: 500" required>
+                </div>
+            </div>
 
-            <input type="number" name="horas_ets2" placeholder="Horas ETS2" required>
+            <div class="form-group">
+                <label class="form-label">Usuario Discord</label>
+                <input type="text" name="discord" placeholder="Ej: usuario#1234" required>
+            </div>
 
-            <textarea name="experiencia" placeholder="Experiencia" required></textarea>
+            <div class="form-group">
+                <label class="form-label">Experiencia</label>
+                <textarea name="experiencia" placeholder="Cuéntanos sobre tu experiencia en ETS2..." required></textarea>
+            </div>
 
-            <button type="submit">
+            <button type="submit" id="btn-submit" class="form-submit">
                 ENVIAR SOLICITUD
             </button>
+
+            <div id="form-error" class="form-error-global" style="display:none;"></div>
 
         </form>
 
@@ -438,5 +467,40 @@ async function loadPSRanking() {
 loadPSRanking();
 </script>
 
+<script>
+document.getElementById('form-postulacion')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const form = this;
+  const btn = document.getElementById('btn-submit');
+  const errEl = document.getElementById('form-error');
+  const data = new FormData(form);
+
+  btn.disabled = true;
+  btn.textContent = 'ENVIANDO...';
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('https://formspree.io/f/xqevyzbe', {
+      method: 'POST',
+      body: data,
+      headers: { Accept: 'application/json' }
+    });
+    if (res.ok) {
+      form.style.display = 'none';
+      document.getElementById('success-msg').style.display = 'block';
+    } else {
+      const json = await res.json();
+      errEl.textContent = json?.error || 'Error al enviar. Intenta de nuevo.';
+      errEl.style.display = 'block';
+    }
+  } catch {
+    errEl.textContent = 'Error de conexión. Verifica tu internet.';
+    errEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'ENVIAR SOLICITUD';
+});
+</script>
 </body>
 </html>
