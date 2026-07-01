@@ -21,6 +21,7 @@
 <meta name="twitter:image" content="https://tepsa.vercel.app/img/galeria3.png">
 
 <link rel="stylesheet" href="style.css">
+<link rel="icon" href="img/logo1.png" type="image/png">
 
 <style>
 .nosotros-wrapper {
@@ -282,17 +283,17 @@
             <li>Mantener bajo daño</li>
         </ul>
 
-        <form>
+        <form action="https://formspree.io/f/xqevyzbe" method="POST">
 
-            <input type="text" placeholder="Nombre Completo">
+            <input type="text" name="nombre" placeholder="Nombre Completo" required>
 
-            <input type="number" placeholder="Edad">
+            <input type="number" name="edad" placeholder="Edad" required>
 
-            <input type="text" placeholder="Usuario Discord">
+            <input type="text" name="discord" placeholder="Usuario Discord" required>
 
-            <input type="number" placeholder="Horas ETS2">
+            <input type="number" name="horas_ets2" placeholder="Horas ETS2" required>
 
-            <textarea placeholder="Experiencia"></textarea>
+            <textarea name="experiencia" placeholder="Experiencia" required></textarea>
 
             <button type="submit">
                 ENVIAR SOLICITUD
