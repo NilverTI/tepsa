@@ -239,12 +239,16 @@ function matchDamage(driver, damageMap) {
   return null;
 }
 
-async function loadTruckyData() {
+async function loadTruckyData(force) {
   const cached = getCache();
-  if (cached) renderTruckyData(cached);
+  if (cached && !force) {
+    renderTruckyData(cached);
+    const status = document.getElementById("trucky-status");
+    if (status) status.textContent = `\uD83D\uDCE1 Datos en cach\u00e9 \u00B7 Pr\u00f3xima actualizaci\u00f3n en breve`;
+    return;
+  }
 
   let data = null;
-
   for (const url of ["/api/trucky/conductores", "http://127.0.0.1:3000/api/trucky/conductores"]) {
     try {
       const d = await tryFetch(url);
@@ -325,8 +329,19 @@ function setupDisclaimerModal() {
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
 }
 
+function setupNavbarScroll() {
+    const navbar = document.querySelector(".navbar");
+    if (!navbar) return;
+    function update() {
+        navbar.classList.toggle("scrolled", window.scrollY > 60);
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+}
+
 setupDisclaimerModal();
+setupNavbarScroll();
 setupRevealAnimation();
 setupBackToTopButton();
 loadTruckyData();
-setInterval(loadTruckyData, 1800000);
+setInterval(() => loadTruckyData(true), 1800000);

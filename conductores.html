@@ -584,13 +584,14 @@ async function fetchFresh() {
     throw new Error("Fallaron todos los orígenes: " + errors.join(", "));
 }
 
-async function loadData() {
+async function loadData(force) {
     const cached = getCache();
-    if (cached) {
+    if (cached && !force) {
         allDrivers = cached.ranking || [];
         renderStats(cached.stats);
         renderDrivers();
-        document.getElementById("data-status").textContent = `Datos de caché · ${allDrivers.length} miembros`;
+        document.getElementById("data-status").textContent = `\uD83D\uDCE1 Datos en cach\u00e9 \u00B7 ${allDrivers.length} miembros`;
+        return;
     }
     try {
         await fetchFresh();
@@ -645,7 +646,7 @@ document.querySelectorAll(".status-btn").forEach(btn => {
 });
 
 loadData();
-setInterval(loadData, 1800000);
+setInterval(() => loadData(true), 1800000);
 document.getElementById("hamburger")?.addEventListener("click", () => {
   document.getElementById("mainMenu")?.classList.toggle("show");
 });

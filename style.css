@@ -20,9 +20,15 @@ display:flex;
 justify-content:space-between;
 align-items:center;
 padding:20px 8%;
-background:rgba(0,0,0,.85);
-backdrop-filter:blur(10px);
+background:rgba(0,0,0,.25);
+backdrop-filter:blur(4px);
 z-index:1000;
+transition:background .4s ease, backdrop-filter .4s ease, box-shadow .4s ease;
+}
+.navbar.scrolled{
+background:rgba(0,0,0,.92);
+backdrop-filter:blur(10px);
+box-shadow:0 2px 20px rgba(0,0,0,.4);
 }
 
 .logo{
