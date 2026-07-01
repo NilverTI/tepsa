@@ -313,6 +313,19 @@ function setupBackToTopButton() {
   btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 }
 
+function setupDisclaimerModal() {
+    const modal = document.getElementById("disclaimer-modal");
+    const closeBtn = document.getElementById("modal-close-btn");
+    const acceptBtn = document.getElementById("modal-accept-btn");
+    if (!modal) return;
+    function close() { modal.classList.add("hidden"); }
+    closeBtn?.addEventListener("click", close);
+    acceptBtn?.addEventListener("click", close);
+    modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+}
+
+setupDisclaimerModal();
 setupRevealAnimation();
 setupBackToTopButton();
 loadTruckyData();
