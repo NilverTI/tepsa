@@ -691,6 +691,8 @@
 document.getElementById("hamburger")?.addEventListener("click", () => {
   document.getElementById("mainMenu")?.classList.toggle("show");
 });
+const CACHE_KEY = "tepsa:ps-ranking:v1";
+const CACHE_TTL = 10 * 60 * 1000;
 async function loadPSRanking() {
   const els = {
     heroRank: document.getElementById("psvCertHeroRank"),
@@ -703,25 +705,37 @@ async function loadPSRanking() {
     meta: document.getElementById("psvCertMeta"),
   };
   if (!els.heroRank) return;
-  const setData = (pos, km, jobs, total) => {
-    const p = pos || "?";
-    els.heroRank.textContent = "#" + p;
-    if (els.centerRank) els.centerRank.textContent = p;
-    if (els.stats) els.stats.textContent = km + " KM \u00B7 " + jobs + " Viajes";
-    if (els.monthRank) els.monthRank.textContent = "#" + p;
-    if (els.yearRank) els.yearRank.textContent = "#" + p;
+  const render = (mp, yp, km, jobs) => {
+    els.heroRank.textContent = "#" + (mp || "?");
+    if (els.centerRank) els.centerRank.textContent = mp || "?";
+    if (els.stats) els.stats.textContent = (km || "?") + " KM \u00B7 " + (jobs || "?") + " Viajes";
+    if (els.monthRank) els.monthRank.textContent = "#" + (mp || "?");
+    if (els.yearRank) els.yearRank.textContent = "#" + (yp || "?");
     if (els.title) els.title.textContent = "TEPSA PSV";
     if (els.subtitle) els.subtitle.textContent = "Reconocimiento Oficial PeruServer";
     if (els.meta) els.meta.textContent = "Top 50 empresas \u00B7 En vivo \u00B7 " + new Date().toLocaleDateString("es-PE");
   };
-  const fallback = (url) => fetch(url, { cache: "no-store" }).then(r => r.json()).then(d => {
-    if (d.ok && d.item) { setData(d.position, (d.item.total_distance / 1000).toFixed(1) + "k", d.item.total_jobs, d.total); return true; }
-    if (d.items) { const items = d.items; const i = items.findIndex(x => x.id === 44302); if (i >= 0) { setData(i+1, (items[i].total_distance / 1000).toFixed(1) + "k", items[i].total_jobs, items.length); return true; } }
-    return false;
-  });
-  try { if (await fallback("/api/ps-ranking?_=" + Date.now())) return; } catch (e) { console.error("ps-ranking serverless falló", e); }
-  try { if (await fallback("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100&_=" + Date.now())) return; } catch (e) { console.error("ps-ranking directo falló", e); }
-  console.warn("loadPSRanking: ambos APIs fallaron");
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (c && Date.now() - c.ts < CACHE_TTL) { render(c.mp, c.yp, c.km, c.jobs); return; }
+  } catch (e) {}
+  try {
+    const r = await fetch("/api/ps-ranking?_=" + Date.now(), { cache: "no-store" });
+    const d = await r.json();
+    if (d.ok && d.monthly) {
+      const mi = d.monthly.item;
+      const km = mi ? (mi.total_distance / 1000).toFixed(1) + "k" : "?";
+      const jobs = mi ? mi.total_jobs : "?";
+      render(d.monthly.position, d.yearly?.position, km, jobs);
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ mp: d.monthly.position, yp: d.yearly?.position, km, jobs, ts: Date.now() })); } catch (e) {}
+      return;
+    }
+  } catch (e) { console.error("ps-ranking API error", e); }
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (c) { render(c.mp, c.yp, c.km, c.jobs); return; }
+  } catch (e) {}
+  console.warn("loadPSRanking: no data");
 }
 loadPSRanking();
 </script>
