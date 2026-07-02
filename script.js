@@ -171,15 +171,15 @@ function setCache(data) {
 function transformMember(m) {
   return {
     name: m.name,
-    kilometers: m.total_driven_distance_km || 0,
+    kilometers: m.kilometers || m.total_driven_distance_km || 0,
     points: m.points || 0,
-    lastJobDays: m.last_job_days,
-    role: m.role?.name || "",
-    avatar: m.avatar_url || "",
-    damage: m.damage != null ? m.damage : 0,
+    lastJobDays: m.lastJobDays ?? m.last_job_days,
+    role: m.role?.name || m.role || "",
+    avatar: m.avatar_url || m.avatar || "",
+    damage: m.damage || 0,
     level: m.level || 0,
-    revenue: m.total_revenue || 0,
-    cargo: m.total_cargo_mass_t || 0,
+    revenue: m.revenue || m.total_revenue || 0,
+    cargo: m.cargoMass || m.cargo || m.total_cargo_mass_t || 0,
   };
 }
 

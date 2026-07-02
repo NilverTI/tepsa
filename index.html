@@ -473,13 +473,13 @@ async function loadPSRanking() {
     rankNum.textContent = "#" + pos;
     rankSub.innerHTML = '<span class="hrb-stat">' + km + ' KM</span><span class="hrb-dot">◆</span><span class="hrb-stat">' + jobs + ' Viajes</span>';
   };
-  const fallback = (url) => fetch(url).then(r => r.json()).then(d => {
+  const fallback = (url) => fetch(url, { cache: "no-store" }).then(r => r.json()).then(d => {
     if (d.ok && d.item) { setData(d.position, (d.item.total_distance / 1000).toFixed(1) + "k", d.item.total_jobs); return true; }
     if (d.items) { const items = d.items; const i = items.findIndex(x => x.id === 44302); if (i >= 0) { setData(i+1, (items[i].total_distance / 1000).toFixed(1) + "k", items[i].total_jobs); return true; } }
     return false;
   });
-  try { if (await fallback("/api/ps-ranking")) return; } catch {}
-  try { if (await fallback("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100")) return; } catch {}
+  try { if (await fallback("/api/ps-ranking")) return; } catch (e) { console.error("ps-ranking fallback 1", e); }
+  try { if (await fallback("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100")) return; } catch (e) { console.error("ps-ranking fallback 2", e); }
 }
 loadPSRanking();
 </script>

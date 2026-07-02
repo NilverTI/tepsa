@@ -2,8 +2,9 @@ const API = "https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   try {
-    const r = await fetch(API);
+    const r = await fetch(API, { cache: "no-store" });
     const data = await r.json();
     const item = data.items?.find(x => x.id === 44302);
     res.status(200).json({
