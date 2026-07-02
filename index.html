@@ -158,112 +158,170 @@
   .about-icon svg { width: 20px; height: 20px; }
 }
 
-/* === PeruServer Premium Badge === */
-.hero-badge {
+/* === PeruServer Certification Seal === */
+.psv-cert {
   position: absolute;
   left: 24px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
-  width: 178px;
-  background: linear-gradient(155deg, #140f0e 0%, #0b0914 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-top: 2px solid #ff2d2d;
+  width: 228px;
+  background: linear-gradient(160deg, #110e0d 0%, #080612 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212, 175, 55, .12);
+  border-top: 2px solid #d4af37;
   border-radius: 14px;
-  padding: 16px 12px 13px;
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  padding: 18px 14px 14px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .02);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-}
-.hero-badge-ribbon {
-  display: inline-flex;
-  align-items: center;
   gap: 3px;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 107, 53, 0.06));
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  border-radius: 20px;
-  padding: 1px 9px 1px 7px;
 }
-.hero-badge-ribbon span { font-size: 9px; font-weight: 700; color: #888; letter-spacing: 1px; text-transform: uppercase; }
-.hero-badge-ribbon span:last-child {
-  font-size: 12px;
+.psv-cert-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+}
+.psv-cert-bolt { width: 14px; height: 14px; color: #ff2d2d; opacity: .55; flex-shrink: 0; }
+.psv-cert-top { display: flex; align-items: center; gap: 3px; }
+.psv-cert-label { font-size: 9px; font-weight: 700; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+.psv-cert-position {
+  font-size: 14px;
+  font-weight: 900;
   background: linear-gradient(135deg, #ffd93d, #ff6b35);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.3));
+  filter: drop-shadow(0 0 6px rgba(255, 107, 53, .3));
 }
-.hero-badge-number {
-  font-size: 38px;
+.psv-cert-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin: 2px 0 1px;
+}
+.psv-cert-divider {
+  width: 55%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, .12), transparent);
+  margin: 4px 0;
+}
+.psv-cert-emblem {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 3px 0;
+}
+.psv-cert-star-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  color: #d4af37;
+  opacity: .25;
+}
+.psv-cert-star-shape {
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  color: #d4af37;
+  opacity: .12;
+}
+.psv-cert-number {
+  position: relative;
+  z-index: 1;
+  font-size: 30px;
   font-weight: 900;
-  line-height: 1;
-  background: linear-gradient(135deg, #ffd93d 20%, #ff6b35 100%);
+  background: linear-gradient(135deg, #ffd93d, #ff6b35);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.2));
-  margin: 2px 0 1px;
+  filter: drop-shadow(0 0 10px rgba(255, 107, 53, .25));
+  line-height: 1;
 }
-.hero-badge-brand {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 8px;
+.psv-cert-brand {
+  font-size: 10px;
   font-weight: 700;
-  color: #666;
-  letter-spacing: 1px;
+  color: #777;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
 }
-.hero-badge-brand span { color: #ff2d2d; }
-.hero-badge-logo { width: 12px; height: 12px; color: #ff2d2d; flex-shrink: 0; }
-.hero-badge-divider {
-  width: 40%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-  margin: 3px 0;
+.psv-cert-brand span { color: #d4af37; }
+.psv-cert-subtitle {
+  font-size: 8px;
+  color: #666;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
-.hero-badge-stats {
+.psv-cert-pills { display: flex; gap: 4px; margin: 3px 0 1px; }
+.psv-cert-pill {
+  font-size: 8.5px;
+  color: #aaa;
+  background: rgba(212, 175, 55, .05);
+  border: 1px solid rgba(212, 175, 55, .08);
+  border-radius: 3px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+.psv-cert-pill strong { color: #ffd93d; font-weight: 700; }
+.psv-cert-stats {
   font-size: 10px;
   font-weight: 600;
   color: #ddd;
   text-align: center;
-  line-height: 1.3;
 }
-.hero-badge-pills { display: flex; gap: 3px; margin-top: 1px; }
-.hero-badge-pills span {
+.psv-cert-meta {
   font-size: 7.5px;
-  color: #888;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 3px;
-  padding: 1px 6px;
-  white-space: nowrap;
+  color: #666;
+  letter-spacing: .5px;
+  margin-top: 1px;
 }
-.hero-badge-pills strong { color: #eee; font-weight: 700; }
+.psv-cert-verify {
+  font-size: 8.5px;
+  color: #d4af37;
+  text-decoration: none;
+  border: 1px solid rgba(212, 175, 55, .12);
+  border-radius: 20px;
+  padding: 3px 14px;
+  margin-top: 4px;
+  transition: all .3s;
+  letter-spacing: .5px;
+}
+.psv-cert-verify:hover {
+  background: rgba(212, 175, 55, .08);
+  border-color: rgba(212, 175, 55, .25);
+  color: #ffd93d;
+}
 
 @media(max-width:1200px){
   .hero{flex-direction:column;}
-  .hero-badge{
+  .psv-cert{
     position:relative;
     left:auto;
     top:auto;
     transform:none;
-    margin-bottom:18px;
-    width:176px;
-    padding:14px 12px 12px;
+    margin-bottom:20px;
+    width:220px;
+    padding:16px 12px 12px;
   }
-  .hero-badge-number{font-size:34px;}
+  .psv-cert-number{font-size:26px;}
+  .psv-cert-emblem{width:64px;height:64px;}
 }
 @media(max-width:480px){
-  .hero-badge{width:158px;padding:12px 10px 11px;}
-  .hero-badge-number{font-size:30px;}
-  .hero-badge-ribbon span{font-size:8px;}
-  .hero-badge-ribbon span:last-child{font-size:10px;}
-  .hero-badge-stats{font-size:9px;}
+  .psv-cert{width:200px;padding:14px 10px 11px;}
+  .psv-cert-position{font-size:12px;}
+  .psv-cert-number{font-size:24px;}
+  .psv-cert-emblem{width:56px;height:56px;}
+  .psv-cert-title{font-size:11px;}
+  .psv-cert-stats{font-size:9px;}
   .about-cards{grid-template-columns:1fr;}
 }
 </style>
@@ -313,28 +371,38 @@
 
     <div class="overlay"></div>
 
-    <div class="hero-badge" id="psvCertCard">
-        <div class="hero-badge-ribbon">
-            <span>TOP</span>
-            <span id="psvCertHeroRank">#4</span>
+    <div class="psv-cert" id="psvCertificationCard" data-tier="top1">
+        <div class="psv-cert-header">
+            <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
+            <div class="psv-cert-top">
+                <span class="psv-cert-label">TOP</span>
+                <span id="psvCertHeroRank" class="psv-cert-position">#4</span>
+            </div>
+            <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
         </div>
-        <span id="psvCertCenterRank" class="hero-badge-number">4</span>
-        <div class="hero-badge-brand">
-            <svg class="hero-badge-logo" viewBox="0 0 100 100" fill="none">
-                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" opacity=".2"/>
-                <path d="M50 15 L58 40 L85 40 L63 56 L71 82 L50 65 L29 82 L37 56 L15 40 L42 40 Z" fill="currentColor" opacity=".1"/>
-                <text x="50" y="56" text-anchor="middle" fill="currentColor" font-size="18" font-weight="700">PSV</text>
+        <div class="psv-cert-divider"></div>
+        <div id="psvCertTitle" class="psv-cert-title">TEPSA PSV</div>
+        <div class="psv-cert-emblem">
+            <svg class="psv-cert-star-ring" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+                <circle cx="50" cy="50" r="38" stroke="currentColor" stroke-width=".6" opacity=".3"/>
             </svg>
-            PERU<span>S</span>ERVER
+            <svg class="psv-cert-star-shape" viewBox="0 0 100 100" fill="none">
+                <path d="M50 5 L61 38 L97 38 L68 58 L77 92 L50 72 L23 92 L32 58 L3 38 L39 38 Z" fill="currentColor"/>
+            </svg>
+            <span id="psvCertCenterRank" class="psv-cert-number">4</span>
         </div>
-        <div class="hero-badge-divider"></div>
-        <div class="hero-badge-stats">
+        <div class="psv-cert-brand">PERU<span>S</span>ERVER</div>
+        <div id="psvCertSubtitle" class="psv-cert-subtitle">Reconocimiento Oficial</div>
+        <div class="psv-cert-pills">
+            <span class="psv-cert-pill">Mes <strong id="psvCertMonthRank">#4</strong></span>
+            <span class="psv-cert-pill">Año <strong id="psvCertYearRank">#4</strong></span>
+        </div>
+        <div class="psv-cert-stats">
             <span id="psvCertStats">156.7k KM · 210 Viajes</span>
         </div>
-        <div class="hero-badge-pills">
-            <span>Pos. <strong id="psvCertMonthRank">#4</strong></span>
-            <span><strong id="psvCertTotal">61</strong> emp.</span>
-        </div>
+        <div id="psvCertMeta" class="psv-cert-meta">Top 50 empresas · En vivo · Sin fecha</div>
+        <a href="https://peruserver.de/" target="_blank" class="psv-cert-verify">Verificar certificado →</a>
     </div>
 
     <div class="hero-content">
@@ -681,8 +749,10 @@ async function loadPSRanking() {
     centerRank: document.getElementById("psvCertCenterRank"),
     stats: document.getElementById("psvCertStats"),
     monthRank: document.getElementById("psvCertMonthRank"),
-    total: document.getElementById("psvCertTotal"),
+    yearRank: document.getElementById("psvCertYearRank"),
+    title: document.getElementById("psvCertTitle"),
     subtitle: document.getElementById("psvCertSubtitle"),
+    meta: document.getElementById("psvCertMeta"),
   };
   if (!els.heroRank) return;
   const setData = (pos, km, jobs, total) => {
@@ -691,8 +761,10 @@ async function loadPSRanking() {
     if (els.centerRank) els.centerRank.textContent = p;
     if (els.stats) els.stats.textContent = km + " KM \u00B7 " + jobs + " Viajes";
     if (els.monthRank) els.monthRank.textContent = "#" + p;
-    if (els.total) els.total.textContent = total || "?";
-    if (els.subtitle) els.subtitle.textContent = "Ranking mensual PeruServer";
+    if (els.yearRank) els.yearRank.textContent = "#" + p;
+    if (els.title) els.title.textContent = "TEPSA PSV";
+    if (els.subtitle) els.subtitle.textContent = "Reconocimiento Oficial PeruServer";
+    if (els.meta) els.meta.textContent = "Top 50 empresas \u00B7 En vivo \u00B7 " + new Date().toLocaleDateString("es-PE");
   };
   const fallback = (url) => fetch(url, { cache: "no-store" }).then(r => r.json()).then(d => {
     if (d.ok && d.item) { setData(d.position, (d.item.total_distance / 1000).toFixed(1) + "k", d.item.total_jobs, d.total); return true; }
