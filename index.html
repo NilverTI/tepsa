@@ -24,100 +24,247 @@
 <link rel="icon" href="img/logo1.png" type="image/png">
 
 <style>
+/* === Nosotros Section === */
+#nosotros {
+  position: relative;
+  background: linear-gradient(180deg, #0f0f0f 0%, #09090e 100%);
+}
+#nosotros::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,45,45,.25), transparent);
+  pointer-events: none;
+}
 .nosotros-wrapper {
   display: flex;
   justify-content: center;
   max-width: 1200px;
   margin: 0 auto;
 }
-.nosotros-text { max-width: 800px; }
+.nosotros-text { max-width: 720px; text-align: center; }
+.nosotros-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ff2d2d;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  padding: 4px 14px;
+  border: 1px solid rgba(255,45,45,.15);
+  border-radius: 20px;
+  background: rgba(255,45,45,.04);
+}
 .nosotros-text h2 {
   font-size: 42px;
-  margin-bottom: 30px;
+  margin-bottom: 16px;
   text-align: center;
+  position: relative;
+}
+.nosotros-text h2::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, #ff2d2d, rgba(255,45,45,.3));
+  margin: 16px auto 0;
+  border-radius: 2px;
 }
 .nosotros-text p {
   max-width: 100%;
   line-height: 1.8;
-  text-align: center;
   font-size: 18px;
-  color: #ccc;
+  color: #bbb;
+  margin-top: 4px;
+}
+.about-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 880px;
+  margin: 50px auto 0;
+}
+.about-card {
+  background: linear-gradient(145deg, #161616, #101010);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: 16px;
+  padding: 32px 28px;
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.about-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,45,45,.03), transparent);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+}
+.about-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.4);
+  border-color: rgba(255,45,45,.12);
+}
+.about-card:hover::before { opacity: 1; }
+.about-icon {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  background: rgba(255,45,45,.08);
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  color: #ff2d2d;
+  transition: background .3s ease, transform .3s ease;
+}
+.about-icon svg { width: 24px; height: 24px; }
+.about-card:hover .about-icon {
+  background: rgba(255,45,45,.14);
+  transform: scale(1.05);
+}
+.about-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #fff;
+}
+#nosotros .about-card p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #999;
+  text-align: left;
+  max-width: 100%;
+  margin: 0;
 }
 
-@media (max-width: 768px) {
+@media(max-width:768px){
+  #nosotros { padding: 60px 5%; }
   .nosotros-text h2 { font-size: 28px; }
   .nosotros-text p { font-size: 15px; }
+  .about-cards { grid-template-columns: 1fr; gap: 16px; }
+  .about-card { padding: 24px 20px; }
+  .about-card h3 { font-size: 18px; }
+  .about-icon { width: 42px; height: 42px; }
+  .about-icon svg { width: 20px; height: 20px; }
 }
 
-/* Hero rank badge — compact, imposing */
-.hero-rank-badge {
+/* === PeruServer Premium Badge === */
+.hero-badge {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 178px;
+  background: linear-gradient(155deg, #140f0e 0%, #0b0914 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-top: 2px solid #ff2d2d;
+  border-radius: 14px;
+  padding: 16px 12px 13px;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.hero-badge-ribbon {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
-  padding: 6px 18px;
-  background: rgba(0,0,0,.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,.06);
-  border-left: 3px solid #ff2d2d;
-  border-radius: 6px;
-  margin-bottom: 28px;
-  box-shadow: 0 4px 30px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+  gap: 3px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 107, 53, 0.06));
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  border-radius: 20px;
+  padding: 1px 9px 1px 7px;
 }
-.hrb-rank {
-  font-size: 30px;
-  font-weight: 900;
-  line-height: 1;
+.hero-badge-ribbon span { font-size: 9px; font-weight: 700; color: #888; letter-spacing: 1px; text-transform: uppercase; }
+.hero-badge-ribbon span:last-child {
+  font-size: 12px;
   background: linear-gradient(135deg, #ffd93d, #ff6b35);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 12px rgba(255,107,53,.4));
-  letter-spacing: -1px;
+  filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.3));
 }
-.hrb-sep {
-  display: block;
-  width: 1px;
-  height: 28px;
-  background: rgba(255,255,255,.08);
+.hero-badge-number {
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, #ffd93d 20%, #ff6b35 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.2));
+  margin: 2px 0 1px;
 }
-.hrb-body {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1px;
-}
-.hrb-title {
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: #666;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-.hrb-stats {
+.hero-badge-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 4px;
+  font-size: 8px;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.hero-badge-brand span { color: #ff2d2d; }
+.hero-badge-logo { width: 12px; height: 12px; color: #ff2d2d; flex-shrink: 0; }
+.hero-badge-divider {
+  width: 40%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  margin: 3px 0;
+}
+.hero-badge-stats {
+  font-size: 10px;
   font-weight: 600;
-  color: #eee;
+  color: #ddd;
+  text-align: center;
+  line-height: 1.3;
 }
-.hrb-dot {
-  color: #ff2d2d;
-  font-size: 6px;
+.hero-badge-pills { display: flex; gap: 3px; margin-top: 1px; }
+.hero-badge-pills span {
+  font-size: 7.5px;
+  color: #888;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 3px;
+  padding: 1px 6px;
+  white-space: nowrap;
 }
+.hero-badge-pills strong { color: #eee; font-weight: 700; }
 
-@media (max-width: 768px) {
-  .hero-rank-badge { gap: 10px; padding: 5px 14px; }
-  .hrb-rank { font-size: 24px; }
-  .hrb-sep { height: 22px; }
-  .hrb-stats { font-size: 11px; gap: 6px; }
-  .hrb-title { font-size: 8px; letter-spacing: 1px; }
+@media(max-width:1200px){
+  .hero{flex-direction:column;}
+  .hero-badge{
+    position:relative;
+    left:auto;
+    top:auto;
+    transform:none;
+    margin-bottom:18px;
+    width:176px;
+    padding:14px 12px 12px;
+  }
+  .hero-badge-number{font-size:34px;}
 }
-@media (max-width: 480px) {
-  .hero-rank-badge { flex-wrap: wrap; gap: 6px 10px; padding: 5px 12px; }
-  .hrb-rank { font-size: 20px; }
-  .hrb-stats { font-size: 10px; }
-  .hrb-title { font-size: 7px; }
+@media(max-width:480px){
+  .hero-badge{width:158px;padding:12px 10px 11px;}
+  .hero-badge-number{font-size:30px;}
+  .hero-badge-ribbon span{font-size:8px;}
+  .hero-badge-ribbon span:last-child{font-size:10px;}
+  .hero-badge-stats{font-size:9px;}
+  .about-cards{grid-template-columns:1fr;}
 }
 </style>
 
@@ -166,41 +313,39 @@
 
     <div class="overlay"></div>
 
+    <div class="hero-badge" id="psvCertCard">
+        <div class="hero-badge-ribbon">
+            <span>TOP</span>
+            <span id="psvCertHeroRank">#4</span>
+        </div>
+        <span id="psvCertCenterRank" class="hero-badge-number">4</span>
+        <div class="hero-badge-brand">
+            <svg class="hero-badge-logo" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" opacity=".2"/>
+                <path d="M50 15 L58 40 L85 40 L63 56 L71 82 L50 65 L29 82 L37 56 L15 40 L42 40 Z" fill="currentColor" opacity=".1"/>
+                <text x="50" y="56" text-anchor="middle" fill="currentColor" font-size="18" font-weight="700">PSV</text>
+            </svg>
+            PERU<span>S</span>ERVER
+        </div>
+        <div class="hero-badge-divider"></div>
+        <div class="hero-badge-stats">
+            <span id="psvCertStats">156.7k KM · 210 Viajes</span>
+        </div>
+        <div class="hero-badge-pills">
+            <span>Pos. <strong id="psvCertMonthRank">#4</strong></span>
+            <span><strong id="psvCertTotal">61</strong> emp.</span>
+        </div>
+    </div>
+
     <div class="hero-content">
-
         <h1>TEPSA PSV</h1>
-
         <p>
             Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2
         </p>
-
-        <div class="hero-rank-badge">
-            <span class="hrb-rank" id="hrb-rank">#4</span>
-            <span class="hrb-sep"></span>
-            <div class="hrb-body">
-                <span class="hrb-title">PeruServer · Ranking Mensual</span>
-                <span class="hrb-stats" id="hrb-stats">
-                    <span class="hrb-stat">156.7k KM</span>
-                    <span class="hrb-dot">◆</span>
-                    <span class="hrb-stat">210 Viajes</span>
-                </span>
-            </div>
-        </div>
-
         <div class="hero-buttons">
-
-            <a href="https://discord.gg/PmWfc9fM"
-               target="_blank"
-               class="btn">
-                ÚNETE A TEPSA PSV
-            </a>
-
-            <a href="#ranking" class="btn2">
-                VER RANKING
-            </a>
-
+            <a href="https://discord.gg/PmWfc9fM" target="_blank" class="btn">ÚNETE A TEPSA PSV</a>
+            <a href="#ranking" class="btn2">VER RANKING</a>
         </div>
-
     </div>
 
 </section>
@@ -232,6 +377,7 @@
 <section id="nosotros">
     <div class="nosotros-wrapper">
         <div class="nosotros-text">
+            <span class="nosotros-label">Sobre Nosotros</span>
             <h2>Quiénes Somos</h2>
             <p>
                 TEPSA PSV es una empresa virtual peruana dedicada al transporte
@@ -240,6 +386,51 @@
                 organizada y divertida para todos nuestros conductores.
             </p>
         </div>
+    </div>
+    <div class="about-cards">
+        <article class="about-card">
+            <span class="about-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 7h9a3 3 0 1 1 0 6H9a3 3 0 1 0 0 6h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="17" cy="7" r="2" fill="currentColor"/>
+                    <circle cx="7" cy="17" r="2" fill="currentColor"/>
+                </svg>
+            </span>
+            <h3>Rutas Reales</h3>
+            <p>Recorre las carreteras más emblemáticas del Perú con mapas reales.</p>
+        </article>
+        <article class="about-card">
+            <span class="about-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="8" cy="9" r="3" stroke="currentColor" stroke-width="2"/>
+                    <path d="M2.5 18a5.5 5.5 0 0 1 11 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="17" cy="8" r="2.5" stroke="currentColor" stroke-width="2"/>
+                    <path d="M14 17.5a4.5 4.5 0 0 1 7.5-3.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </span>
+            <h3>Comunidad Activa</h3>
+            <p>Forma parte de un equipo de conductores apasionados por el transporte peruano.</p>
+        </article>
+        <article class="about-card">
+            <span class="about-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 21s6-5.4 6-10a6 6 0 1 0-12 0c0 4.6 6 10 6 10Z" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="12" cy="11" r="2.2" fill="currentColor"/>
+                </svg>
+            </span>
+            <h3>Ciudades Peruanas</h3>
+            <p>Conecta Lima, Arequipa, Cusco, Puno, Trujillo y más destinos.</p>
+        </article>
+        <article class="about-card">
+            <span class="about-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 4h8v3h3v3a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5V7h3V4Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9 15v2a3 3 0 0 0 6 0v-2M7 21h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </span>
+            <h3>Ranking Competitivo</h3>
+            <p>Compite por ser el conductor con más kilómetros recorridos del servidor.</p>
+        </article>
     </div>
 </section>
 
@@ -485,21 +676,32 @@ document.getElementById("hamburger")?.addEventListener("click", () => {
   document.getElementById("mainMenu")?.classList.toggle("show");
 });
 async function loadPSRanking() {
-  const rankNum = document.getElementById("hrb-rank");
-  const rankSub = document.getElementById("hrb-stats");
-  if (!rankNum || !rankSub) return;
-  const setData = (pos, km, jobs) => {
-    rankNum.textContent = "#" + pos;
-    rankSub.innerHTML = '<span class="hrb-stat">' + km + ' KM</span><span class="hrb-dot">◆</span><span class="hrb-stat">' + jobs + ' Viajes</span>';
+  const els = {
+    heroRank: document.getElementById("psvCertHeroRank"),
+    centerRank: document.getElementById("psvCertCenterRank"),
+    stats: document.getElementById("psvCertStats"),
+    monthRank: document.getElementById("psvCertMonthRank"),
+    total: document.getElementById("psvCertTotal"),
+    subtitle: document.getElementById("psvCertSubtitle"),
+  };
+  if (!els.heroRank) return;
+  const setData = (pos, km, jobs, total) => {
+    const p = pos || "?";
+    els.heroRank.textContent = "#" + p;
+    if (els.centerRank) els.centerRank.textContent = p;
+    if (els.stats) els.stats.textContent = km + " KM \u00B7 " + jobs + " Viajes";
+    if (els.monthRank) els.monthRank.textContent = "#" + p;
+    if (els.total) els.total.textContent = total || "?";
+    if (els.subtitle) els.subtitle.textContent = "Ranking mensual PeruServer";
   };
   const fallback = (url) => fetch(url, { cache: "no-store" }).then(r => r.json()).then(d => {
-    if (d.ok && d.item) { setData(d.position, (d.item.total_distance / 1000).toFixed(1) + "k", d.item.total_jobs); return true; }
-    if (d.items) { const items = d.items; const i = items.findIndex(x => x.id === 44302); if (i >= 0) { setData(i+1, (items[i].total_distance / 1000).toFixed(1) + "k", items[i].total_jobs); return true; } }
+    if (d.ok && d.item) { setData(d.position, (d.item.total_distance / 1000).toFixed(1) + "k", d.item.total_jobs, d.total); return true; }
+    if (d.items) { const items = d.items; const i = items.findIndex(x => x.id === 44302); if (i >= 0) { setData(i+1, (items[i].total_distance / 1000).toFixed(1) + "k", items[i].total_jobs, items.length); return true; } }
     return false;
   });
-  try { if (await fallback("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100&_=" + Date.now())) return; } catch (e) { console.error("ps-ranking directo falló", e); }
   try { if (await fallback("/api/ps-ranking?_=" + Date.now())) return; } catch (e) { console.error("ps-ranking serverless falló", e); }
-  console.warn("loadPSRanking: ambas APIs fallaron");
+  try { if (await fallback("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100&_=" + Date.now())) return; } catch (e) { console.error("ps-ranking directo falló", e); }
+  console.warn("loadPSRanking: ambos APIs fallaron");
 }
 loadPSRanking();
 </script>
