@@ -91,8 +91,8 @@
 .about-card {
   background: linear-gradient(145deg, #161616, #101010);
   border: 1px solid rgba(255,255,255,.04);
-  border-radius: 16px;
-  padding: 32px 28px;
+  border-radius: 14px;
+  padding: 24px 20px;
   transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
   position: relative;
   overflow: hidden;
@@ -117,30 +117,30 @@
 .about-card:hover::before { opacity: 1; }
 .about-icon {
   display: flex;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   background: rgba(255,45,45,.08);
-  border-radius: 12px;
+  border-radius: 10px;
   align-items: center;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   color: #ff2d2d;
   transition: background .3s ease, transform .3s ease;
 }
-.about-icon svg { width: 24px; height: 24px; }
+.about-icon svg { width: 20px; height: 20px; }
 .about-card:hover .about-icon {
   background: rgba(255,45,45,.14);
   transform: scale(1.05);
 }
 .about-card h3 {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   color: #fff;
 }
 #nosotros .about-card p {
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.5;
   color: #999;
   text-align: left;
   max-width: 100%;
@@ -151,11 +151,11 @@
   #nosotros { padding: 60px 5%; }
   .nosotros-text h2 { font-size: 28px; }
   .nosotros-text p { font-size: 15px; }
-  .about-cards { grid-template-columns: 1fr; gap: 16px; }
-  .about-card { padding: 24px 20px; }
-  .about-card h3 { font-size: 18px; }
-  .about-icon { width: 42px; height: 42px; }
-  .about-icon svg { width: 20px; height: 20px; }
+  .about-cards { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .about-card { padding: 20px 16px; }
+  .about-card h3 { font-size: 15px; }
+  .about-icon { width: 36px; height: 36px; }
+  .about-icon svg { width: 18px; height: 18px; }
 }
 
 /* === PeruServer Certification Seal === */
@@ -270,7 +270,12 @@
   .psv-cert-emblem{width:48px;height:48px;}
   .psv-cert-title{font-size:10px;}
   .psv-cert-stats{font-size:8px;}
-  .about-cards{grid-template-columns:1fr;}
+  .about-cards{grid-template-columns:1fr;gap:12px;}
+  .about-card{padding:18px 14px;}
+  .about-card h3{font-size:14px;}
+  .about-icon{width:32px;height:32px;margin-bottom:8px;}
+  .about-icon svg{width:16px;height:16px;}
+  #nosotros .about-card p{font-size:12px;}
 }
 </style>
 
@@ -369,17 +374,17 @@
 <section class="stats">
 
     <div class="stat-box">
-        <h2 id="stat-kilometros">8,643+</h2>
+        <h2 id="stat-kilometros">227,626</h2>
         <p>Kilómetros</p>
     </div>
 
     <div class="stat-box">
-        <h2 id="stat-conductores">15+</h2>
+        <h2 id="stat-conductores">14</h2>
         <p>Conductores</p>
     </div>
 
     <div class="stat-box">
-        <h2 id="stat-activos">3+</h2>
+        <h2 id="stat-activos">10</h2>
         <p>Activos</p>
     </div>
 
