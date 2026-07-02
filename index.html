@@ -324,7 +324,7 @@
             <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
             <div class="psv-cert-top">
                 <span class="psv-cert-label">TOP</span>
-                <span id="psvCertHeroRank" class="psv-cert-position">#4</span>
+                <span id="psvCertHeroRank" class="psv-cert-position">--</span>
             </div>
             <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
         </div>
@@ -338,18 +338,18 @@
             <svg class="psv-cert-star-shape" viewBox="0 0 100 100" fill="none">
                 <path d="M50 5 L61 38 L97 38 L68 58 L77 92 L50 72 L23 92 L32 58 L3 38 L39 38 Z" fill="currentColor"/>
             </svg>
-            <span id="psvCertCenterRank" class="psv-cert-number">4</span>
+            <span id="psvCertCenterRank" class="psv-cert-number">--</span>
         </div>
         <div class="psv-cert-brand">PERU<span>S</span>ERVER</div>
-        <div id="psvCertSubtitle" class="psv-cert-subtitle">Reconocimiento Oficial</div>
+        <div id="psvCertSubtitle" class="psv-cert-subtitle">Cargando...</div>
         <div class="psv-cert-pills">
-            <span class="psv-cert-pill">Mes <strong id="psvCertMonthRank">#4</strong></span>
-            <span class="psv-cert-pill">Año <strong id="psvCertYearRank">#4</strong></span>
+            <span class="psv-cert-pill">Pos. <strong id="psvCertMonthRank">--</strong></span>
+            <span class="psv-cert-pill"><strong id="psvCertMembers">--</strong> miembros</span>
         </div>
         <div class="psv-cert-stats">
-            <span id="psvCertStats">156.7k KM · 210 Viajes</span>
+            <span id="psvCertStats">--</span>
         </div>
-        <div id="psvCertMeta" class="psv-cert-meta">Top 50 empresas · En vivo · Sin fecha</div>
+        <div id="psvCertMeta" class="psv-cert-meta">Cargando...</div>
         <a href="https://peruserver.de/" target="_blank" class="psv-cert-verify">Verificar certificado →</a>
     </div>
 
@@ -691,51 +691,83 @@
 document.getElementById("hamburger")?.addEventListener("click", () => {
   document.getElementById("mainMenu")?.classList.toggle("show");
 });
-const CACHE_KEY = "tepsa:ps-ranking:v1";
+const CACHE_KEY = "tepsa:ps-ranking:v4";
 const CACHE_TTL = 10 * 60 * 1000;
+try { localStorage.removeItem("tepsa:ps-ranking:v2"); } catch (e) {}
+try { localStorage.removeItem("tepsa:ps-ranking:v3"); } catch (e) {}
+
 async function loadPSRanking() {
   const els = {
     heroRank: document.getElementById("psvCertHeroRank"),
     centerRank: document.getElementById("psvCertCenterRank"),
     stats: document.getElementById("psvCertStats"),
     monthRank: document.getElementById("psvCertMonthRank"),
-    yearRank: document.getElementById("psvCertYearRank"),
+    members: document.getElementById("psvCertMembers"),
     title: document.getElementById("psvCertTitle"),
     subtitle: document.getElementById("psvCertSubtitle"),
     meta: document.getElementById("psvCertMeta"),
   };
   if (!els.heroRank) return;
-  const render = (mp, yp, km, jobs) => {
-    els.heroRank.textContent = "#" + (mp || "?");
-    if (els.centerRank) els.centerRank.textContent = mp || "?";
+
+  const render = (pos, km, jobs, members, period) => {
+    const p = pos || "?";
+    els.heroRank.textContent = "#" + p;
+    if (els.centerRank) els.centerRank.textContent = p;
     if (els.stats) els.stats.textContent = (km || "?") + " KM \u00B7 " + (jobs || "?") + " Viajes";
-    if (els.monthRank) els.monthRank.textContent = "#" + (mp || "?");
-    if (els.yearRank) els.yearRank.textContent = "#" + (yp || "?");
+    if (els.monthRank) els.monthRank.textContent = "#" + p;
+    if (els.members) els.members.textContent = members || "?";
     if (els.title) els.title.textContent = "TEPSA PSV";
-    if (els.subtitle) els.subtitle.textContent = "Reconocimiento Oficial PeruServer";
-    if (els.meta) els.meta.textContent = "Top 50 empresas \u00B7 En vivo \u00B7 " + new Date().toLocaleDateString("es-PE");
+    if (els.subtitle) els.subtitle.textContent = "Ranking Mensual PeruServer";
+    if (els.meta) els.meta.textContent = "Top " + (pos || "?") + " \u00B7 En vivo \u00B7 " + (period || new Date().toLocaleDateString("es-PE"));
   };
+
+  const formatKm = (meters) => {
+    if (meters == null) return null;
+    return Number(meters / 1000).toLocaleString("es-PE") + " km";
+  };
+
+  const getMembers = (item) => item.members || item.total_members || item.member_count || item.membersCount;
+
+  // 1) Cache vigente
   try {
     const c = JSON.parse(localStorage.getItem(CACHE_KEY));
-    if (c && Date.now() - c.ts < CACHE_TTL) { render(c.mp, c.yp, c.km, c.jobs); return; }
+    if (c && Date.now() - c.ts < CACHE_TTL) { render(c.pos, c.km, c.jobs, c.members, c.period); return; }
   } catch (e) {}
+
+  // 2) Proxy Vercel -> /api/ps-ranking (timeout 6s)
   try {
-    const r = await fetch("/api/ps-ranking?_=" + Date.now(), { cache: "no-store" });
+    const ac = new AbortController();
+    const tid = setTimeout(() => ac.abort(), 6000);
+    const r = await fetch("/api/ps-ranking?_=" + Date.now(), { cache: "no-store", signal: ac.signal });
+    clearTimeout(tid);
     const d = await r.json();
-    if (d.ok && d.monthly) {
-      const mi = d.monthly.item;
-      const km = mi ? (mi.total_distance / 1000).toFixed(1) + "k" : "?";
-      const jobs = mi ? mi.total_jobs : "?";
-      render(d.monthly.position, d.yearly?.position, km, jobs);
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ mp: d.monthly.position, yp: d.yearly?.position, km, jobs, ts: Date.now() })); } catch (e) {}
+    if (!d.ok) {
+      console.warn("loadPSRanking: proxy error —", d.error || "empresa no encontrada en el ranking mensual");
+    } else if (d.item) {
+      const pos = d.position;
+      const km = formatKm(d.item.total_distance);
+      const jobs = d.item.total_jobs;
+      const members = getMembers(d.item);
+      const period = d.period || null;
+      render(pos, km, jobs, members, period);
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ pos, km, jobs, members, period, ts: Date.now() })); } catch (e) {}
       return;
     }
-  } catch (e) { console.error("ps-ranking API error", e); }
+  } catch (e) { console.error("loadPSRanking: error de conexion con el proxy", e); }
+
+  // 3) Stale cache
   try {
     const c = JSON.parse(localStorage.getItem(CACHE_KEY));
-    if (c) { render(c.mp, c.yp, c.km, c.jobs); return; }
+    if (c) {
+      console.warn("loadPSRanking: usando cache antigua");
+      render(c.pos, c.km, c.jobs, c.members, c.period);
+      return;
+    }
   } catch (e) {}
-  console.warn("loadPSRanking: no data");
+
+  // 4) Sin datos — renderizar indicador de error
+  render(null, null, null, null, "Sin datos");
+  console.warn("loadPSRanking: no se pudieron obtener datos del ranking mensual");
 }
 loadPSRanking();
 </script>

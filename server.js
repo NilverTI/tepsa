@@ -24,8 +24,11 @@ function setCache(key, data) {
   cache.set(key, { data, ts: Date.now() });
 }
 
-async function fetchJSON(url, headers) {
-  const res = await fetch(url, { headers });
+async function fetchJSON(url, headers, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const res = await fetch(url, { headers, signal: controller.signal });
+  clearTimeout(timer);
   if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
   return res.json();
 }
@@ -140,86 +143,17 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
+  if (url.pathname === "/api/ps-ranking") {
+    await handlePSRanking(response);
+    return;
+  }
+
   serveStaticFile(url.pathname, response);
 });
 
 server.listen(port, "127.0.0.1", () => {
   console.log(`TEPSA PSV lista en http://127.0.0.1:${port}`);
-  warmUpCache();
 });
-
-async function warmUpCache() {
-  try {
-    console.log(" Precargando datos de Trucky...");
-    const membersUrl = process.env.TRUCKY_API_URL || MEMBERS_URL;
-    const companyId = process.env.TRUCKY_COMPANY_ID || COMPANY_ID;
-
-    const headers = { ...TRUCKY_HEADERS };
-    if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
-
-    const [membersRaw, jobsRaw] = await Promise.all([
-      fetchJSON(membersUrl, headers),
-      fetchAllPages(`https://e.truckyapp.com/api/v1/company/${companyId}/jobs`, headers),
-    ]);
-
-    const members = membersRaw.data || [];
-    const jobs = jobsRaw.map(normalizeJob).filter(j => j.driver && j.kilometers > 0);
-
-    const damageByDriver = new Map();
-    const jobsCountByDriver = new Map();
-    jobs.forEach(job => {
-      const name = job.driver;
-      damageByDriver.set(name, (damageByDriver.get(name) || 0) + (Number(job.damage) || 0));
-      jobsCountByDriver.set(name, (jobsCountByDriver.get(name) || 0) + 1);
-    });
-
-    const ranking = members
-      .map(m => {
-        const name = m.name || m.username || "Sin nombre";
-        const lastJobDays = m.last_job_days != null && Number.isFinite(Number(m.last_job_days))
-          ? Number(m.last_job_days)
-          : 9999;
-        return {
-          name,
-          kilometers: Math.round(m.total_driven_distance_km || 0),
-          damage: Math.round(damageByDriver.get(name) || 0),
-          totalJobs: jobsCountByDriver.get(name) || 0,
-          points: Math.round(m.points || 0),
-          lastJob: formatLastJob(m.last_job_days),
-          lastJobDays,
-          rank: m.rank?.name || "",
-          role: m.role?.name || "",
-          avatar: m.avatar_url || "",
-          level: m.level || 0,
-          country: m.country || "",
-          cargoMass: Math.round(m.total_cargo_mass_t || 0),
-          revenue: Math.round(m.total_revenue || 0),
-        };
-      })
-      .sort((a, b) => {
-        if (b.kilometers !== a.kilometers) return b.kilometers - a.kilometers;
-        return a.damage - b.damage;
-      });
-
-    setCache("trucky:conductores", {
-      source: "trucky",
-      updatedAt: new Date().toISOString(),
-      ranking,
-      stats: {
-        kilometers: ranking.reduce((s, d) => s + d.kilometers, 0),
-        drivers: ranking.length,
-        active: ranking.filter(d => d.lastJobDays <= 7).length,
-      },
-    });
-
-    const membersResult = normalizeTruckyData(membersRaw);
-    setCache("trucky:members", membersResult);
-
-    console.log(` Datos precargados: ${ranking.length} conductores, ${jobs.length} viajes`);
-  } catch (err) {
-    console.log(" Precarga falló, los datos se cargarán al primer request:", err.message);
-  }
-}
 
 async function handleTruckyRequest(response) {
   const cacheKey = "trucky:members";
@@ -364,6 +298,37 @@ async function handleConductoresRanking(response) {
       ranking: [],
       stats: { kilometers: 0, drivers: 0, active: 0 },
     }, 502);
+  }
+}
+
+async function handlePSRanking(response) {
+  const HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    Accept: "application/json",
+    Origin: "https://peruserver.pe",
+    Referer: "https://peruserver.pe/",
+  };
+  const API_URL = "https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100";
+  const COMPANY_ID = 44302;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const apiRes = await fetch(API_URL, { headers: HEADERS, signal: controller.signal });
+    clearTimeout(timer);
+    if (!apiRes.ok) throw new Error("HTTP " + apiRes.status);
+    const data = await apiRes.json();
+    const items = data?.items || [];
+    const idx = items.findIndex(x => x.id === COMPANY_ID);
+    const item = idx >= 0 ? items[idx] : null;
+    sendJson(response, {
+      ok: !!item,
+      position: idx >= 0 ? idx + 1 : null,
+      total: items.length,
+      item: item,
+      period: data.period || null,
+    });
+  } catch (err) {
+    sendJson(response, { ok: false, error: err.message });
   }
 }
 
