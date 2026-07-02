@@ -56,7 +56,7 @@ function formatLastJob(days) {
   return `hace ${n} d\u00edas`;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 

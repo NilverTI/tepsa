@@ -1,6 +1,6 @@
 const API = "https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100";
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   try {
