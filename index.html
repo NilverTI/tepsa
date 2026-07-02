@@ -165,163 +165,111 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
-  width: 228px;
+  width: 192px;
   background: linear-gradient(160deg, #110e0d 0%, #080612 100%);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(212, 175, 55, .12);
   border-top: 2px solid #d4af37;
-  border-radius: 14px;
-  padding: 18px 14px 14px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .02);
+  border-radius: 12px;
+  padding: 14px 12px 11px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .02);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
-.psv-cert-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  justify-content: center;
-}
-.psv-cert-bolt { width: 14px; height: 14px; color: #ff2d2d; opacity: .55; flex-shrink: 0; }
-.psv-cert-top { display: flex; align-items: center; gap: 3px; }
-.psv-cert-label { font-size: 9px; font-weight: 700; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+.psv-cert-header { display: flex; align-items: center; gap: 4px; width: 100%; justify-content: center; }
+.psv-cert-bolt { width: 11px; height: 11px; color: #ff2d2d; opacity: .55; flex-shrink: 0; }
+.psv-cert-top { display: flex; align-items: center; gap: 2px; }
+.psv-cert-label { font-size: 8px; font-weight: 700; color: #888; letter-spacing: 1.5px; text-transform: uppercase; }
 .psv-cert-position {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 900;
   background: linear-gradient(135deg, #ffd93d, #ff6b35);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 6px rgba(255, 107, 53, .3));
+  filter: drop-shadow(0 0 4px rgba(255, 107, 53, .3));
 }
 .psv-cert-title {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   color: #fff;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
-  margin: 2px 0 1px;
 }
 .psv-cert-divider {
-  width: 55%;
+  width: 50%;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(212, 175, 55, .12), transparent);
-  margin: 4px 0;
+  margin: 2px 0;
 }
 .psv-cert-emblem {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 58px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 3px 0;
+  margin: 2px 0;
 }
-.psv-cert-star-ring {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  color: #d4af37;
-  opacity: .25;
-}
-.psv-cert-star-shape {
-  position: absolute;
-  width: 70%;
-  height: 70%;
-  color: #d4af37;
-  opacity: .12;
-}
+.psv-cert-star-ring { position: absolute; width: 100%; height: 100%; color: #d4af37; opacity: .25; }
+.psv-cert-star-shape { position: absolute; width: 68%; height: 68%; color: #d4af37; opacity: .12; }
 .psv-cert-number {
   position: relative;
   z-index: 1;
-  font-size: 30px;
+  font-size: 22px;
   font-weight: 900;
   background: linear-gradient(135deg, #ffd93d, #ff6b35);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 10px rgba(255, 107, 53, .25));
+  filter: drop-shadow(0 0 8px rgba(255, 107, 53, .25));
   line-height: 1;
 }
-.psv-cert-brand {
-  font-size: 10px;
-  font-weight: 700;
-  color: #777;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-}
+.psv-cert-brand { font-size: 9px; font-weight: 700; color: #777; letter-spacing: 2px; text-transform: uppercase; }
 .psv-cert-brand span { color: #d4af37; }
-.psv-cert-subtitle {
-  font-size: 8px;
-  color: #666;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-.psv-cert-pills { display: flex; gap: 4px; margin: 3px 0 1px; }
+.psv-cert-subtitle { font-size: 7px; color: #666; letter-spacing: 1.2px; text-transform: uppercase; }
+.psv-cert-pills { display: flex; gap: 3px; margin: 2px 0; }
 .psv-cert-pill {
-  font-size: 8.5px;
+  font-size: 7.5px;
   color: #aaa;
   background: rgba(212, 175, 55, .05);
   border: 1px solid rgba(212, 175, 55, .08);
   border-radius: 3px;
-  padding: 1px 8px;
+  padding: 1px 6px;
   white-space: nowrap;
 }
 .psv-cert-pill strong { color: #ffd93d; font-weight: 700; }
-.psv-cert-stats {
-  font-size: 10px;
-  font-weight: 600;
-  color: #ddd;
-  text-align: center;
-}
-.psv-cert-meta {
-  font-size: 7.5px;
-  color: #666;
-  letter-spacing: .5px;
-  margin-top: 1px;
-}
+.psv-cert-stats { font-size: 9px; font-weight: 600; color: #ddd; text-align: center; }
+.psv-cert-meta { font-size: 7px; color: #666; letter-spacing: .3px; }
 .psv-cert-verify {
-  font-size: 8.5px;
+  font-size: 7.5px;
   color: #d4af37;
   text-decoration: none;
   border: 1px solid rgba(212, 175, 55, .12);
   border-radius: 20px;
-  padding: 3px 14px;
-  margin-top: 4px;
+  padding: 2px 12px;
+  margin-top: 3px;
   transition: all .3s;
-  letter-spacing: .5px;
+  letter-spacing: .3px;
 }
-.psv-cert-verify:hover {
-  background: rgba(212, 175, 55, .08);
-  border-color: rgba(212, 175, 55, .25);
-  color: #ffd93d;
-}
+.psv-cert-verify:hover { background: rgba(212, 175, 55, .08); border-color: rgba(212, 175, 55, .25); color: #ffd93d; }
 
 @media(max-width:1200px){
   .hero{flex-direction:column;}
-  .psv-cert{
-    position:relative;
-    left:auto;
-    top:auto;
-    transform:none;
-    margin-bottom:20px;
-    width:220px;
-    padding:16px 12px 12px;
-  }
-  .psv-cert-number{font-size:26px;}
-  .psv-cert-emblem{width:64px;height:64px;}
+  .psv-cert{position:relative;left:auto;top:auto;transform:none;margin-bottom:18px;width:188px;padding:12px 10px 10px;}
+  .psv-cert-number{font-size:20px;}
+  .psv-cert-emblem{width:52px;height:52px;}
 }
 @media(max-width:480px){
-  .psv-cert{width:200px;padding:14px 10px 11px;}
-  .psv-cert-position{font-size:12px;}
-  .psv-cert-number{font-size:24px;}
-  .psv-cert-emblem{width:56px;height:56px;}
-  .psv-cert-title{font-size:11px;}
-  .psv-cert-stats{font-size:9px;}
+  .psv-cert{width:172px;padding:11px 10px 10px;}
+  .psv-cert-position{font-size:11px;}
+  .psv-cert-number{font-size:18px;}
+  .psv-cert-emblem{width:48px;height:48px;}
+  .psv-cert-title{font-size:10px;}
+  .psv-cert-stats{font-size:8px;}
   .about-cards{grid-template-columns:1fr;}
 }
 </style>
