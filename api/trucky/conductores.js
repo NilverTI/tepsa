@@ -108,6 +108,7 @@ module.exports = async function handler(req, res) {
           revenue: Math.round(m.total_revenue || 0),
         };
       })
+      .filter(m => (m.role?.name || "").toLowerCase() !== "owner")
       .sort((a, b) => {
         if (b.kilometers !== a.kilometers) return b.kilometers - a.kilometers;
         return a.damage - b.damage;
