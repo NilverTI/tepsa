@@ -151,7 +151,7 @@ function renderTruckyData(data) {
   status.innerHTML = `\uD83D\uDCE1 <strong>Trucky Hub</strong> \u00B7 Actualizado: ${updatedAt}`;
 }
 
-const CACHE_KEY = "tepsa_index";
+const CACHE_KEY = "tepsa_index_v2";
 const CACHE_TTL = 30 * 60 * 1000;
 
 function getCache() {
@@ -189,8 +189,8 @@ async function tryFetch(url) {
   return res.json();
 }
 
-async function fetchJobsDamage() {
-  const damageMap = new Map();
+async function fetchMonthJobs() {
+  const stats = new Map();
   try {
     const now = new Date();
     const y = now.getFullYear();
@@ -198,7 +198,7 @@ async function fetchJobsDamage() {
     const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
     const base = `https://e.truckyapp.com/api/v1/company/44302/jobs?dateFrom=${y}-${m}-01&dateTo=${y}-${m}-${lastDay}`;
     const p1 = await tryFetch(base + "&page=1");
-    if (!p1 || !p1.data) return damageMap;
+    if (!p1 || !p1.data) return stats;
     const total = p1.last_page || 1;
     const pages = [p1];
     for (let s = 2; s <= total; s += 4) {
@@ -212,14 +212,16 @@ async function fetchJobsDamage() {
       for (const job of page.data) {
         const name = job.in_game_profile_name || job.driver?.name || "";
         if (!name) continue;
-        const dmg = (job.vehicle_damage || 0) + (job.cargo_damage || 0) + (job.trailers_damage || 0);
-        if (dmg > 0) damageMap.set(name, (damageMap.get(name) || 0) + Math.round(dmg));
+        const prev = stats.get(name) || { kilometers: 0, damage: 0 };
+        prev.kilometers += Number(job.driven_distance_km || job.kilometers || 0);
+        prev.damage += (job.vehicle_damage || 0) + (job.cargo_damage || 0) + (job.trailers_damage || 0);
+        stats.set(name, prev);
       }
     }
   } catch (e) {
-    console.error("fetchJobsDamage:", e);
+    console.error("fetchMonthJobs:", e);
   }
-  return damageMap;
+  return stats;
 }
 
 function matchDamage(driver, damageMap) {
@@ -265,18 +267,30 @@ async function loadTruckyData(force) {
 
   if (!data) {
     try {
-      const raw = await tryFetch("https://e.truckyapp.com/api/v1/company/44302/members");
-      const members = (raw.data || []).map(transformMember);
+      const [raw, monthStats] = await Promise.all([
+        tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
+        fetchMonthJobs(),
+      ]);
+      const members = (raw.data || []).map(m => {
+        const name = m.name || "Sin nombre";
+        const ms = monthStats.get(name) || { kilometers: 0, damage: 0 };
+        return {
+          name,
+          kilometers: Math.round(ms.kilometers),
+          points: Math.round(m.points || 0),
+          lastJobDays: m.lastJobDays ?? m.last_job_days,
+          role: m.role?.name || m.role || "",
+          avatar: m.avatar_url || m.avatar || "",
+          damage: Math.round(ms.damage),
+          level: m.level || 0,
+          revenue: m.revenue || m.total_revenue || 0,
+          cargo: m.cargoMass || m.cargo || m.total_cargo_mass_t || 0,
+        };
+      });
       const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
-      const active = members.filter(d => d.lastJobDays === 0).length;
+      const active = members.filter(d => Number(d.lastJobDays ?? 9999) === 0).length;
       const drivers = members.filter(d => d.kilometers > 0).length;
       members.sort((a, b) => b.kilometers - a.kilometers);
-
-      const damageMap = await fetchJobsDamage();
-      for (const d of members) {
-        const dmg = matchDamage(d, damageMap);
-        if (dmg != null) d.damage = dmg;
-      }
 
       data = {
         source: "trucky",

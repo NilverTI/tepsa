@@ -63,7 +63,11 @@ module.exports = async function handler(req, res) {
   try {
     const membersUrl = process.env.TRUCKY_API_URL || MEMBERS_URL;
     const companyId = process.env.TRUCKY_COMPANY_ID || COMPANY_ID;
-    const jobsUrl = `https://e.truckyapp.com/api/v1/company/${companyId}/jobs`;
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
+    const jobsUrl = `https://e.truckyapp.com/api/v1/company/${companyId}/jobs?dateFrom=${y}-${m}-01&dateTo=${y}-${m}-${lastDay}`;
 
     const [membersRaw, jobsRaw] = await Promise.all([
       fetchJSON(membersUrl),
@@ -73,9 +77,11 @@ module.exports = async function handler(req, res) {
     const members = membersRaw.data || [];
     const jobs = jobsRaw.map(normalizeJob).filter(j => j.driver && j.kilometers > 0);
 
+    const kmByDriver = new Map();
     const damageByDriver = new Map();
     const jobsCountByDriver = new Map();
     jobs.forEach(job => {
+      kmByDriver.set(job.driver, (kmByDriver.get(job.driver) || 0) + (Number(job.kilometers) || 0));
       damageByDriver.set(job.driver, (damageByDriver.get(job.driver) || 0) + (Number(job.damage) || 0));
       jobsCountByDriver.set(job.driver, (jobsCountByDriver.get(job.driver) || 0) + 1);
     });
@@ -87,7 +93,7 @@ module.exports = async function handler(req, res) {
           ? Number(m.last_job_days) : 9999;
         return {
           name,
-          kilometers: Math.round(m.total_driven_distance_km || 0),
+          kilometers: Math.round(kmByDriver.get(name) || 0),
           damage: Math.round(damageByDriver.get(name) || 0),
           totalJobs: jobsCountByDriver.get(name) || 0,
           points: Math.round(m.points || 0),
@@ -113,7 +119,7 @@ module.exports = async function handler(req, res) {
       ranking,
       stats: {
         kilometers: ranking.reduce((s, d) => s + d.kilometers, 0),
-        drivers: ranking.length,
+        drivers: ranking.filter(d => d.kilometers > 0).length,
         active: ranking.filter(d => d.lastJobDays <= 7).length,
       },
     });
