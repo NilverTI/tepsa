@@ -165,6 +165,7 @@
   transition: border-color .35s, box-shadow .4s, transform .3s;
   overflow: hidden;
   isolation: isolate;
+  cursor: pointer; /* Clickable */
 }
 .driver-card::before {
   content: '';
@@ -436,6 +437,145 @@
   .drivers-grid { padding: 20px 5% 40px; grid-template-columns: 1fr; gap: 14px; }
   .driver-card { padding: 16px; }
 }
+
+/* === Driver Photos Modal Styles === */
+.photos-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.photos-modal.show {
+  display: flex;
+  opacity: 1;
+}
+.photos-modal-content {
+  background: rgba(18, 16, 22, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 45, 45, 0.2);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  padding: 30px 24px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 45, 45, 0.05);
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
+.photos-modal.show .photos-modal-content {
+  transform: scale(1);
+}
+.photos-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s;
+  outline: none;
+  line-height: 1;
+}
+.photos-modal-close:hover {
+  color: #ff2d2d;
+}
+.photos-modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.photos-modal-icon {
+  font-size: 40px;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 0 10px rgba(255, 45, 45, 0.2));
+  animation: pulse-camera 2s infinite ease-in-out;
+}
+@keyframes pulse-camera {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(255, 45, 45, 0.4)); }
+  100% { transform: scale(1); }
+}
+.photos-modal-body h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+.photos-modal-divider {
+  width: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 45, 45, 0.3), transparent);
+}
+.photos-modal-body h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff2d2d;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 4px 0 0 0;
+}
+.photos-modal-body p {
+  font-size: 12.5px;
+  color: #aaa;
+  line-height: 1.6;
+  margin: 0;
+}
+.photos-modal-progress {
+  width: 80%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.photos-modal-bar {
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff2d2d, #ff6b6b);
+  border-radius: 2px;
+  animation: loading-bar 1.5s infinite linear;
+}
+@keyframes loading-bar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+.photos-modal-btn {
+  background: rgba(255, 45, 45, 0.1);
+  border: 1px solid rgba(255, 45, 45, 0.3);
+  color: #ff2d2d;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.photos-modal-btn:hover {
+  background: #ff2d2d;
+  border-color: #ff2d2d;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(255, 45, 45, 0.3);
+}
 </style>
 
 </head>
@@ -492,6 +632,24 @@
     <div class="loading-spinner" id="loading-spinner">
         <div class="spinner"></div>
         <p>Cargando conductores...</p>
+    </div>
+</div>
+
+<!-- Modal de Fotos del Conductor -->
+<div id="driverPhotosModal" class="photos-modal">
+    <div class="photos-modal-content">
+        <button class="photos-modal-close" id="closePhotosModal">&times;</button>
+        <div class="photos-modal-body">
+            <div class="photos-modal-icon">📸</div>
+            <h2 id="modalDriverName">Galería de Conductor</h2>
+            <div class="photos-modal-divider"></div>
+            <h3>Sección en Desarrollo</h3>
+            <p>Estamos trabajando activamente en este apartado. Pronto podrás ver la galería de fotos personal y las mejores capturas de ruta de <span id="modalDriverNameSpan" style="color: #ff2d2d; font-weight: 600;">Conductor</span>.</p>
+            <div class="photos-modal-progress">
+                <div class="photos-modal-bar"></div>
+            </div>
+            <button class="photos-modal-btn" id="closePhotosModalBtn">Aceptar</button>
+        </div>
     </div>
 </div>
 
@@ -661,15 +819,15 @@ function renderDrivers() {
     }
 }
 
-const CACHE_KEY = "tepsa_conductores_v2";
-const CACHE_TTL = 30 * 60 * 1000;
+const CACHE_KEY = "tepsa_conductores_v3";
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos de validez de caché para consultas en segundo plano
 
 function getCache() {
     try {
         const raw = localStorage.getItem(CACHE_KEY);
         if (!raw) return null;
         const entry = JSON.parse(raw);
-        if (Date.now() - entry.ts > CACHE_TTL) { localStorage.removeItem(CACHE_KEY); return null; }
+        // Retornamos los datos para pintado instantáneo aunque hayan expirado
         return entry.data;
     } catch { return null; }
 }
@@ -786,16 +944,31 @@ async function fetchFresh() {
 
 async function loadData(force) {
     const cached = getCache();
-    if (cached && !force) {
+    if (cached) {
         allDrivers = (cached.ranking || []).filter(d => d.role?.toLowerCase() !== "owner");
         renderStats(cached.stats);
         renderDrivers();
-        document.getElementById("data-status").textContent = `\uD83D\uDCE1 Datos en cach\u00e9 \u00B7 ${allDrivers.length} miembros`;
-        return;
+        const statusEl = document.getElementById("data-status");
+        if (statusEl) {
+            statusEl.textContent = `📡 Datos en caché · ${allDrivers.length} miembros`;
+        }
     }
+    
+    // Si la caché es reciente y no se fuerza, evitamos consultar al servidor
+    try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (raw && !force) {
+            const entry = JSON.parse(raw);
+            if (Date.now() - entry.ts < CACHE_TTL) {
+                return;
+            }
+        }
+    } catch (e) {}
+
     try {
         await fetchFresh();
-    } catch {
+    } catch (e) {
+        console.error("loadData: error al actualizar en segundo plano", e);
         if (!cached) {
             allDrivers = [
                 { name: "[TPS]SABROSAURIO", kilometers: 43400, damage: 3263, totalJobs: 78, points: 63897, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Administrador", avatar: "", level: 8, country: "PE", cargoMass: 663, revenue: 34542506 },
@@ -844,8 +1017,41 @@ document.querySelectorAll(".status-btn").forEach(btn => {
     });
 });
 
+const modal = document.getElementById("driverPhotosModal");
+const modalDriverName = document.getElementById("modalDriverName");
+const modalDriverNameSpan = document.getElementById("modalDriverNameSpan");
+
+function openPhotosModal(name) {
+    if (!modal) return;
+    modalDriverName.textContent = `Galería de ${name}`;
+    modalDriverNameSpan.textContent = name;
+    modal.style.display = "flex";
+    setTimeout(() => modal.classList.add("show"), 10);
+}
+
+function closePhotosModal() {
+    if (!modal) return;
+    modal.classList.remove("show");
+    setTimeout(() => modal.style.display = "none", 300);
+}
+
+document.getElementById("closePhotosModal")?.addEventListener("click", closePhotosModal);
+document.getElementById("closePhotosModalBtn")?.addEventListener("click", closePhotosModal);
+modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closePhotosModal();
+});
+
+// Registrar evento click para tarjetas mediante delegación de eventos
+document.getElementById("drivers-grid")?.addEventListener("click", (e) => {
+    const card = e.target.closest(".driver-card");
+    if (!card) return;
+    const nameEl = card.querySelector(".driver-meta h3");
+    if (!nameEl) return;
+    openPhotosModal(nameEl.textContent);
+});
+
 loadData();
-setInterval(() => loadData(true), 1800000);
+setInterval(() => loadData(true), 5 * 60 * 1000); // Polling cada 5 minutos en segundo plano
 document.getElementById("hamburger")?.addEventListener("click", () => {
   document.getElementById("mainMenu")?.classList.toggle("show");
 });
