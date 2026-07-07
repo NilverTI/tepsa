@@ -308,6 +308,13 @@ async function handleConductoresRanking(response) {
 }
 
 async function handlePSRanking(response) {
+  const cacheKey = "psv:ranking";
+  const cached = getCache(cacheKey);
+  if (cached) {
+    sendJson(response, cached);
+    return;
+  }
+
   const HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     Accept: "application/json",
@@ -326,14 +333,22 @@ async function handlePSRanking(response) {
     const items = data?.items || [];
     const idx = items.findIndex(x => x.id === COMPANY_ID);
     const item = idx >= 0 ? items[idx] : null;
-    sendJson(response, {
+    const result = {
       ok: !!item,
       position: idx >= 0 ? idx + 1 : null,
       total: items.length,
       item: item,
       period: data.period || null,
-    });
+    };
+    setCache(cacheKey, result);
+    sendJson(response, result);
   } catch (err) {
+    const cachedFallback = getCache(cacheKey) || (cache.get(cacheKey) ? cache.get(cacheKey).data : null);
+    if (cachedFallback) {
+      console.warn("handlePSRanking: error fetching, serving cached data:", err.message);
+      sendJson(response, cachedFallback);
+      return;
+    }
     sendJson(response, { ok: false, error: err.message });
   }
 }

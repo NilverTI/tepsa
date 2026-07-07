@@ -165,111 +165,134 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
-  width: 192px;
-  background: linear-gradient(160deg, #110e0d 0%, #080612 100%);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(212, 175, 55, .12);
-  border-top: 2px solid #d4af37;
-  border-radius: 12px;
-  padding: 14px 12px 11px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .02);
+  width: 210px;
+  background: radial-gradient(circle at center, #141218 0%, #09080c 100%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 3px #09080c,
+    inset 0 0 0 4px rgba(212, 175, 55, 0.25);
+  border-radius: 8px;
+  padding: 18px 14px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
 }
-.psv-cert-header { display: flex; align-items: center; gap: 4px; width: 100%; justify-content: center; }
-.psv-cert-bolt { width: 11px; height: 11px; color: #ff2d2d; opacity: .55; flex-shrink: 0; }
-.psv-cert-top { display: flex; align-items: center; gap: 2px; }
-.psv-cert-label { font-size: 8px; font-weight: 700; color: #888; letter-spacing: 1.5px; text-transform: uppercase; }
+.psv-cert-header { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 1px; }
+.psv-cert-bolt { display: none; }
+.psv-cert-top { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.psv-cert-label { font-size: 7.5px; font-weight: 700; color: rgba(212, 175, 55, 0.85); letter-spacing: 2px; text-transform: uppercase; }
 .psv-cert-position {
-  font-size: 12px;
-  font-weight: 900;
-  background: linear-gradient(135deg, #ffd93d, #ff6b35);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 0 4px rgba(255, 107, 53, .3));
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
 .psv-cert-title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
-  letter-spacing: 1.2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
+  margin-top: 2px;
 }
 .psv-cert-divider {
-  width: 50%;
+  width: 70%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, .12), transparent);
-  margin: 2px 0;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.25), transparent);
+  margin: 3px 0;
 }
 .psv-cert-emblem {
   position: relative;
-  width: 58px;
-  height: 58px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 2px 0;
+  margin: 4px 0;
+  background: radial-gradient(circle, #2d261a 0%, #16120b 100%);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 0 8px rgba(212, 175, 55, 0.15);
 }
-.psv-cert-star-ring { position: absolute; width: 100%; height: 100%; color: #d4af37; opacity: .25; }
-.psv-cert-star-shape { position: absolute; width: 68%; height: 68%; color: #d4af37; opacity: .12; }
+.psv-cert-star-ring { position: absolute; width: 100%; height: 100%; color: #d4af37; opacity: .3; }
+.psv-cert-star-shape { position: absolute; width: 68%; height: 68%; color: #d4af37; opacity: .06; }
 .psv-cert-number {
   position: relative;
   z-index: 1;
-  font-size: 22px;
-  font-weight: 900;
-  background: linear-gradient(135deg, #ffd93d, #ff6b35);
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffe082, #d4af37);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 8px rgba(255, 107, 53, .25));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
   line-height: 1;
 }
-.psv-cert-brand { font-size: 9px; font-weight: 700; color: #777; letter-spacing: 2px; text-transform: uppercase; }
+.psv-cert-brand { font-size: 8px; font-weight: 700; color: #fff; letter-spacing: 2.5px; text-transform: uppercase; margin-top: 1px; }
 .psv-cert-brand span { color: #d4af37; }
-.psv-cert-subtitle { font-size: 7px; color: #666; letter-spacing: 1.2px; text-transform: uppercase; }
-.psv-cert-pills { display: flex; gap: 3px; margin: 2px 0; }
+.psv-cert-subtitle { font-size: 6.5px; color: #9e978e; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; margin-top: -1px; }
+.psv-cert-pills { display: flex; gap: 4px; margin: 2px 0; }
 .psv-cert-pill {
   font-size: 7.5px;
-  color: #aaa;
+  color: #dcd7ce;
   background: rgba(212, 175, 55, .05);
-  border: 1px solid rgba(212, 175, 55, .08);
-  border-radius: 3px;
-  padding: 1px 6px;
+  border: 1px solid rgba(212, 175, 55, .15);
+  border-radius: 4px;
+  padding: 1.5px 7px;
   white-space: nowrap;
 }
-.psv-cert-pill strong { color: #ffd93d; font-weight: 700; }
-.psv-cert-stats { font-size: 9px; font-weight: 600; color: #ddd; text-align: center; }
-.psv-cert-meta { font-size: 7px; color: #666; letter-spacing: .3px; }
+.psv-cert-pill strong { color: #ffd700; font-weight: 700; }
+.psv-cert-stats { font-size: 9.5px; font-weight: 700; color: #fff; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); }
+.psv-cert-meta { font-size: 6.5px; color: #8c857b; letter-spacing: 0.5px; text-transform: uppercase; }
 .psv-cert-verify {
   font-size: 7.5px;
+  font-weight: 600;
   color: #d4af37;
   text-decoration: none;
-  border: 1px solid rgba(212, 175, 55, .12);
-  border-radius: 20px;
-  padding: 2px 12px;
-  margin-top: 3px;
-  transition: all .3s;
-  letter-spacing: .3px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 4px;
+  padding: 3.5px 12px;
+  margin-top: 5px;
+  transition: all .3s ease;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: rgba(212, 175, 55, 0.02);
 }
-.psv-cert-verify:hover { background: rgba(212, 175, 55, .08); border-color: rgba(212, 175, 55, .25); color: #ffd93d; }
+.psv-cert-verify:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #d4af37;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.25);
+  transform: translateY(-1px);
+}
 
 @media(max-width:1200px){
   .hero{flex-direction:column;}
-  .psv-cert{position:relative;left:auto;top:auto;transform:none;margin-bottom:18px;width:188px;padding:12px 10px 10px;}
-  .psv-cert-number{font-size:20px;}
-  .psv-cert-emblem{width:52px;height:52px;}
+  .psv-cert{
+    position:relative;
+    left:auto;
+    top:auto;
+    transform:none;
+    margin-bottom:18px;
+    width:210px;
+    padding:18px 14px 14px;
+  }
 }
 @media(max-width:480px){
-  .psv-cert{width:172px;padding:11px 10px 10px;}
-  .psv-cert-position{font-size:11px;}
-  .psv-cert-number{font-size:18px;}
-  .psv-cert-emblem{width:48px;height:48px;}
-  .psv-cert-title{font-size:10px;}
-  .psv-cert-stats{font-size:8px;}
+  .psv-cert{
+    width:210px;
+    padding:18px 14px 14px;
+  }
+  .psv-cert-position{font-size:13px;}
+  .psv-cert-number{font-size:24px;}
+  .psv-cert-emblem{width:60px;height:60px;}
+  .psv-cert-title{font-size:13px;}
+  .psv-cert-stats{font-size:9.5px;}
   .about-cards{grid-template-columns:1fr;gap:12px;}
   .about-card{padding:18px 14px;}
   .about-card h3{font-size:14px;}
@@ -329,7 +352,7 @@
             <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
             <div class="psv-cert-top">
                 <span class="psv-cert-label">TOP</span>
-                <span id="psvCertHeroRank" class="psv-cert-position">--</span>
+                <span id="psvCertHeroRank" class="psv-cert-position">#6</span>
             </div>
             <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
         </div>
@@ -343,19 +366,19 @@
             <svg class="psv-cert-star-shape" viewBox="0 0 100 100" fill="none">
                 <path d="M50 5 L61 38 L97 38 L68 58 L77 92 L50 72 L23 92 L32 58 L3 38 L39 38 Z" fill="currentColor"/>
             </svg>
-            <span id="psvCertCenterRank" class="psv-cert-number">--</span>
+            <span id="psvCertCenterRank" class="psv-cert-number">6</span>
         </div>
         <div class="psv-cert-brand">PERU<span>S</span>ERVER</div>
-        <div id="psvCertSubtitle" class="psv-cert-subtitle">Cargando...</div>
+        <div id="psvCertSubtitle" class="psv-cert-subtitle">Ranking Mensual PeruServer</div>
         <div class="psv-cert-pills">
-            <span class="psv-cert-pill">Pos. <strong id="psvCertMonthRank">--</strong></span>
-            <span class="psv-cert-pill"><strong id="psvCertMembers">--</strong> miembros</span>
+            <span class="psv-cert-pill">Pos. <strong id="psvCertMonthRank">#6</strong></span>
+            <span class="psv-cert-pill"><strong id="psvCertMembers">15</strong> miembros</span>
         </div>
         <div class="psv-cert-stats">
-            <span id="psvCertStats">--</span>
+            <span id="psvCertStats">7,572 KM · 6 Viajes</span>
         </div>
-        <div id="psvCertMeta" class="psv-cert-meta">Cargando...</div>
-        <a href="https://peruserver.de/" target="_blank" class="psv-cert-verify">Verificar certificado →</a>
+        <div id="psvCertMeta" class="psv-cert-meta">Top 6 · En vivo · Julio 2026</div>
+        <a href="https://peruserver.pe/empresas#rankings" target="_blank" class="psv-cert-verify">Verificar certificado →</a>
     </div>
 
     <div class="hero-content">
@@ -696,10 +719,11 @@
 document.getElementById("hamburger")?.addEventListener("click", () => {
   document.getElementById("mainMenu")?.classList.toggle("show");
 });
-const CACHE_KEY = "tepsa:ps-ranking:v4";
-const CACHE_TTL = 10 * 60 * 1000;
+const CACHE_KEY = "tepsa:ps-ranking:v5";
+const CACHE_TTL = 5 * 60 * 1000;
 try { localStorage.removeItem("tepsa:ps-ranking:v2"); } catch (e) {}
 try { localStorage.removeItem("tepsa:ps-ranking:v3"); } catch (e) {}
+try { localStorage.removeItem("tepsa:ps-ranking:v4"); } catch (e) {}
 
 async function loadPSRanking() {
   const els = {
@@ -723,58 +747,94 @@ async function loadPSRanking() {
     if (els.members) els.members.textContent = members || "?";
     if (els.title) els.title.textContent = "TEPSA PSV";
     if (els.subtitle) els.subtitle.textContent = "Ranking Mensual PeruServer";
-    if (els.meta) els.meta.textContent = "Top " + (pos || "?") + " \u00B7 En vivo \u00B7 " + (period || new Date().toLocaleDateString("es-PE"));
+    
+    // Format period if it is an object
+    let displayPeriod = period;
+    if (period && typeof period === "object") {
+      if (period.from && period.from.month && period.from.year) {
+        const months = [
+          "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+        const mName = months[period.from.month - 1] || period.from.month;
+        displayPeriod = `${mName} ${period.from.year}`;
+      } else {
+        displayPeriod = JSON.stringify(period);
+      }
+    }
+    
+    if (els.meta) els.meta.textContent = "Top " + (pos || "?") + " \u00B7 En vivo \u00B7 " + (displayPeriod || new Date().toLocaleDateString("es-PE"));
   };
 
-  const formatKm = (meters) => {
-    if (meters == null) return null;
-    return Number(meters / 1000).toLocaleString("es-PE") + " km";
+  const formatKm = (km) => {
+    if (km == null) return null;
+    return Number(km).toLocaleString("es-PE");
   };
 
   const getMembers = (item) => item.members || item.total_members || item.member_count || item.membersCount;
 
-  // 1) Cache vigente
+  // 1) Renderizar desde la caché de forma inmediata si existe
+  let cachedData = null;
   try {
-    const c = JSON.parse(localStorage.getItem(CACHE_KEY));
-    if (c && Date.now() - c.ts < CACHE_TTL) { render(c.pos, c.km, c.jobs, c.members, c.period); return; }
+    cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (cachedData) {
+      render(cachedData.pos, cachedData.km, cachedData.jobs, cachedData.members, cachedData.period);
+    }
   } catch (e) {}
 
-  // 2) Proxy Vercel -> /api/ps-ranking (timeout 6s)
+  // 2) Si la caché es reciente, no consultamos al servidor para ahorrar recursos
+  if (cachedData && Date.now() - cachedData.ts < CACHE_TTL) {
+    return;
+  }
+
+  // 3) Consultar nuevos datos en segundo plano
   try {
     const ac = new AbortController();
     const tid = setTimeout(() => ac.abort(), 6000);
-    const r = await fetch("/api/ps-ranking?_=" + Date.now(), { cache: "no-store", signal: ac.signal });
+    
+    // Detectar entorno local para usar puerto 3000 si estamos en Live Server
+    let apiUrl = "/api/ps-ranking?_=" + Date.now();
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+      if (window.location.port && window.location.port !== "3000") {
+        apiUrl = "http://127.0.0.1:3000/api/ps-ranking?_=" + Date.now();
+      }
+    }
+    
+    const r = await fetch(apiUrl, { cache: "no-store", signal: ac.signal });
     clearTimeout(tid);
     const d = await r.json();
-    if (!d.ok) {
-      console.warn("loadPSRanking: proxy error —", d.error || "empresa no encontrada en el ranking mensual");
-    } else if (d.item) {
+    if (d.ok && d.item) {
       const pos = d.position;
       const km = formatKm(d.item.total_distance);
       const jobs = d.item.total_jobs;
       const members = getMembers(d.item);
       const period = d.period || null;
+      
+      // Actualizar DOM y guardar en caché
       render(pos, km, jobs, members, period);
       try { localStorage.setItem(CACHE_KEY, JSON.stringify({ pos, km, jobs, members, period, ts: Date.now() })); } catch (e) {}
-      return;
+    } else {
+      console.warn("loadPSRanking: error en la respuesta del proxy -", d.error || "empresa no encontrada");
+      // Si no hay caché previa, renderizamos estado sin datos
+      if (!cachedData) {
+        render(null, null, null, null, "Sin datos");
+      }
     }
-  } catch (e) { console.error("loadPSRanking: error de conexion con el proxy", e); }
-
-  // 3) Stale cache
-  try {
-    const c = JSON.parse(localStorage.getItem(CACHE_KEY));
-    if (c) {
-      console.warn("loadPSRanking: usando cache antigua");
-      render(c.pos, c.km, c.jobs, c.members, c.period);
-      return;
+  } catch (e) {
+    console.error("loadPSRanking: error de conexion", e);
+    // Si la conexión falla pero tenemos caché previa, se mantiene renderizada la caché.
+    // Solo si no hay caché previa en absoluto mostramos "Sin datos"
+    if (!cachedData) {
+      render(null, null, null, null, "Sin datos");
     }
-  } catch (e) {}
-
-  // 4) Sin datos — renderizar indicador de error
-  render(null, null, null, null, "Sin datos");
-  console.warn("loadPSRanking: no se pudieron obtener datos del ranking mensual");
+  }
 }
+
+// Ejecución inicial al cargar la página
 loadPSRanking();
+
+// Actualización automática cada 5 minutos
+setInterval(loadPSRanking, 5 * 60 * 1000);
 </script>
 
 <script>

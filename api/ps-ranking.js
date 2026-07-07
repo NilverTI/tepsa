@@ -9,7 +9,7 @@ const COMPANY_ID = 44302;
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader("Cache-Control", "public, max-age=300, s-maxage=300");
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
