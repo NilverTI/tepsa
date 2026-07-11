@@ -12,46 +12,79 @@ color:#fff;
 overflow-x:hidden;
 }
 
-.navbar{
-position:fixed;
-top:0;
-width:100%;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:20px 8%;
-background:rgba(0,0,0,.25);
-backdrop-filter:blur(4px);
-z-index:1000;
-transition:background .4s ease, backdrop-filter .4s ease, box-shadow .4s ease;
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 8%;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    z-index: 1000;
+    transition: padding 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                background 0.4s ease, 
+                backdrop-filter 0.4s ease, 
+                box-shadow 0.4s ease;
 }
-.navbar.scrolled{
-background:rgba(0,0,0,.92);
-backdrop-filter:blur(10px);
-box-shadow:0 2px 20px rgba(0,0,0,.4);
-}
-
-.logo{
-font-size:28px;
-font-weight:700;
-color:#ff2d2d;
-}
-
-.menu{
-display:flex;
-list-style:none;
-gap:30px;
+.navbar.scrolled {
+    padding: 15px 8%;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.menu a{
-text-decoration:none;
-color:white;
-font-weight:500;
-transition:.3s;
+.logo {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ff2d2d;
+    letter-spacing: 0.5px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+}
+.logo:hover {
+    transform: scale(1.03);
 }
 
-.menu a:hover{
-color:#ff2d2d;
+.menu {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    align-items: center;
+}
+
+.menu a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+    font-size: 14.5px;
+    transition: color 0.3s ease;
+    position: relative;
+    padding: 6px 0;
+}
+
+.menu a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: #ff2d2d;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+.menu a:hover {
+    color: #ffffff;
+}
+
+.menu a:hover::after {
+    width: 100%;
+    left: 0;
 }
 
 .hamburger{ display:none; }
@@ -1000,6 +1033,7 @@ text-align:center;
   }
   .menu.show{ display:flex; }
   .menu a{ display:block; padding:14px 5%; border-bottom:1px solid rgba(255,255,255,.05); }
+  .menu a::after{ display:none; }
   .menu li:last-child a{ border-bottom:none; }
 
   .hamburger{
