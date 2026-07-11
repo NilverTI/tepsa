@@ -846,7 +846,7 @@ text-align:center;
 #fundadores {
     padding: 120px 8%;
     position: relative;
-    background: linear-gradient(90deg, rgba(5, 5, 5, 0.85) 0%, rgba(5, 5, 5, 0.45) 45%, rgba(5, 5, 5, 0.85) 100%),
+    background: linear-gradient(90deg, rgba(5, 5, 5, 0.8) 0%, rgba(5, 5, 5, 0.2) 60%, rgba(5, 5, 5, 0.1) 100%),
                 url("img/fundadores/banner.png");
     background-size: cover;
     background-position: center;
@@ -855,6 +855,24 @@ text-align:center;
     justify-content: flex-start; /* Align content to the left on desktop */
     align-items: center;
     min-height: 520px;
+    overflow: hidden; /* Evitar desbordamiento del pseudo-elemento de desenfoque */
+}
+
+/* Efecto de cristal esmerilado asimétrico (desenfocado a la izquierda, limpio a la derecha) */
+#fundadores::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 62%; /* Cubre la zona detrás de las tarjetas */
+    height: 100%;
+    background: linear-gradient(90deg, rgba(5, 5, 5, 0.75) 0%, rgba(5, 5, 5, 0.3) 100%);
+    backdrop-filter: blur(12px) saturate(110%);
+    -webkit-backdrop-filter: blur(12px) saturate(110%);
+    mask-image: linear-gradient(90deg, black 75%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, black 75%, transparent 100%);
+    z-index: 1;
+    pointer-events: none; /* Permitir clicks a través del overlay */
 }
 
 .fundadores-grid {
@@ -1050,13 +1068,11 @@ text-align:center;
 
 
 
-  #fundadores{ padding:50px 16px; }
-  .fundadores-hero{ margin-bottom:40px; }
-  .fundadores-overlay h2{ font-size:2.2rem; }
-  .fundadores-overlay p{ font-size:1rem; }
-  .fundadores-grid{ gap:20px; }
-  .fundador-card{ width:100%; max-width:320px; padding:20px; }
-  .fundador-card img{ width:140px; height:140px; }
+  #fundadores{ padding:60px 16px; display:block; }
+  #fundadores::before{ width:100%; mask-image:none; -webkit-mask-image:none; background:rgba(5, 5, 5, 0.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+  .fundadores-grid{ gap:20px; justify-content:center; max-width:100%; }
+  .fundador-card{ width:100%; max-width:250px; padding:22px 18px; }
+  .fundador-card img{ width:120px; height:120px; }
   .principal{ transform:none; }
   .principal:hover{ 
       transform: translateY(-10px); 
