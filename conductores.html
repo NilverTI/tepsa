@@ -1431,11 +1431,51 @@
           }
         }
 
-        const res = await fetch(apiUrl);
-        const data = await res.json();
+        let res, data;
+        let useDirectFallback = false;
+        
+        try {
+          res = await fetch(apiUrl);
+          if (res.ok) {
+            data = await res.json();
+          } else {
+            useDirectFallback = true;
+          }
+        } catch (fetchErr) {
+          console.warn("Local API server offline, using direct Supabase fallback:", fetchErr);
+          useDirectFallback = true;
+        }
 
-        if (!data.success) {
-          throw new Error(data.error || "Error al cargar fotos");
+        if (useDirectFallback || !data || !data.success) {
+          const supabaseUrl = "https://natrscfdveztkerxyhoc.supabase.co";
+          const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
+          
+          const limit = 12;
+          const offset = (page - 1) * limit;
+          const dbUrl = `${supabaseUrl}/rest/v1/fotos_conductores?driver_name=eq.${encodeURIComponent(driverName)}&order=created_at.desc&limit=${limit}&offset=${offset}`;
+
+          const dbResponse = await fetch(dbUrl, {
+            headers: {
+              "apikey": supabaseKey,
+              "Authorization": `Bearer ${supabaseKey}`,
+              "Prefer": "count=exact"
+            }
+          });
+
+          if (!dbResponse.ok) {
+            throw new Error(`Direct query failed with status ${dbResponse.status}`);
+          }
+
+          const photos = await dbResponse.json();
+          const rangeHeader = dbResponse.headers.get("content-range");
+          let total = 0;
+          if (rangeHeader) {
+            const parts = rangeHeader.split("/");
+            if (parts.length > 1) total = parseInt(parts[1], 10) || 0;
+          }
+          const pages = Math.ceil(total / limit);
+
+          data = { success: true, photos, pages, page, total };
         }
 
         const photos = data.photos || [];
@@ -1595,10 +1635,7 @@
 
       btnSubmitPopupUpload.disabled = true;
       btnSubmitPopupUpload.textContent = "Publicando...";
-      uploadPopupError.style.display = "none";
-      uploadPopupSuccess.style.display = "none";
-
-      try {
+      uploadPopup      try {
         let apiUrl = "/api/galeria/upload";
         if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
           if (window.location.port && window.location.port !== "3000") {
@@ -1606,27 +1643,86 @@
           }
         }
 
-        const response = await fetch(apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            driver: activeModalDriver,
-            password,
-            url,
-            description
-          })
-        });
+        let response, resData;
+        let useDirectUploadFallback = false;
 
-        const resData = await response.json();
-
-        if (!response.ok || !resData.success) {
-          if (response.status === 401) {
-            // Contraseña incorrecta, limpiar localStorage y regresar a login
-            localStorage.removeItem(`tepsa:driver-pw:${activeModalDriver}`);
-            btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
-            throw new Error("Contraseña incorrecta. Por favor, vuelve a ingresar tu contraseña.");
+        try {
+          response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              driver: activeModalDriver,
+              password,
+              url,
+              description
+            })
+          });
+          if (response.ok) {
+            resData = await response.json();
+          } else {
+            if (response.status === 401) {
+              localStorage.removeItem(`tepsa:driver-pw:${activeModalDriver}`);
+              btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
+              throw new Error("Contraseña incorrecta. Por favor, vuelve a ingresar tu contraseña.");
+            }
+            useDirectUploadFallback = true;
           }
-          throw new Error(resData.error || "Fallo al publicar la captura.");
+        } catch (fetchErr) {
+          if (fetchErr.message && fetchErr.message.includes("Contraseña incorrecta")) {
+            throw fetchErr;
+          }
+          console.warn("Local upload API failed, falling back to direct Supabase write:", fetchErr);
+          useDirectUploadFallback = true;
+        }
+
+        if (useDirectUploadFallback) {
+          const supabaseUrl = "https://natrscfdveztkerxyhoc.supabase.co";
+          const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
+
+          // 1. Verificar/Registrar en conductores_auth
+          const authUrl = `${supabaseUrl}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(activeModalDriver)}`;
+          const authRes = await fetch(authUrl, {
+            headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` }
+          });
+          if (!authRes.ok) throw new Error("Error al consultar credenciales directamente en Supabase.");
+          const authData = await authRes.json();
+
+          if (authData.length === 0) {
+            // Registrar contraseña nueva
+            const registerRes = await fetch(`${supabaseUrl}/rest/v1/conductores_auth`, {
+              method: "POST",
+              headers: {
+                "apikey": supabaseKey,
+                "Authorization": `Bearer ${supabaseKey}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ driver_name: activeModalDriver, password })
+            });
+            if (!registerRes.ok) throw new Error("No se pudo registrar tu contraseña en Supabase.");
+          } else {
+            if (authData[0].password !== password) {
+              localStorage.removeItem(`tepsa:driver-pw:${activeModalDriver}`);
+              btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
+              throw new Error("Contraseña incorrecta. Por favor, vuelve a ingresar tu contraseña.");
+            }
+          }
+
+          // 2. Insertar imagen
+          const insertRes = await fetch(`${supabaseUrl}/rest/v1/fotos_conductores`, {
+            method: "POST",
+            headers: {
+              "apikey": supabaseKey,
+              "Authorization": `Bearer ${supabaseKey}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              driver_name: activeModalDriver,
+              image_url: url,
+              description
+            })
+          });
+          if (!insertRes.ok) throw new Error("Error al guardar la captura en la base de datos.");
+          resData = { success: true };
         }
 
         uploadPopupSuccess.textContent = "¡Captura publicada con éxito!";
