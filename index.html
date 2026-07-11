@@ -375,7 +375,7 @@
             <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
             <div class="psv-cert-top">
                 <span class="psv-cert-label">TOP</span>
-                <span id="psvCertHeroRank" class="psv-cert-position">#6</span>
+                <span id="psvCertHeroRank" class="psv-cert-position">#4</span>
             </div>
             <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
         </div>
@@ -389,18 +389,18 @@
             <svg class="psv-cert-star-shape" viewBox="0 0 100 100" fill="none">
                 <path d="M50 5 L61 38 L97 38 L68 58 L77 92 L50 72 L23 92 L32 58 L3 38 L39 38 Z" fill="currentColor"/>
             </svg>
-            <span id="psvCertCenterRank" class="psv-cert-number">6</span>
+            <span id="psvCertCenterRank" class="psv-cert-number">4</span>
         </div>
         <div class="psv-cert-brand">PERU<span>S</span>ERVER</div>
         <div id="psvCertSubtitle" class="psv-cert-subtitle">Ranking Mensual PeruServer</div>
         <div class="psv-cert-pills">
-            <span class="psv-cert-pill">Pos. <strong id="psvCertMonthRank">#6</strong></span>
-            <span class="psv-cert-pill"><strong id="psvCertMembers">15</strong> miembros</span>
+            <span class="psv-cert-pill">Pos. <strong id="psvCertMonthRank">#4</strong></span>
+            <span class="psv-cert-pill"><strong id="psvCertMembers">16</strong> miembros</span>
         </div>
         <div class="psv-cert-stats">
-            <span id="psvCertStats">7,572 KM · 6 Viajes</span>
+            <span id="psvCertStats">39,327 KM · 51 Viajes</span>
         </div>
-        <div id="psvCertMeta" class="psv-cert-meta">Top 6 · En vivo · Julio 2026</div>
+        <div id="psvCertMeta" class="psv-cert-meta">Top 4 · En vivo · Julio 2026</div>
         <a href="https://peruserver.pe/empresas#rankings" target="_blank" class="psv-cert-verify">Verificar certificado →</a>
     </div>
 
@@ -742,11 +742,12 @@
 document.getElementById("hamburger")?.addEventListener("click", () => {
   document.getElementById("mainMenu")?.classList.toggle("show");
 });
-const CACHE_KEY = "tepsa:ps-ranking:v5";
+const CACHE_KEY = "tepsa:ps-ranking:v6";
 const CACHE_TTL = 5 * 60 * 1000;
 try { localStorage.removeItem("tepsa:ps-ranking:v2"); } catch (e) {}
 try { localStorage.removeItem("tepsa:ps-ranking:v3"); } catch (e) {}
 try { localStorage.removeItem("tepsa:ps-ranking:v4"); } catch (e) {}
+try { localStorage.removeItem("tepsa:ps-ranking:v5"); } catch (e) {}
 
 async function loadPSRanking() {
   const els = {
@@ -805,10 +806,7 @@ async function loadPSRanking() {
     }
   } catch (e) {}
 
-  // 2) Si la caché es reciente, no consultamos al servidor para ahorrar recursos
-  if (cachedData && Date.now() - cachedData.ts < CACHE_TTL) {
-    return;
-  }
+  // 2) Consultar nuevos datos en segundo plano (SWR: Siempre busca datos frescos tras pintar la caché)
 
   // 3) Consultar nuevos datos en segundo plano
   try {
