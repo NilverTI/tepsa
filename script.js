@@ -320,8 +320,8 @@ async function loadTruckyData(force) {
         };
       });
       const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
-      const active = members.filter(d => Number(d.lastJobDays ?? 9999) === 0).length;
-      const drivers = members.filter(d => d.kilometers > 0).length;
+      const active = members.filter(d => Number(d.lastJobDays ?? 9999) <= 7).length;
+      const drivers = members.length;
       members.sort((a, b) => b.kilometers - a.kilometers);
 
       data = {

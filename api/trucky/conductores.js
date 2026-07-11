@@ -121,7 +121,7 @@ module.exports = async function handler(req, res) {
       ranking,
       stats: {
         kilometers: ranking.reduce((s, d) => s + d.kilometers, 0),
-        drivers: ranking.filter(d => d.kilometers > 0).length,
+        drivers: ranking.length,
         active: ranking.filter(d => d.lastJobDays <= 7).length,
       },
     });
