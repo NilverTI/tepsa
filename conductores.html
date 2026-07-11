@@ -870,20 +870,62 @@
   <div id="driverPhotosModal" class="photos-modal">
     <div class="photos-modal-content">
       <button class="photos-modal-close" id="closePhotosModal">&times;</button>
-      <div class="photos-modal-body">
-        <div class="photos-modal-icon">📸</div>
-        <h2 id="modalDriverName">Galería de Conductor</h2>
-        <div class="photos-modal-divider"></div>
-        <h3>Sección en Desarrollo</h3>
-        <p>Estamos trabajando activamente en este apartado. Pronto podrás ver la galería de fotos personal y las mejores
-          capturas de ruta de <span id="modalDriverNameSpan" style="color: #ff2d2d; font-weight: 600;">Conductor</span>.
-        </p>
-        <div class="photos-modal-progress">
-          <div class="photos-modal-bar"></div>
+      
+      <!-- Encabezado del Modal -->
+      <div class="modal-header">
+        <h2 id="modalDriverName">Galería del Conductor</h2>
+        <div class="modal-tabs">
+          <button class="tab-btn active" id="btnTabGallery">Galería</button>
+          <button class="tab-btn" id="btnTabUpload">Subir Captura</button>
         </div>
-        <button class="photos-modal-btn" id="closePhotosModalBtn">Aceptar</button>
       </div>
+
+      <!-- Contenido de la Galería -->
+      <div id="galleryView" class="tab-content">
+        <div id="galleryPhotosGrid" class="gallery-grid">
+          <!-- Las fotos se cargarán dinámicamente aquí -->
+        </div>
+        <div id="galleryPagination" class="gallery-pagination">
+          <!-- Controles de paginación dinámicos -->
+        </div>
+      </div>
+
+      <!-- Contenido de Subida -->
+      <div id="uploadView" class="tab-content" style="display: none;">
+        <form id="uploadPhotoForm" class="upload-form">
+          <p class="upload-help-text">
+            Sube tus mejores capturas de ruta. Si es tu primera vez, la contraseña que ingreses se registrará como tu contraseña de acceso para futuras subidas.
+          </p>
+          
+          <div class="form-group">
+            <label class="form-label">Contraseña de Conductor</label>
+            <input type="password" id="inputUploadPassword" placeholder="Ingresa tu contraseña" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Enlace de la Imagen</label>
+            <input type="url" id="inputUploadUrl" placeholder="Ej: https://i.imgur.com/imagen.jpg (Drive, Imgur, Discord, etc.)" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <textarea id="inputUploadDesc" placeholder="Describe tu viaje, ruta o camión (máx. 120 caracteres)" maxlength="120" required></textarea>
+          </div>
+
+          <button type="submit" id="btnSubmitPhoto" class="form-submit">PUBLICAR CAPTURA</button>
+          <div id="uploadError" class="form-error-global" style="display:none; margin-top: 12px;"></div>
+          <div id="uploadSuccess" class="form-success-global" style="display:none; margin-top: 12px; text-align: center; color: #4ecdc4; font-weight: 500;"></div>
+        </form>
+      </div>
+
     </div>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div id="photoLightbox" class="lightbox-modal">
+    <span class="lightbox-close" id="closeLightbox">&times;</span>
+    <img class="lightbox-content" id="lightboxImg" alt="Captura ampliada">
+    <div id="lightboxCaption" class="lightbox-caption"></div>
   </div>
 
   <footer>
@@ -1252,26 +1294,264 @@
 
     const modal = document.getElementById("driverPhotosModal");
     const modalDriverName = document.getElementById("modalDriverName");
-    const modalDriverNameSpan = document.getElementById("modalDriverNameSpan");
+    const galleryView = document.getElementById("galleryView");
+    const uploadView = document.getElementById("uploadView");
+    const btnTabGallery = document.getElementById("btnTabGallery");
+    const btnTabUpload = document.getElementById("btnTabUpload");
+    const galleryPhotosGrid = document.getElementById("galleryPhotosGrid");
+    const galleryPagination = document.getElementById("galleryPagination");
+    const uploadPhotoForm = document.getElementById("uploadPhotoForm");
+    const btnSubmitPhoto = document.getElementById("btnSubmitPhoto");
+    const uploadError = document.getElementById("uploadError");
+    const uploadSuccess = document.getElementById("uploadSuccess");
+
+    // Inputs
+    const inputUploadPassword = document.getElementById("inputUploadPassword");
+    const inputUploadUrl = document.getElementById("inputUploadUrl");
+    const inputUploadDesc = document.getElementById("inputUploadDesc");
+
+    // Lightbox
+    const photoLightbox = document.getElementById("photoLightbox");
+    const lightboxImg = document.getElementById("lightboxImg");
+    const lightboxCaption = document.getElementById("lightboxCaption");
+
+    let activeModalDriver = "";
+    let currentGalleryPage = 1;
+    let totalGalleryPages = 1;
 
     function openPhotosModal(name) {
       if (!modal) return;
+      activeModalDriver = name;
+      currentGalleryPage = 1;
       modalDriverName.textContent = `Galería de ${name}`;
-      modalDriverNameSpan.textContent = name;
       modal.style.display = "flex";
       setTimeout(() => modal.classList.add("show"), 10);
+      showTab("gallery");
+      fetchPhotos(name, 1);
     }
 
     function closePhotosModal() {
       if (!modal) return;
       modal.classList.remove("show");
       setTimeout(() => modal.style.display = "none", 300);
+      activeModalDriver = "";
     }
 
+    function showTab(tabName) {
+      if (tabName === "gallery") {
+        galleryView.style.display = "block";
+        uploadView.style.display = "none";
+        btnTabGallery.classList.add("active");
+        btnTabUpload.classList.remove("active");
+      } else if (tabName === "upload") {
+        galleryView.style.display = "none";
+        uploadView.style.display = "block";
+        btnTabGallery.classList.remove("active");
+        btnTabUpload.classList.add("active");
+        
+        // Cargar contraseña guardada si existe
+        const savedPw = localStorage.getItem(`tepsa:driver-pw:${activeModalDriver}`);
+        inputUploadPassword.value = savedPw || "";
+        inputUploadUrl.value = "";
+        inputUploadDesc.value = "";
+        uploadError.style.display = "none";
+        uploadSuccess.style.display = "none";
+      }
+    }
+
+    async function fetchPhotos(driverName, page) {
+      if (!galleryPhotosGrid) return;
+      galleryPhotosGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #888;">
+          <div class="spinner" style="margin: 0 auto 10px;"></div>
+          <p>Cargando capturas...</p>
+        </div>
+      `;
+      galleryPagination.innerHTML = "";
+
+      try {
+        let apiUrl = `/api/galeria/fotos?driver=${encodeURIComponent(driverName)}&page=${page}`;
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+          if (window.location.port && window.location.port !== "3000") {
+            apiUrl = `http://127.0.0.1:3000/api/galeria/fotos?driver=${encodeURIComponent(driverName)}&page=${page}`;
+          }
+        }
+
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+
+        if (!data.success) {
+          throw new Error(data.error || "Error al cargar fotos");
+        }
+
+        const photos = data.photos || [];
+        totalGalleryPages = data.pages || 1;
+        currentGalleryPage = data.page || 1;
+
+        if (photos.length === 0) {
+          galleryPhotosGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #777;">
+              <span style="font-size: 40px; display: block; margin-bottom: 12px;">🖼️</span>
+              <p style="font-size: 14px; font-weight: 500;">Este conductor aún no tiene capturas de ruta publicadas.</p>
+              <p style="font-size: 12px; color: #555; margin-top: 4px;">¡Sé el primero en subir una captura en la pestaña "Subir Captura"!</p>
+            </div>
+          `;
+          return;
+        }
+
+        galleryPhotosGrid.innerHTML = photos.map(p => {
+          const dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString("es-PE") : "Fecha desconocida";
+          return `
+            <div class="gallery-card">
+              <div class="gallery-img-wrapper">
+                <img src="${escapeHtml(p.image_url)}" alt="Captura de ${escapeHtml(driverName)}" loading="lazy" onerror="this.src='img/portada.png';">
+              </div>
+              <div class="gallery-info">
+                <p class="gallery-desc">${escapeHtml(p.description || "Captura de viaje.")}</p>
+                <div class="gallery-meta">
+                  <span>Por ${escapeHtml(driverName)}</span>
+                  <span>${escapeHtml(dateStr)}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        // Agregar evento click para abrir Lightbox
+        galleryPhotosGrid.querySelectorAll(".gallery-img-wrapper img").forEach((img, idx) => {
+          img.addEventListener("click", () => {
+            openLightbox(photos[idx].image_url, photos[idx].description);
+          });
+        });
+
+        renderPaginationControls();
+      } catch (err) {
+        console.error("fetchPhotos error:", err);
+        galleryPhotosGrid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #ff6b6b;">
+            <p>Error al cargar la galería: ${escapeHtml(err.message)}</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderPaginationControls() {
+      if (totalGalleryPages <= 1 || !galleryPagination) return;
+
+      galleryPagination.innerHTML = `
+        <button class="page-btn" id="btnPrevPage" ${currentGalleryPage === 1 ? "disabled" : ""}>&lt;</button>
+        <span class="page-info">Página ${currentGalleryPage} de ${totalGalleryPages}</span>
+        <button class="page-btn" id="btnNextPage" ${currentGalleryPage === totalGalleryPages ? "disabled" : ""}>&gt;</button>
+      `;
+
+      document.getElementById("btnPrevPage")?.addEventListener("click", () => {
+        if (currentGalleryPage > 1) {
+          currentGalleryPage--;
+          fetchPhotos(activeModalDriver, currentGalleryPage);
+        }
+      });
+
+      document.getElementById("btnNextPage")?.addEventListener("click", () => {
+        if (currentGalleryPage < totalGalleryPages) {
+          currentGalleryPage++;
+          fetchPhotos(activeModalDriver, currentGalleryPage);
+        }
+      });
+    }
+
+    // Lightbox Functions
+    function openLightbox(url, caption) {
+      if (!photoLightbox) return;
+      lightboxImg.src = url;
+      lightboxCaption.textContent = caption || "";
+      photoLightbox.style.display = "flex";
+    }
+
+    function closeLightbox() {
+      if (!photoLightbox) return;
+      photoLightbox.style.display = "none";
+      lightboxImg.src = "";
+    }
+
+    // Event Listeners para Lightbox
+    document.getElementById("closeLightbox")?.addEventListener("click", closeLightbox);
+    photoLightbox?.addEventListener("click", (e) => {
+      if (e.target === photoLightbox || e.target === document.getElementById("closeLightbox")) {
+        closeLightbox();
+      }
+    });
+
+    // Event Listeners para pestañas del Modal
+    btnTabGallery?.addEventListener("click", () => showTab("gallery"));
+    btnTabUpload?.addEventListener("click", () => showTab("upload"));
+
+    // Cerrar Modal
     document.getElementById("closePhotosModal")?.addEventListener("click", closePhotosModal);
-    document.getElementById("closePhotosModalBtn")?.addEventListener("click", closePhotosModal);
     modal?.addEventListener("click", (e) => {
       if (e.target === modal) closePhotosModal();
+    });
+
+    // Formulario de Subida
+    uploadPhotoForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      const password = inputUploadPassword.value.trim();
+      const url = inputUploadUrl.value.trim();
+      const description = inputUploadDesc.value.trim();
+
+      if (!password || !url || !description) return;
+
+      btnSubmitPhoto.disabled = true;
+      btnSubmitPhoto.textContent = "PUBLICANDO...";
+      uploadError.style.display = "none";
+      uploadSuccess.style.display = "none";
+
+      try {
+        let apiUrl = "/api/galeria/upload";
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+          if (window.location.port && window.location.port !== "3000") {
+            apiUrl = "http://127.0.0.1:3000/api/galeria/upload";
+          }
+        }
+
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            driver: activeModalDriver,
+            password,
+            url,
+            description
+          })
+        });
+
+        const resData = await response.json();
+
+        if (!response.ok || !resData.success) {
+          throw new Error(resData.error || "Fallo en la publicación de la captura.");
+        }
+
+        // Guardar contraseña en el navegador de forma exitosa
+        localStorage.setItem(`tepsa:driver-pw:${activeModalDriver}`, password);
+
+        uploadSuccess.textContent = "¡Captura publicada con éxito!";
+        uploadSuccess.style.display = "block";
+        inputUploadUrl.value = "";
+        inputUploadDesc.value = "";
+
+        setTimeout(() => {
+          showTab("gallery");
+          fetchPhotos(activeModalDriver, 1);
+        }, 1500);
+
+      } catch (err) {
+        console.error("Subida fallida:", err);
+        uploadError.textContent = err.message;
+        uploadError.style.display = "block";
+      } finally {
+        btnSubmitPhoto.disabled = false;
+        btnSubmitPhoto.textContent = "PUBLICAR CAPTURA";
+      }
     });
 
     // Registrar evento click para tarjetas mediante delegación de eventos

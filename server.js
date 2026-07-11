@@ -158,6 +158,16 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
+  if (url.pathname === "/api/galeria/fotos") {
+    await handleGaleriaFotos(request, response);
+    return;
+  }
+
+  if (url.pathname === "/api/galeria/upload") {
+    await handleGaleriaUpload(request, response);
+    return;
+  }
+
   serveStaticFile(url.pathname, response);
 });
 
@@ -319,6 +329,205 @@ async function handleConductoresRanking(response) {
       ranking: [],
       stats: { kilometers: 0, drivers: 0, active: 0 },
     }, 502);
+  }
+}
+
+// SIMULACIÓN LOCAL DE GALERÍA (Si no hay variables de Supabase configuradas)
+const mockPhotos = [];
+const mockAuth = new Map();
+
+function parseBody(request) {
+  return new Promise((resolve) => {
+    let body = "";
+    request.on("data", (chunk) => { body += chunk; });
+    request.on("end", () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch {
+        resolve({});
+      }
+    });
+  });
+}
+
+async function handleLocalGaleriaFotos(request, response, driver, page) {
+  const limit = 12;
+  const filtered = mockPhotos.filter(p => p.driver_name === driver);
+  const total = filtered.length;
+  const offset = (page - 1) * limit;
+  const photos = filtered.slice(offset, offset + limit);
+  const pages = Math.ceil(total / limit);
+
+  sendJson(response, {
+    success: true,
+    photos,
+    total,
+    pages,
+    page,
+    message: "Modo simulador local activado."
+  });
+}
+
+async function handleLocalGaleriaUpload(request, response, body) {
+  const { driver, password, url, description } = body;
+  const cleanDriver = (driver || "").trim();
+  const cleanPassword = (password || "").trim();
+  const cleanUrl = (url || "").trim();
+  const cleanDescription = (description || "").trim();
+
+  if (!cleanDriver || !cleanPassword || !cleanUrl) {
+    sendJson(response, { success: false, error: "Faltan campos obligatorios" }, 400);
+    return;
+  }
+
+  if (!mockAuth.has(cleanDriver)) {
+    mockAuth.set(cleanDriver, cleanPassword);
+  } else if (mockAuth.get(cleanDriver) !== cleanPassword) {
+    sendJson(response, { success: false, error: "Contraseña incorrecta" }, 401);
+    return;
+  }
+
+  mockPhotos.unshift({
+    id: Date.now().toString(),
+    driver_name: cleanDriver,
+    image_url: cleanUrl,
+    description: cleanDescription,
+    created_at: new Date().toISOString()
+  });
+
+  sendJson(response, { success: true, message: "Foto publicada en el simulador local" });
+}
+
+async function handleGaleriaFotos(request, response) {
+  const url = new URL(request.url, `http://${request.headers.host}`);
+  const driver = (url.searchParams.get("driver") || "").trim();
+  const page = parseInt(url.searchParams.get("page"), 10) || 1;
+
+  if (!driver) {
+    sendJson(response, { success: false, error: "Falta el nombre del conductor" }, 400);
+    return;
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
+  const supabaseKey = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
+
+  if (!supabaseUrl || !supabaseKey) {
+    await handleLocalGaleriaFotos(request, response, driver, page);
+    return;
+  }
+
+  try {
+    const limit = 12;
+    const offset = (page - 1) * limit;
+    const dbUrl = `${supabaseUrl}/rest/v1/fotos_conductores?driver_name=eq.${encodeURIComponent(driver)}&order=created_at.desc&limit=${limit}&offset=${offset}`;
+
+    const dbResponse = await fetch(dbUrl, {
+      method: "GET",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Prefer": "count=exact"
+      }
+    });
+
+    if (!dbResponse.ok) {
+      throw new Error(`Supabase error: ${dbResponse.status}`);
+    }
+
+    const photos = await dbResponse.json();
+    const rangeHeader = dbResponse.headers.get("content-range");
+    let total = 0;
+    if (rangeHeader) {
+      const parts = rangeHeader.split("/");
+      if (parts.length > 1) total = parseInt(parts[1], 10) || 0;
+    }
+    const pages = Math.ceil(total / limit);
+
+    sendJson(response, { success: true, photos, total, pages, page });
+  } catch (error) {
+    console.error("Local server handleGaleriaFotos error:", error);
+    sendJson(response, { success: false, error: "Error en el servidor local", message: error.message }, 500);
+  }
+}
+
+async function handleGaleriaUpload(request, response) {
+  if (request.method !== "POST") {
+    sendJson(response, { success: false, error: "Método no permitido" }, 405);
+    return;
+  }
+
+  const body = await parseBody(request);
+
+  const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
+  const supabaseKey = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
+
+  if (!supabaseUrl || !supabaseKey) {
+    await handleLocalGaleriaUpload(request, response, body);
+    return;
+  }
+
+  const { driver, password, url, description } = body;
+  const cleanDriver = (driver || "").trim();
+  const cleanPassword = (password || "").trim();
+  const cleanUrl = (url || "").trim();
+  const cleanDescription = (description || "").trim();
+
+  if (!cleanDriver || !cleanPassword || !cleanUrl) {
+    sendJson(response, { success: false, error: "Faltan campos obligatorios" }, 400);
+    return;
+  }
+
+  try {
+    const authUrl = `${supabaseUrl}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(cleanDriver)}`;
+    const authRes = await fetch(authUrl, {
+      method: "GET",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`
+      }
+    });
+
+    if (!authRes.ok) throw new Error(`Auth read failed: ${authRes.status}`);
+
+    const authData = await authRes.json();
+
+    if (authData.length === 0) {
+      const registerRes = await fetch(`${supabaseUrl}/rest/v1/conductores_auth`, {
+        method: "POST",
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify({ driver_name: cleanDriver, password: cleanPassword })
+      });
+      if (!registerRes.ok) throw new Error(`Password register failed: ${registerRes.status}`);
+    } else {
+      const savedPassword = authData[0].password;
+      if (savedPassword !== cleanPassword) {
+        sendJson(response, { success: false, error: "Contraseña incorrecta" }, 401);
+        return;
+      }
+    }
+
+    const insertRes = await fetch(`${supabaseUrl}/rest/v1/fotos_conductores`, {
+      method: "POST",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify({ driver_name: cleanDriver, image_url: cleanUrl, description: cleanDescription })
+    });
+
+    if (!insertRes.ok) throw new Error(`Photo insert failed: ${insertRes.status}`);
+
+    sendJson(response, { success: true, message: "Foto publicada correctamente" });
+  } catch (error) {
+    console.error("Local server handleGaleriaUpload error:", error);
+    sendJson(response, { success: false, error: "Error en el servidor local", message: error.message }, 500);
   }
 }
 
