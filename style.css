@@ -802,97 +802,145 @@ text-align:center;
     margin-bottom:20px;
     opacity:.8;
 }
-#fundadores{
-    padding:80px 20px;
-    background:#050505;
+#fundadores {
+    padding: 100px 20px 120px;
+    position: relative;
+    background: linear-gradient(180deg, rgba(5, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.5) 20%, rgba(5, 5, 5, 0.5) 80%, rgba(5, 5, 5, 0.95) 100%),
+                url("img/fundadores/banner.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Parallax effect */
 }
 
-.fundadores-hero{
-    height:450px;
-    border-radius:25px;
-
-    background:
-    linear-gradient(rgba(0,0,0,.55),
-    rgba(0,0,0,.75)),
-    url("img/fundadores/banner.png");
-
-    background-size:cover;
-    background-position:center;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    margin-bottom:70px;
+.fundadores-hero {
+    margin-bottom: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 2;
 }
 
-.fundadores-overlay{
-    text-align:center;
+.fundadores-overlay {
+    text-align: center;
+    max-width: 800px;
+    padding: 0 15px;
 }
 
-.fundadores-overlay h2{
-    font-size:4rem;
-    color:white;
+.fundadores-overlay h2 {
+    font-size: 4rem;
+    color: white;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+    font-weight: 800;
 }
 
-.fundadores-overlay p{
-    font-size:1.4rem;
-    color:#ff2d2d;
+.fundadores-overlay p {
+    font-size: 1.4rem;
+    color: #ff2d2d;
+    font-weight: 600;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
 }
 
-.fundadores-grid{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:40px;
-    flex-wrap:wrap;
+.fundadores-grid {
+    display: flex;
+    justify-content: center;
+    align-items: stretch; /* Cards stretch vertically */
+    gap: 40px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
 }
 
-.fundador-card{
-    width:300px;
-    background:#111;
-    border:2px solid #ff2d2d;
-    border-radius:25px;
-    padding:25px;
-    text-align:center;
-    transition:.4s;
+.fundador-card {
+    width: 300px;
+    background: rgba(18, 16, 22, 0.45); /* Glass translucent black */
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    border: 1px solid rgba(255, 45, 45, 0.25); /* Elegant glass boundary */
+    border-radius: 25px;
+    padding: 30px 25px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 }
 
-.fundador-card:hover{
-    transform:translateY(-10px);
+.fundador-card:hover {
+    transform: translateY(-12px);
+    border-color: rgba(255, 45, 45, 0.7);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 45, 45, 0.25);
 }
 
-.fundador-card img{
-    width:180px;
-    height:180px;
-    object-fit:cover;
-    border-radius:50%;
-    border:4px solid #ff2d2d;
+.fundador-card img {
+    width: 170px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 45, 45, 0.6);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.4s ease;
 }
 
-.fundador-card h3{
-    color:white;
-    margin-top:15px;
+.fundador-card:hover img {
+    transform: scale(1.05);
 }
 
-.fundador-card span{
-    color:#ff2d2d;
-    font-weight:bold;
+.fundador-card h3 {
+    color: white;
+    margin-top: 20px;
+    font-size: 1.6rem;
+    font-weight: 700;
 }
 
-.fundador-card p{
-    color:#ccc;
+.fundador-card span {
+    color: #ff2d2d;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.principal{
-    transform:scale(1.15);
-    border:3px solid gold;
-    box-shadow:0 0 25px gold;
+.fundador-card small {
+    color: #999;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    font-weight: 500;
 }
 
-.corona{
-    font-size:40px;
-    margin-bottom:10px;
+.fundador-card p {
+    color: rgba(230, 230, 230, 0.8);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-top: 14px;
+}
+
+.principal {
+    transform: scale(1.1);
+    background: rgba(26, 22, 16, 0.5); /* Glass warm dark gold */
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 20px rgba(255, 215, 0, 0.15);
+}
+
+.principal:hover {
+    transform: scale(1.13) translateY(-12px);
+    border-color: rgba(255, 215, 0, 0.7);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 30px rgba(255, 215, 0, 0.35);
+}
+
+.principal img {
+    border-color: rgba(255, 215, 0, 0.7);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+}
+
+.corona {
+    font-size: 40px;
+    margin-bottom: 6px;
+    filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.3));
 }
 
 /* ===== RESPONSIVE ===== */
@@ -982,13 +1030,14 @@ text-align:center;
 
 
   #fundadores{ padding:50px 16px; }
-  .fundadores-hero{ height:280px; margin-bottom:40px; border-radius:16px; }
+  .fundadores-hero{ margin-bottom:40px; }
   .fundadores-overlay h2{ font-size:2.2rem; }
   .fundadores-overlay p{ font-size:1rem; }
   .fundadores-grid{ gap:20px; }
   .fundador-card{ width:100%; max-width:320px; padding:20px; }
   .fundador-card img{ width:140px; height:140px; }
   .principal{ transform:none; }
+  .principal:hover{ transform: translateY(-10px); }
 
   #conductores{ padding:50px 5%; }
   .conductor-card img{ height:200px; }
@@ -1090,7 +1139,6 @@ text-align:center;
   .stat-box p{ font-size:12px; }
   .galeria{ grid-template-columns:1fr; }
   .galeria img{ height:220px; }
-  .fundadores-hero{ height:220px; }
   .fundadores-overlay h2{ font-size:1.6rem; }
   .ranking-podium{
     display:grid;
