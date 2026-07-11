@@ -9,7 +9,6 @@ const COMPANY_ID = 44302;
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Cache-Control", "public, max-age=300, s-maxage=300");
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
@@ -20,6 +19,9 @@ module.exports = async function handler(req, res) {
     const items = data?.items || [];
     const idx = items.findIndex(x => x.id === COMPANY_ID);
     const item = idx >= 0 ? items[idx] : null;
+    
+    // Cache exitoso en Edge CDN por 5 minutos, sin cache local en navegador
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=60");
     res.status(200).json({
       ok: !!item,
       position: idx >= 0 ? idx + 1 : null,
@@ -28,6 +30,8 @@ module.exports = async function handler(req, res) {
       period: data.period || null,
     });
   } catch (err) {
+    // Evitar cachear respuestas erróneas
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.status(200).json({ ok: false, error: err.message });
   }
 }

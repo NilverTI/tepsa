@@ -806,9 +806,7 @@ async function loadPSRanking() {
     }
   } catch (e) {}
 
-  // 2) Consultar nuevos datos en segundo plano (SWR: Siempre busca datos frescos tras pintar la caché)
-
-  // 3) Consultar nuevos datos en segundo plano
+  // 2) Consultar nuevos datos en segundo plano (SWR: siempre busca datos frescos en el servidor tras pintar la caché)
   try {
     const ac = new AbortController();
     const tid = setTimeout(() => ac.abort(), 6000);

@@ -58,9 +58,10 @@ function formatLastJob(days) {
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
   try {
+    // Cache exitoso en Edge CDN por 5 minutos, sin cache local en navegador
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=60");
     const membersUrl = process.env.TRUCKY_API_URL || MEMBERS_URL;
     const companyId = process.env.TRUCKY_COMPANY_ID || COMPANY_ID;
     const now = new Date();
@@ -125,6 +126,7 @@ module.exports = async function handler(req, res) {
       },
     });
   } catch (error) {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.status(502).json({
       source: "demo",
       updatedAt: new Date().toISOString(),

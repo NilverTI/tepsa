@@ -20,7 +20,17 @@ function getCache(key) {
   return null;
 }
 
+function pruneCache() {
+  const now = Date.now();
+  for (const [key, entry] of cache.entries()) {
+    if (now - entry.ts >= CACHE_TTL) {
+      cache.delete(key);
+    }
+  }
+}
+
 function setCache(key, data) {
+  pruneCache();
   cache.set(key, { data, ts: Date.now() });
 }
 

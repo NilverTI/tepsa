@@ -151,21 +151,23 @@ function renderTruckyData(data) {
   status.innerHTML = `\uD83D\uDCE1 <strong>Trucky Hub</strong> \u00B7 Actualizado: ${updatedAt}`;
 }
 
-const CACHE_KEY = "tepsa_index_v2";
-const CACHE_TTL = 30 * 60 * 1000;
+const CACHE_KEY = "tepsa_index_v3";
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos para refresco en segundo plano
 
 function getCache() {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const entry = JSON.parse(raw);
-    if (Date.now() - entry.ts > CACHE_TTL) { localStorage.removeItem(CACHE_KEY); return null; }
     return entry.data;
   } catch { return null; }
 }
 
 function setCache(data) {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch { }
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    localStorage.removeItem("tepsa_index_v2"); // Limpiar caché obsoleta
+  } catch { }
 }
 
 function transformMember(m) {
@@ -243,26 +245,56 @@ function matchDamage(driver, damageMap) {
 
 async function loadTruckyData(force) {
   const cached = getCache();
-  if (cached && !force) {
+  if (cached) {
     renderTruckyData(cached);
     const status = document.getElementById("trucky-status");
-    if (status) status.textContent = `\uD83D\uDCE1 Datos en cach\u00e9 \u00B7 Pr\u00f3xima actualizaci\u00f3n en breve`;
-    return;
+    if (status) status.textContent = `📡 Datos en caché · ${cached.ranking.length} miembros`;
+  }
+
+  // SWR: Evita consultas si la caché es muy reciente (menos del TTL)
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw && !force) {
+      const entry = JSON.parse(raw);
+      if (Date.now() - entry.ts < CACHE_TTL) {
+        return;
+      }
+    }
+  } catch (e) {}
+
+  // Determinar URL del API dinámica (soporta puerto local del dev server de forma automática)
+  let apiUrl = "/api/trucky/conductores";
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    if (window.location.port && window.location.port !== "3000") {
+      apiUrl = "http://127.0.0.1:3000/api/trucky/conductores";
+    }
   }
 
   let data = null;
-  for (const url of ["/api/trucky/conductores", "http://127.0.0.1:3000/api/trucky/conductores"]) {
-    try {
-      const d = await tryFetch(url);
-      data = {
-        source: "trucky",
-        updatedAt: new Date().toISOString(),
-        stats: d.stats || {},
-        ranking: (d.ranking || []).map(transformMember),
-        recentJobs: d.recentJobs || [],
-      };
-      break;
-    } catch { continue; }
+  try {
+    const d = await tryFetch(apiUrl);
+    data = {
+      source: "trucky",
+      updatedAt: new Date().toISOString(),
+      stats: d.stats || {},
+      ranking: (d.ranking || []).map(transformMember),
+      recentJobs: d.recentJobs || [],
+    };
+  } catch (e) {
+    console.warn("loadTruckyData: falló API proxy, probando alternativa...", e);
+    // Si falló el relativo y estamos en local, probamos forzando puerto 3000 como contingencia
+    if (!apiUrl.includes("3000") && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+      try {
+        const d = await tryFetch("http://127.0.0.1:3000/api/trucky/conductores");
+        data = {
+          source: "trucky",
+          updatedAt: new Date().toISOString(),
+          stats: d.stats || {},
+          ranking: (d.ranking || []).map(transformMember),
+          recentJobs: d.recentJobs || [],
+        };
+      } catch (err) {}
+    }
   }
 
   if (!data) {
@@ -299,7 +331,9 @@ async function loadTruckyData(force) {
         ranking: members,
         recentJobs: [],
       };
-    } catch { }
+    } catch (e) {
+      console.error("loadTruckyData: todos los orígenes fallaron en segundo plano", e);
+    }
   }
 
   if (data) {
@@ -358,4 +392,4 @@ setupNavbarScroll();
 setupRevealAnimation();
 setupBackToTopButton();
 loadTruckyData();
-setInterval(() => loadTruckyData(true), 1800000);
+setInterval(() => loadTruckyData(true), 5 * 60 * 1000); // Actualización en segundo plano cada 5 minutos
