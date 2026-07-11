@@ -285,6 +285,11 @@ async function handleConductoresRanking(response) {
           revenue: Math.round(m.total_revenue || 0),
         };
       })
+      .filter(m => {
+        const role = m.role || "";
+        const name = m.name || "";
+        return role.toLowerCase() !== "owner" && name.toLowerCase() !== "admpsv";
+      })
       .sort((a, b) => {
         if (b.kilometers !== a.kilometers) return b.kilometers - a.kilometers;
         return a.damage - b.damage;
@@ -440,7 +445,13 @@ function isPaginatedMembersResponse(rawData) {
 }
 
 function normalizeMembersResponse(rawData) {
-  const members = rawData.data.map(normalizeDriver);
+  const members = rawData.data
+    .map(normalizeDriver)
+    .filter(m => {
+      const role = m.role || "";
+      const name = m.name || "";
+      return role.toLowerCase() !== "owner" && name.toLowerCase() !== "admpsv";
+    });
   const ranking = members.sort((a, b) => b.kilometers - a.kilometers);
 
   return {
@@ -448,7 +459,7 @@ function normalizeMembersResponse(rawData) {
     updatedAt: new Date().toISOString(),
     stats: {
       kilometers: sumBy(ranking, "kilometers"),
-      drivers: Number(rawData.total) || ranking.length,
+      drivers: ranking.length,
       active: ranking.filter((driver) => driver.lastJobDays <= 7).length,
       founded: 2026,
     },

@@ -303,22 +303,28 @@ async function loadTruckyData(force) {
         tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
         fetchMonthJobs(),
       ]);
-      const members = (raw.data || []).map(m => {
-        const name = m.name || "Sin nombre";
-        const ms = monthStats.get(name) || { kilometers: 0, damage: 0 };
-        return {
-          name,
-          kilometers: Math.round(ms.kilometers),
-          points: Math.round(m.points || 0),
-          lastJobDays: m.lastJobDays ?? m.last_job_days,
-          role: m.role?.name || m.role || "",
-          avatar: m.avatar_url || m.avatar || "",
-          damage: Math.round(ms.damage),
-          level: m.level || 0,
-          revenue: m.revenue || m.total_revenue || 0,
-          cargo: m.cargoMass || m.cargo || m.total_cargo_mass_t || 0,
-        };
-      });
+      const members = (raw.data || [])
+        .map(m => {
+          const name = m.name || "Sin nombre";
+          const ms = monthStats.get(name) || { kilometers: 0, damage: 0 };
+          return {
+            name,
+            kilometers: Math.round(ms.kilometers),
+            points: Math.round(m.points || 0),
+            lastJobDays: m.lastJobDays ?? m.last_job_days,
+            role: m.role?.name || m.role || "",
+            avatar: m.avatar_url || m.avatar || "",
+            damage: Math.round(ms.damage),
+            level: m.level || 0,
+            revenue: m.revenue || m.total_revenue || 0,
+            cargo: m.cargoMass || m.cargo || m.total_cargo_mass_t || 0,
+          };
+        })
+        .filter(m => {
+          const role = m.role || "";
+          const name = m.name || "";
+          return role.toLowerCase() !== "owner" && name.toLowerCase() !== "admpsv";
+        });
       const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
       const active = members.filter(d => Number(d.lastJobDays ?? 9999) <= 7).length;
       const drivers = members.length;
