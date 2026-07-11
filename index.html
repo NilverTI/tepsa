@@ -1,531 +1,735 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TEPSA PSV</title>
-<meta property="og:title" content="TEPSA PSV">
-<meta property="og:description" content="Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2">
-<meta property="og:url" content="https://tepsa.vercel.app">
-<meta property="og:image" content="https://tepsa.vercel.app/img/galeria3.png">
-<meta property="og:image:secure_url" content="https://tepsa.vercel.app/img/galeria3.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="TEPSA PSV">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="es_PE">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="TEPSA PSV">
-<meta name="twitter:description" content="Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2">
-<meta name="twitter:image" content="https://tepsa.vercel.app/img/galeria3.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEPSA PSV</title>
+  <meta property="og:title" content="TEPSA PSV">
+  <meta property="og:description" content="Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2">
+  <meta property="og:url" content="https://tepsa.vercel.app">
+  <meta property="og:image" content="https://tepsa.vercel.app/img/galeria3.png">
+  <meta property="og:image:secure_url" content="https://tepsa.vercel.app/img/galeria3.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="TEPSA PSV">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TEPSA PSV">
+  <meta name="twitter:description" content="Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2">
+  <meta name="twitter:image" content="https://tepsa.vercel.app/img/galeria3.png">
 
-<link rel="stylesheet" href="style.css">
-<link rel="icon" href="img/logo1.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="img/logo1.png" type="image/png">
 
-<style>
-/* === Nosotros Section === */
-#nosotros {
-  position: relative;
-  background: linear-gradient(180deg, #0f0f0f 0%, #09090e 100%);
-}
-#nosotros::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 10%;
-  right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,45,45,.25), transparent);
-  pointer-events: none;
-}
-.nosotros-wrapper {
-  display: flex;
-  justify-content: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.nosotros-text { max-width: 720px; text-align: center; }
-.nosotros-label {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  color: #ff2d2d;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-  padding: 4px 14px;
-  border: 1px solid rgba(255,45,45,.15);
-  border-radius: 20px;
-  background: rgba(255,45,45,.04);
-}
-.nosotros-text h2 {
-  font-size: 42px;
-  margin-bottom: 16px;
-  text-align: center;
-  position: relative;
-}
-.nosotros-text h2::after {
-  content: '';
-  display: block;
-  width: 50px;
-  height: 3px;
-  background: linear-gradient(90deg, #ff2d2d, rgba(255,45,45,.3));
-  margin: 16px auto 0;
-  border-radius: 2px;
-}
-.nosotros-text p {
-  max-width: 100%;
-  line-height: 1.8;
-  font-size: 18px;
-  color: #bbb;
-  margin-top: 4px;
-}
-.about-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  max-width: 880px;
-  margin: 50px auto 0;
-}
-.about-card {
-  background: linear-gradient(145deg, #161616, #101010);
-  border: 1px solid rgba(255,255,255,.04);
-  border-radius: 14px;
-  padding: 24px 20px;
-  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
-  position: relative;
-  overflow: hidden;
-}
-.about-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(255,45,45,.03), transparent);
-  opacity: 0;
-  transition: opacity .3s ease;
-  pointer-events: none;
-}
-.about-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,.4);
-  border-color: rgba(255,45,45,.12);
-}
-.about-card:hover::before { opacity: 1; }
-.about-icon {
-  display: flex;
-  width: 40px;
-  height: 40px;
-  background: rgba(255,45,45,.08);
-  border-radius: 10px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-  color: #ff2d2d;
-  transition: background .3s ease, transform .3s ease;
-}
-.about-icon svg { width: 20px; height: 20px; }
-.about-card:hover .about-icon {
-  background: rgba(255,45,45,.14);
-  transform: scale(1.05);
-}
-.about-card h3 {
-  font-size: 17px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #fff;
-}
-#nosotros .about-card p {
-  font-size: 13px;
-  line-height: 1.5;
-  color: #999;
-  text-align: left;
-  max-width: 100%;
-  margin: 0;
-}
+  <style>
+    /* === Nosotros Section === */
+    #nosotros {
+      position: relative;
+      background: linear-gradient(180deg, #0f0f0f 0%, #09090e 100%);
+    }
 
-@media(max-width:768px){
-  #nosotros { padding: 60px 5%; }
-  .nosotros-text h2 { font-size: 28px; }
-  .nosotros-text p { font-size: 15px; }
-  .about-cards { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-  .about-card { padding: 20px 16px; }
-  .about-card h3 { font-size: 15px; }
-  .about-icon { width: 36px; height: 36px; }
-  .about-icon svg { width: 18px; height: 18px; }
-}
+    #nosotros::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 45, 45, .25), transparent);
+      pointer-events: none;
+    }
 
-/* === PeruServer Certification Seal === */
-@keyframes float-cert {
-  0% { transform: translateY(-50%) translateY(0px); }
-  50% { transform: translateY(-50%) translateY(-6px); }
-  100% { transform: translateY(-50%) translateY(0px); }
-}
+    .nosotros-wrapper {
+      display: flex;
+      justify-content: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-.psv-cert {
-  position: absolute;
-  left: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;
-  width: 176px;
-  background: rgba(12, 10, 16, 0.72);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  box-shadow: 
-    0 15px 35px rgba(0, 0, 0, 0.65),
-    inset 0 0 0 3px rgba(212, 175, 55, 0.12);
-  border-radius: 10px;
-  padding: 14px 10px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  text-align: center;
-  font-family: 'Poppins', sans-serif;
-  animation: float-cert 6s ease-in-out infinite;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.psv-cert:hover {
-  border-color: rgba(212, 175, 55, 0.65);
-  box-shadow: 
-    0 18px 40px rgba(0, 0, 0, 0.75),
-    0 0 15px rgba(212, 175, 55, 0.15),
-    inset 0 0 0 3px rgba(212, 175, 55, 0.2);
-}
-.psv-cert-header { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 0px; }
-.psv-cert-bolt { display: none; }
-.psv-cert-top { display: flex; flex-direction: column; align-items: center; gap: 0px; }
-.psv-cert-label { font-size: 7px; font-weight: 700; color: rgba(212, 175, 55, 0.8); letter-spacing: 1.5px; text-transform: uppercase; }
-.psv-cert-position {
-  font-size: 11px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 0.5px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
-}
-.psv-cert-title {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-top: 1px;
-}
-.psv-cert-divider {
-  width: 65%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
-  margin: 1px 0;
-}
-.psv-cert-emblem {
-  position: relative;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 2px 0;
-  background: radial-gradient(circle, #251f15 0%, #120e09 100%);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  border-radius: 50%;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35), inset 0 0 6px rgba(212, 175, 55, 0.1);
-}
-.psv-cert-star-ring { position: absolute; width: 100%; height: 100%; color: #d4af37; opacity: .25; }
-.psv-cert-star-shape { position: absolute; width: 68%; height: 68%; color: #d4af37; opacity: .05; }
-.psv-cert-number {
-  position: relative;
-  z-index: 1;
-  font-size: 20px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #ffe082, #d4af37);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
-  line-height: 1;
-}
-.psv-cert-brand { font-size: 7.5px; font-weight: 700; color: #fff; letter-spacing: 2px; text-transform: uppercase; margin-top: 1px; }
-.psv-cert-brand span { color: #d4af37; }
-.psv-cert-subtitle { font-size: 6px; color: #8e877e; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; margin-top: -1px; }
-.psv-cert-pills { display: flex; gap: 3px; margin: 1px 0; }
-.psv-cert-pill {
-  font-size: 7px;
-  color: #d2cdc5;
-  background: rgba(212, 175, 55, .04);
-  border: 1px solid rgba(212, 175, 55, .12);
-  border-radius: 3px;
-  padding: 1px 5px;
-  white-space: nowrap;
-}
-.psv-cert-pill strong { color: #ffd700; font-weight: 700; }
-.psv-cert-stats { font-size: 8.5px; font-weight: 700; color: #fff; letter-spacing: 0.3px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); }
-.psv-cert-meta { font-size: 6px; color: #7c766d; letter-spacing: 0.3px; text-transform: uppercase; }
-.psv-cert-verify {
-  font-size: 7px;
-  font-weight: 600;
-  color: #d4af37;
-  text-decoration: none;
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 4px;
-  padding: 2.5px 10px;
-  margin-top: 3px;
-  transition: all .25s ease;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  background: rgba(212, 175, 55, 0.02);
-}
-.psv-cert-verify:hover {
-  background: rgba(212, 175, 55, 0.12);
-  border-color: #d4af37;
-  color: #fff;
-  box-shadow: 0 0 6px rgba(212, 175, 55, 0.25);
-  transform: translateY(-0.5px);
-}
+    .nosotros-text {
+      max-width: 720px;
+      text-align: center;
+    }
 
-@keyframes float-cert-mobile {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0px); }
-}
+    .nosotros-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #ff2d2d;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      padding: 4px 14px;
+      border: 1px solid rgba(255, 45, 45, .15);
+      border-radius: 20px;
+      background: rgba(255, 45, 45, .04);
+    }
 
-@media(max-width:1200px){
-  .hero{flex-direction:column;}
-  .psv-cert{
-    position:relative;
-    left:auto;
-    top:auto;
-    transform:none;
-    margin-bottom:18px;
-    width:176px;
-    padding:14px 10px 10px;
-    animation: float-cert-mobile 6s ease-in-out infinite;
-  }
-}
-@media(max-width:480px){
-  .psv-cert{
-    width:176px;
-    padding:14px 10px 10px;
-  }
-  .psv-cert-position{font-size:11px;}
-  .psv-cert-number{font-size:20px;}
-  .psv-cert-emblem{width:50px;height:50px;}
-  .psv-cert-title{font-size:11.5px;}
-  .psv-cert-stats{font-size:8.5px;}
-  .about-cards{grid-template-columns:1fr;gap:12px;}
-  .about-card{padding:18px 14px;}
-  .about-card h3{font-size:14px;}
-  .about-icon{width:32px;height:32px;margin-bottom:8px;}
-  .about-icon svg{width:16px;height:16px;}
-  #nosotros .about-card p{font-size:12px;}
-}
-</style>
+    .nosotros-text h2 {
+      font-size: 42px;
+      margin-bottom: 16px;
+      text-align: center;
+      position: relative;
+    }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    .nosotros-text h2::after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(90deg, #ff2d2d, rgba(255, 45, 45, .3));
+      margin: 16px auto 0;
+      border-radius: 2px;
+    }
+
+    .nosotros-text p {
+      max-width: 100%;
+      line-height: 1.8;
+      font-size: 18px;
+      color: #bbb;
+      margin-top: 4px;
+    }
+
+    .about-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      max-width: 880px;
+      margin: 50px auto 0;
+    }
+
+    .about-card {
+      background: linear-gradient(145deg, #161616, #101010);
+      border: 1px solid rgba(255, 255, 255, .04);
+      border-radius: 14px;
+      padding: 24px 20px;
+      transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 45, 45, .03), transparent);
+      opacity: 0;
+      transition: opacity .3s ease;
+      pointer-events: none;
+    }
+
+    .about-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .4);
+      border-color: rgba(255, 45, 45, .12);
+    }
+
+    .about-card:hover::before {
+      opacity: 1;
+    }
+
+    .about-icon {
+      display: flex;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 45, 45, .08);
+      border-radius: 10px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      color: #ff2d2d;
+      transition: background .3s ease, transform .3s ease;
+    }
+
+    .about-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .about-card:hover .about-icon {
+      background: rgba(255, 45, 45, .14);
+      transform: scale(1.05);
+    }
+
+    .about-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    #nosotros .about-card p {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #999;
+      text-align: left;
+      max-width: 100%;
+      margin: 0;
+    }
+
+    @media(max-width:768px) {
+      #nosotros {
+        padding: 60px 5%;
+      }
+
+      .nosotros-text h2 {
+        font-size: 28px;
+      }
+
+      .nosotros-text p {
+        font-size: 15px;
+      }
+
+      .about-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+
+      .about-card {
+        padding: 20px 16px;
+      }
+
+      .about-card h3 {
+        font-size: 15px;
+      }
+
+      .about-icon {
+        width: 36px;
+        height: 36px;
+      }
+
+      .about-icon svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    /* === PeruServer Certification Seal === */
+    @keyframes float-cert {
+      0% {
+        transform: translateY(-50%) translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-50%) translateY(-6px);
+      }
+
+      100% {
+        transform: translateY(-50%) translateY(0px);
+      }
+    }
+
+    .psv-cert {
+      position: absolute;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      width: 176px;
+      background: rgba(12, 10, 16, 0.72);
+      backdrop-filter: blur(16px) saturate(120%);
+      -webkit-backdrop-filter: blur(16px) saturate(120%);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.65),
+        inset 0 0 0 3px rgba(212, 175, 55, 0.12);
+      border-radius: 10px;
+      padding: 14px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      animation: float-cert 6s ease-in-out infinite;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .psv-cert:hover {
+      border-color: rgba(212, 175, 55, 0.65);
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.75),
+        0 0 15px rgba(212, 175, 55, 0.15),
+        inset 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
+
+    .psv-cert-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 0px;
+    }
+
+    .psv-cert-bolt {
+      display: none;
+    }
+
+    .psv-cert-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0px;
+    }
+
+    .psv-cert-label {
+      font-size: 7px;
+      font-weight: 700;
+      color: rgba(212, 175, 55, 0.8);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .psv-cert-position {
+      font-size: 11px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+    }
+
+    .psv-cert-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    .psv-cert-divider {
+      width: 65%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+      margin: 1px 0;
+    }
+
+    .psv-cert-emblem {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2px 0;
+      background: radial-gradient(circle, #251f15 0%, #120e09 100%);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 50%;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35), inset 0 0 6px rgba(212, 175, 55, 0.1);
+    }
+
+    .psv-cert-star-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      color: #d4af37;
+      opacity: .25;
+    }
+
+    .psv-cert-star-shape {
+      position: absolute;
+      width: 68%;
+      height: 68%;
+      color: #d4af37;
+      opacity: .05;
+    }
+
+    .psv-cert-number {
+      position: relative;
+      z-index: 1;
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffe082, #d4af37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
+      line-height: 1;
+    }
+
+    .psv-cert-brand {
+      font-size: 7.5px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    .psv-cert-brand span {
+      color: #d4af37;
+    }
+
+    .psv-cert-subtitle {
+      font-size: 6px;
+      color: #8e877e;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-top: -1px;
+    }
+
+    .psv-cert-pills {
+      display: flex;
+      gap: 3px;
+      margin: 1px 0;
+    }
+
+    .psv-cert-pill {
+      font-size: 7px;
+      color: #d2cdc5;
+      background: rgba(212, 175, 55, .04);
+      border: 1px solid rgba(212, 175, 55, .12);
+      border-radius: 3px;
+      padding: 1px 5px;
+      white-space: nowrap;
+    }
+
+    .psv-cert-pill strong {
+      color: #ffd700;
+      font-weight: 700;
+    }
+
+    .psv-cert-stats {
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    .psv-cert-meta {
+      font-size: 6px;
+      color: #7c766d;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .psv-cert-verify {
+      font-size: 7px;
+      font-weight: 600;
+      color: #d4af37;
+      text-decoration: none;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 4px;
+      padding: 2.5px 10px;
+      margin-top: 3px;
+      transition: all .25s ease;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.02);
+    }
+
+    .psv-cert-verify:hover {
+      background: rgba(212, 175, 55, 0.12);
+      border-color: #d4af37;
+      color: #fff;
+      box-shadow: 0 0 6px rgba(212, 175, 55, 0.25);
+      transform: translateY(-0.5px);
+    }
+
+    @keyframes float-cert-mobile {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-6px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    @media(max-width:1200px) {
+      .hero {
+        flex-direction: column;
+      }
+
+      .psv-cert {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        margin-bottom: 18px;
+        width: 176px;
+        padding: 14px 10px 10px;
+        animation: float-cert-mobile 6s ease-in-out infinite;
+      }
+    }
+
+    @media(max-width:480px) {
+      .psv-cert {
+        width: 176px;
+        padding: 14px 10px 10px;
+      }
+
+      .psv-cert-position {
+        font-size: 11px;
+      }
+
+      .psv-cert-number {
+        font-size: 20px;
+      }
+
+      .psv-cert-emblem {
+        width: 50px;
+        height: 50px;
+      }
+
+      .psv-cert-title {
+        font-size: 11.5px;
+      }
+
+      .psv-cert-stats {
+        font-size: 8.5px;
+      }
+
+      .about-cards {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .about-card {
+        padding: 18px 14px;
+      }
+
+      .about-card h3 {
+        font-size: 14px;
+      }
+
+      .about-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 8px;
+      }
+
+      .about-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      #nosotros .about-card p {
+        font-size: 12px;
+      }
+    }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
+
 <body>
 
-<div id="disclaimer-modal" class="modal-overlay">
+  <div id="disclaimer-modal" class="modal-overlay">
     <div class="modal-box">
-        <button class="modal-close" id="modal-close-btn">&times;</button>
-        <div class="modal-icon">&#9888;&#65039;</div>
-        <h2>Aviso Importante</h2>
-        <p>
-            Esta no es una p&aacute;gina web oficial. TEPSA PSV es una empresa virtual
-            dentro de <strong>Euro Truck Simulator 2</strong> en el servidor
-            <strong>PeruServer</strong> con fines de simulaci&oacute;n y entretenimiento.
-        </p>
-        <button class="modal-btn" id="modal-accept-btn">Entendido</button>
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+      <div class="modal-icon">&#9888;&#65039;</div>
+      <h2>Aviso Importante</h2>
+      <p>
+        Esta no es una p&aacute;gina web oficial. TEPSA PSV es una empresa virtual
+        dentro de <strong>Euro Truck Simulator 2</strong> en el servidor
+        <strong>PeruServer</strong> con fines de simulaci&oacute;n y entretenimiento.
+      </p>
+      <button class="modal-btn" id="modal-accept-btn">Entendido</button>
     </div>
-</div>
+  </div>
 
 
-<header>
+  <header>
     <nav class="navbar">
-        <div class="logo">TEPSA PSV</div>
-        <ul class="menu" id="mainMenu">
-            <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#nosotros">Nosotros</a></li>
-            <li><a href="#flota">Flota</a></li>
-            <li><a href="#ranking">Ranking</a></li>
-            <li><a href="conductores.html">Conductores</a></li>
-            <li><a href="#reclutamiento">Reclutamiento / Contacto</a></li>
-            <li><a href="#galeria">Galería</a></li>
-            <li><a href="#fundadores">Fundadores</a></li>
-        </ul>
-        <button class="hamburger" id="hamburger" aria-label="Menú">
-            <span></span><span></span><span></span>
-        </button>
-    </nav>          
-</header>
+      <div class="logo">TEPSA PSV</div>
+      <ul class="menu" id="mainMenu">
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#flota">Flota</a></li>
+        <li><a href="#ranking">Ranking</a></li>
+        <li><a href="conductores.html">Conductores</a></li>
+        <li><a href="#reclutamiento">Reclutamiento</a></li>
+        <li><a href="#galeria">Galería</a></li>
+        <li><a href="#fundadores">Fundadores</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
 
-<section id="inicio" class="hero">
+  <section id="inicio" class="hero">
 
     <div class="overlay"></div>
 
     <div class="psv-cert" id="psvCertificationCard" data-tier="top1">
-        <div class="psv-cert-header">
-            <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
-            <div class="psv-cert-top">
-                <span class="psv-cert-label">TOP</span>
-                <span id="psvCertHeroRank" class="psv-cert-position">#4</span>
-            </div>
-            <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor"/></svg>
+      <div class="psv-cert-header">
+        <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none">
+          <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor" />
+        </svg>
+        <div class="psv-cert-top">
+          <span class="psv-cert-label">TOP</span>
+          <span id="psvCertHeroRank" class="psv-cert-position">#4</span>
         </div>
-        <div class="psv-cert-divider"></div>
-        <div id="psvCertTitle" class="psv-cert-title">TEPSA PSV</div>
-        <div class="psv-cert-emblem">
-            <svg class="psv-cert-star-ring" viewBox="0 0 100 100" fill="none">
-                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
-                <circle cx="50" cy="50" r="38" stroke="currentColor" stroke-width=".6" opacity=".3"/>
-            </svg>
-            <svg class="psv-cert-star-shape" viewBox="0 0 100 100" fill="none">
-                <path d="M50 5 L61 38 L97 38 L68 58 L77 92 L50 72 L23 92 L32 58 L3 38 L39 38 Z" fill="currentColor"/>
-            </svg>
-            <span id="psvCertCenterRank" class="psv-cert-number">4</span>
-        </div>
-        <div class="psv-cert-brand">PERU<span>S</span>ERVER</div>
-        <div id="psvCertSubtitle" class="psv-cert-subtitle">Ranking Mensual PeruServer</div>
-        <div class="psv-cert-pills">
-            <span class="psv-cert-pill">Pos. <strong id="psvCertMonthRank">#4</strong></span>
-            <span class="psv-cert-pill"><strong id="psvCertMembers">16</strong> miembros</span>
-        </div>
-        <div class="psv-cert-stats">
-            <span id="psvCertStats">39,327 KM · 51 Viajes</span>
-        </div>
-        <div id="psvCertMeta" class="psv-cert-meta">Top 4 · En vivo · Julio 2026</div>
-        <a href="https://peruserver.pe/empresas#rankings" target="_blank" class="psv-cert-verify">Verificar certificado →</a>
+        <svg class="psv-cert-bolt" viewBox="0 0 24 24" fill="none">
+          <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8Z" fill="currentColor" />
+        </svg>
+      </div>
+      <div class="psv-cert-divider"></div>
+      <div id="psvCertTitle" class="psv-cert-title">TEPSA PSV</div>
+      <div class="psv-cert-emblem">
+        <svg class="psv-cert-star-ring" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="1.2" opacity=".5" />
+          <circle cx="50" cy="50" r="38" stroke="currentColor" stroke-width=".6" opacity=".3" />
+        </svg>
+        <svg class="psv-cert-star-shape" viewBox="0 0 100 100" fill="none">
+          <path d="M50 5 L61 38 L97 38 L68 58 L77 92 L50 72 L23 92 L32 58 L3 38 L39 38 Z" fill="currentColor" />
+        </svg>
+        <span id="psvCertCenterRank" class="psv-cert-number">4</span>
+      </div>
+      <div class="psv-cert-brand">PERU<span>S</span>ERVER</div>
+      <div id="psvCertSubtitle" class="psv-cert-subtitle">Ranking Mensual PeruServer</div>
+      <div class="psv-cert-pills">
+        <span class="psv-cert-pill">Pos. <strong id="psvCertMonthRank">#4</strong></span>
+        <span class="psv-cert-pill"><strong id="psvCertMembers">16</strong> miembros</span>
+      </div>
+      <div class="psv-cert-stats">
+        <span id="psvCertStats">39,327 KM · 51 Viajes</span>
+      </div>
+      <div id="psvCertMeta" class="psv-cert-meta">Top 4 · En vivo · Julio 2026</div>
+      <a href="https://peruserver.pe/empresas#rankings" target="_blank" class="psv-cert-verify">Verificar certificado
+        →</a>
     </div>
 
     <div class="hero-content">
-        <h1>TEPSA PSV</h1>
-        <p>
-            Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2
-        </p>
-        <div class="hero-buttons">
-            <a href="#reclutamiento" class="btn">ÚNETE A TEPSA PSV</a>
-            <a href="#ranking" class="btn2">VER RANKING</a>
-        </div>
+      <h1>TEPSA PSV</h1>
+      <p>
+        Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2
+      </p>
+      <div class="hero-buttons">
+        <a href="#reclutamiento" class="btn">ÚNETE A TEPSA PSV</a>
+        <a href="#ranking" class="btn2">VER RANKING</a>
+      </div>
     </div>
 
-</section>
+  </section>
 
-<section class="stats">
-
-    <div class="stat-box">
-        <h2 id="stat-kilometros">227,626</h2>
-        <p>Kilómetros</p>
-    </div>
+  <section class="stats">
 
     <div class="stat-box">
-        <h2 id="stat-conductores">14</h2>
-        <p>Conductores</p>
+      <h2 id="stat-kilometros">227,626</h2>
+      <p>Kilómetros</p>
     </div>
 
     <div class="stat-box">
-        <h2 id="stat-activos">10</h2>
-        <p>Activos</p>
+      <h2 id="stat-conductores">14</h2>
+      <p>Conductores</p>
     </div>
 
     <div class="stat-box">
-        <h2>2026</h2>
-        <p>Fundación</p>
+      <h2 id="stat-activos">10</h2>
+      <p>Activos</p>
     </div>
 
-</section>
+    <div class="stat-box">
+      <h2>2026</h2>
+      <p>Fundación</p>
+    </div>
 
-<section id="nosotros">
+  </section>
+
+  <section id="nosotros">
     <div class="nosotros-wrapper">
-        <div class="nosotros-text">
-            <span class="nosotros-label">Sobre Nosotros</span>
-            <h2>Quiénes Somos</h2>
-            <p>
-                TEPSA PSV es una empresa virtual peruana dedicada al transporte
-                de pasajeros dentro de Euro Truck Simulator 2.
-                Nuestro objetivo es brindar una experiencia profesional,
-                organizada y divertida para todos nuestros conductores.
-            </p>
-        </div>
+      <div class="nosotros-text">
+        <span class="nosotros-label">Sobre Nosotros</span>
+        <h2>Quiénes Somos</h2>
+        <p>
+          TEPSA PSV es una empresa virtual peruana dedicada al transporte
+          de pasajeros dentro de Euro Truck Simulator 2.
+          Nuestro objetivo es brindar una experiencia profesional,
+          organizada y divertida para todos nuestros conductores.
+        </p>
+      </div>
     </div>
     <div class="about-cards">
-        <article class="about-card">
-            <span class="about-icon">
-                <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M4 7h9a3 3 0 1 1 0 6H9a3 3 0 1 0 0 6h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="17" cy="7" r="2" fill="currentColor"/>
-                    <circle cx="7" cy="17" r="2" fill="currentColor"/>
-                </svg>
-            </span>
-            <h3>Rutas Reales</h3>
-            <p>Recorre las carreteras más emblemáticas del Perú con mapas reales.</p>
-        </article>
-        <article class="about-card">
-            <span class="about-icon">
-                <svg viewBox="0 0 24 24" fill="none">
-                    <circle cx="8" cy="9" r="3" stroke="currentColor" stroke-width="2"/>
-                    <path d="M2.5 18a5.5 5.5 0 0 1 11 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="17" cy="8" r="2.5" stroke="currentColor" stroke-width="2"/>
-                    <path d="M14 17.5a4.5 4.5 0 0 1 7.5-3.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </span>
-            <h3>Comunidad Activa</h3>
-            <p>Forma parte de un equipo de conductores apasionados por el transporte peruano.</p>
-        </article>
-        <article class="about-card">
-            <span class="about-icon">
-                <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M12 21s6-5.4 6-10a6 6 0 1 0-12 0c0 4.6 6 10 6 10Z" stroke="currentColor" stroke-width="2"/>
-                    <circle cx="12" cy="11" r="2.2" fill="currentColor"/>
-                </svg>
-            </span>
-            <h3>Ciudades Peruanas</h3>
-            <p>Conecta Lima, Arequipa, Cusco, Puno, Trujillo y más destinos.</p>
-        </article>
-        <article class="about-card">
-            <span class="about-icon">
-                <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M8 4h8v3h3v3a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5V7h3V4Z" stroke="currentColor" stroke-width="2"/>
-                    <path d="M9 15v2a3 3 0 0 0 6 0v-2M7 21h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </span>
-            <h3>Ranking Competitivo</h3>
-            <p>Compite por ser el conductor con más kilómetros recorridos del servidor.</p>
-        </article>
+      <article class="about-card">
+        <span class="about-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 7h9a3 3 0 1 1 0 6H9a3 3 0 1 0 0 6h11" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" />
+            <circle cx="17" cy="7" r="2" fill="currentColor" />
+            <circle cx="7" cy="17" r="2" fill="currentColor" />
+          </svg>
+        </span>
+        <h3>Rutas Reales</h3>
+        <p>Recorre las carreteras más emblemáticas del Perú con mapas reales.</p>
+      </article>
+      <article class="about-card">
+        <span class="about-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="8" cy="9" r="3" stroke="currentColor" stroke-width="2" />
+            <path d="M2.5 18a5.5 5.5 0 0 1 11 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <circle cx="17" cy="8" r="2.5" stroke="currentColor" stroke-width="2" />
+            <path d="M14 17.5a4.5 4.5 0 0 1 7.5-3.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h3>Comunidad Activa</h3>
+        <p>Forma parte de un equipo de conductores apasionados por el transporte peruano.</p>
+      </article>
+      <article class="about-card">
+        <span class="about-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 21s6-5.4 6-10a6 6 0 1 0-12 0c0 4.6 6 10 6 10Z" stroke="currentColor" stroke-width="2" />
+            <circle cx="12" cy="11" r="2.2" fill="currentColor" />
+          </svg>
+        </span>
+        <h3>Ciudades Peruanas</h3>
+        <p>Conecta Lima, Arequipa, Cusco, Puno, Trujillo y más destinos.</p>
+      </article>
+      <article class="about-card">
+        <span class="about-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M8 4h8v3h3v3a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5V7h3V4Z" stroke="currentColor" stroke-width="2" />
+            <path d="M9 15v2a3 3 0 0 0 6 0v-2M7 21h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h3>Ranking Competitivo</h3>
+        <p>Compite por ser el conductor con más kilómetros recorridos del servidor.</p>
+      </article>
     </div>
-</section>
+  </section>
 
-<section id="flota">
+  <section id="flota">
 
     <h2>Nuestra Flota</h2>
 
     <div class="cards">
 
-        <div class="card">
-            <img src="img/flota1.png">
-            <h3>Marcopolo G7 1200</h3>
-        </div>
+      <div class="card">
+        <img src="img/flota1.png">
+        <h3>Marcopolo G7 1200</h3>
+      </div>
 
-        <div class="card">
-            <img src="img/flota2.png">
-            <h3>Ticlio-Perú</h3>
-        </div>
+      <div class="card">
+        <img src="img/flota2.png">
+        <h3>Ticlio-Perú</h3>
+      </div>
 
-        <div class="card">
-            <img src="img/flota3.png">
-            <h3>Convocatoria de choferes</h3>
-        </div>
+      <div class="card">
+        <img src="img/flota3.png">
+        <h3>Convocatoria de choferes</h3>
+      </div>
 
     </div>
 
-</section>
+  </section>
 
-<section id="ranking">
+  <section id="ranking">
 
     <h2>Ranking de Conductores</h2>
 
@@ -534,345 +738,348 @@
     <div id="ranking-podium" class="ranking-podium"></div>
 
     <div class="ranking-cta">
-        <a href="conductores.html" class="btn">VER TODOS LOS CONDUCTORES</a>
+      <a href="conductores.html" class="btn">VER TODOS LOS CONDUCTORES</a>
     </div>
 
-</section>
+  </section>
 
 
 
-<section id="reclutamiento">
+  <section id="reclutamiento">
 
     <div class="reclutamiento-box">
 
-        <h2>Buscamos Conductores</h2>
+      <h2>Buscamos Conductores</h2>
 
-        <ul class="requisitos">
-            <li><span class="req-icon">✓</span> Ser activo en Perú Server</li>
-            <li><span class="req-icon">✓</span> Tener Discord</li>
-            <li><span class="req-icon">✓</span> Ser comunicativo</li>
-            <li><span class="req-icon">✓</span> Cumplir las normas</li>
-            <li><span class="req-icon">✓</span> Mantener bajo daño</li>
-        </ul>
+      <ul class="requisitos">
+        <li><span class="req-icon">✓</span> Ser activo en Perú Server</li>
+        <li><span class="req-icon">✓</span> Tener Discord</li>
+        <li><span class="req-icon">✓</span> Ser comunicativo</li>
+        <li><span class="req-icon">✓</span> Cumplir las normas</li>
+        <li><span class="req-icon">✓</span> Mantener bajo daño</li>
+      </ul>
 
-        <div id="success-msg" style="display:none;text-align:center;padding:32px 24px;background:#0f0f0f;border:1px solid #222;border-radius:12px;">
-            <p style="color:#4ecdc4;font-size:20px;font-weight:600;margin:0;">¡Gracias!</p>
-            <p style="color:#999;font-size:14px;margin:8px 0 0;line-height:1.5;">Nos pondremos en contacto contigo.</p>
+      <div id="success-msg"
+        style="display:none;text-align:center;padding:32px 24px;background:#0f0f0f;border:1px solid #222;border-radius:12px;">
+        <p style="color:#4ecdc4;font-size:20px;font-weight:600;margin:0;">¡Gracias!</p>
+        <p style="color:#999;font-size:14px;margin:8px 0 0;line-height:1.5;">Nos pondremos en contacto contigo.</p>
+      </div>
+
+      <form id="form-postulacion" class="form-postulacion">
+
+        <input type="hidden" name="_subject" value="Nuevo conductor - TEPSA PSV">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre Completo</label>
+            <input type="text" name="nombre" placeholder="Ej: Juan Pérez" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input type="tel" name="telefono" placeholder="Ej: 999 888 777" required>
+          </div>
         </div>
 
-        <form id="form-postulacion" class="form-postulacion">
-
-            <input type="hidden" name="_subject" value="Nuevo conductor - TEPSA PSV">
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Nombre Completo</label>
-                    <input type="text" name="nombre" placeholder="Ej: Juan Pérez" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Teléfono</label>
-                    <input type="tel" name="telefono" placeholder="Ej: 999 888 777" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Edad</label>
-                    <input type="number" name="edad" placeholder="Ej: 25" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Horas en ETS2</label>
-                    <input type="number" name="horas_ets2" placeholder="Ej: 500" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Usuario Discord</label>
-                <input type="text" name="discord" placeholder="Ej: usuario#1234" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Experiencia</label>
-                <textarea name="experiencia" placeholder="Cuéntanos sobre tu experiencia en ETS2..." required></textarea>
-            </div>
-
-            <button type="submit" id="btn-submit" class="form-submit">
-                ENVIAR SOLICITUD
-            </button>
-
-            <div id="form-error" class="form-error-global" style="display:none;"></div>
-
-        </form>
-
-        <div id="contacto" class="reclutamiento-contacto">
-            <p>O si prefieres, escríbenos directamente por nuestros canales oficiales:</p>
-            <div class="contacto-items">
-                <a href="mailto:tepsapsv@gmail.com" class="contacto-item">
-                    <span class="contacto-icon">📧</span>
-                    <span>tepsapsv@gmail.com</span>
-                </a>
-                <a href="https://discord.gg/PUCdan2d8M" target="_blank" class="contacto-item">
-                    <span class="contacto-icon">🎮</span>
-                    <span>Discord</span>
-                </a>
-            </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Edad</label>
+            <input type="number" name="edad" placeholder="Ej: 25" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Horas en ETS2</label>
+            <input type="number" name="horas_ets2" placeholder="Ej: 500" required>
+          </div>
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Usuario Discord</label>
+          <input type="text" name="discord" placeholder="Ej: usuario#1234" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Experiencia</label>
+          <textarea name="experiencia" placeholder="Cuéntanos sobre tu experiencia en ETS2..." required></textarea>
+        </div>
+
+        <button type="submit" id="btn-submit" class="form-submit">
+          ENVIAR SOLICITUD
+        </button>
+
+        <div id="form-error" class="form-error-global" style="display:none;"></div>
+
+      </form>
+
+      <div id="contacto" class="reclutamiento-contacto">
+        <p>O si prefieres, escríbenos directamente por nuestros canales oficiales:</p>
+        <div class="contacto-items">
+          <a href="mailto:tepsapsv@gmail.com" class="contacto-item">
+            <span class="contacto-icon">📧</span>
+            <span>tepsapsv@gmail.com</span>
+          </a>
+          <a href="https://discord.gg/PUCdan2d8M" target="_blank" class="contacto-item">
+            <span class="contacto-icon">🎮</span>
+            <span>Discord</span>
+          </a>
+        </div>
+      </div>
 
     </div>
 
-</section>
+  </section>
 
-<section id="galeria">
+  <section id="galeria">
 
     <h2>Galería</h2>
 
     <div class="galeria">
 
-        <img src="img/galeria1.png">
-        <img src="img/galeria2.png">
-        <img src="img/galeria3.png">
-        <img src="img/galeria4.png">
+      <img src="img/galeria1.png">
+      <img src="img/galeria2.png">
+      <img src="img/galeria3.png">
+      <img src="img/galeria4.png">
 
     </div>
 
-</section>
+  </section>
 
 
-<section id="fundadores">
+  <section id="fundadores">
 
     <div class="fundadores-grid">
 
-        <div class="fundador-card">
-            <img src="img/fundadores/alexander.png" alt="Alexander">
+      <div class="fundador-card">
+        <img src="img/fundadores/alexander.png" alt="Alexander">
 
-            <h3>Alexander</h3>
+        <h3>Alexander</h3>
 
-            <span>Cofundador</span>
+        <span>Cofundador</span>
 
-            <p>
-                Participó en la consolidación y crecimiento de TEPSA PSV desde sus inicios.
-            </p>
-        </div>
+        <p>
+          Participó en la consolidación y crecimiento de TEPSA PSV desde sus inicios.
+        </p>
+      </div>
 
-        <div class="fundador-card principal">
+      <div class="fundador-card principal">
 
-            <div class="corona">👑</div>
+        <div class="corona">👑</div>
 
-            <img src="img/fundadores/cesar.png" alt="Cesar">
+        <img src="img/fundadores/cesar.png" alt="Cesar">
 
-            <h3>Cesar</h3>
+        <h3>Cesar</h3>
 
-            <span>Fundador Principal</span>
+        <span>Fundador Principal</span>
 
-            <small>Director General</small>
+        <small>Director General</small>
 
-            <p>
-                Iniciador y creador de TEPSA PSV. Su visión dio origen a todo el proyecto.
-            </p>
+        <p>
+          Iniciador y creador de TEPSA PSV. Su visión dio origen a todo el proyecto.
+        </p>
 
-        </div>
+      </div>
 
-        <div class="fundador-card">
-            <img src="img/fundadores/cristofer.png" alt="Cristofer">
+      <div class="fundador-card">
+        <img src="img/fundadores/cristofer.png" alt="Cristofer">
 
-            <h3>Cristofer</h3>
+        <h3>Cristofer</h3>
 
-            <span>Cofundador</span>
+        <span>Cofundador</span>
 
-            <p>
-                Miembro fundador y colaborador en el desarrollo de la comunidad.
-            </p>
+        <p>
+          Miembro fundador y colaborador en el desarrollo de la comunidad.
+        </p>
 
-        </div>
+      </div>
 
     </div>
 
-</section>
+  </section>
 
 
-<footer>
+  <footer>
     <div class="footer-content">
-        <div class="footer-brand">
-            <h3>TEPSA PSV</h3>
-            <p>Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2</p>
-        </div>
-        <div class="footer-links">
-            <h4>Navegación</h4>
-            <a href="#inicio">Inicio</a>
-            <a href="#nosotros">Nosotros</a>
-            <a href="#ranking">Ranking</a>
-            <a href="conductores.html">Conductores</a>
-            <a href="#reclutamiento">Reclutamiento</a>
-        </div>
-        <div class="footer-social">
-            <h4>Comunidad</h4>
-            <a href="https://discord.gg/PUCdan2d8M" target="_blank" class="discord-link" aria-label="Discord">
-                <svg class="discord-icon" viewBox="0 0 127.14 96.36" width="28" height="28">
-                    <path fill="currentColor" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
-                </svg>
-                <span>Discord</span>
-            </a>
-        </div>
+      <div class="footer-brand">
+        <h3>TEPSA PSV</h3>
+        <p>Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2</p>
+      </div>
+      <div class="footer-links">
+        <h4>Navegación</h4>
+        <a href="#inicio">Inicio</a>
+        <a href="#nosotros">Nosotros</a>
+        <a href="#ranking">Ranking</a>
+        <a href="conductores.html">Conductores</a>
+        <a href="#reclutamiento">Reclutamiento</a>
+      </div>
+      <div class="footer-social">
+        <h4>Comunidad</h4>
+        <a href="https://discord.gg/PUCdan2d8M" target="_blank" class="discord-link" aria-label="Discord">
+          <svg class="discord-icon" viewBox="0 0 127.14 96.36" width="28" height="28">
+            <path fill="currentColor"
+              d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
+          </svg>
+          <span>Discord</span>
+        </a>
+      </div>
     </div>
     <div class="footer-bottom">
-        <p>© 2026 TEPSA PSV &mdash; Todos los derechos reservados</p>
+      <p>© 2026 TEPSA PSV &mdash; Todos los derechos reservados</p>
     </div>
-</footer>
+  </footer>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 
-<script>
-document.getElementById("hamburger")?.addEventListener("click", () => {
-  document.getElementById("mainMenu")?.classList.toggle("show");
-});
-const CACHE_KEY = "tepsa:ps-ranking:v6";
-const CACHE_TTL = 5 * 60 * 1000;
-try { localStorage.removeItem("tepsa:ps-ranking:v2"); } catch (e) {}
-try { localStorage.removeItem("tepsa:ps-ranking:v3"); } catch (e) {}
-try { localStorage.removeItem("tepsa:ps-ranking:v4"); } catch (e) {}
-try { localStorage.removeItem("tepsa:ps-ranking:v5"); } catch (e) {}
-
-async function loadPSRanking() {
-  const els = {
-    heroRank: document.getElementById("psvCertHeroRank"),
-    centerRank: document.getElementById("psvCertCenterRank"),
-    stats: document.getElementById("psvCertStats"),
-    monthRank: document.getElementById("psvCertMonthRank"),
-    members: document.getElementById("psvCertMembers"),
-    title: document.getElementById("psvCertTitle"),
-    subtitle: document.getElementById("psvCertSubtitle"),
-    meta: document.getElementById("psvCertMeta"),
-  };
-  if (!els.heroRank) return;
-
-  const render = (pos, km, jobs, members, period) => {
-    const p = pos || "?";
-    els.heroRank.textContent = "#" + p;
-    if (els.centerRank) els.centerRank.textContent = p;
-    if (els.stats) els.stats.textContent = (km || "?") + " KM \u00B7 " + (jobs || "?") + " Viajes";
-    if (els.monthRank) els.monthRank.textContent = "#" + p;
-    if (els.members) els.members.textContent = members || "?";
-    if (els.title) els.title.textContent = "TEPSA PSV";
-    if (els.subtitle) els.subtitle.textContent = "Ranking Mensual PeruServer";
-    
-    // Format period if it is an object
-    let displayPeriod = period;
-    if (period && typeof period === "object") {
-      if (period.from && period.from.month && period.from.year) {
-        const months = [
-          "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ];
-        const mName = months[period.from.month - 1] || period.from.month;
-        displayPeriod = `${mName} ${period.from.year}`;
-      } else {
-        displayPeriod = JSON.stringify(period);
-      }
-    }
-    
-    if (els.meta) els.meta.textContent = "Top " + (pos || "?") + " \u00B7 En vivo \u00B7 " + (displayPeriod || new Date().toLocaleDateString("es-PE"));
-  };
-
-  const formatKm = (km) => {
-    if (km == null) return null;
-    return Number(km).toLocaleString("es-PE");
-  };
-
-  const getMembers = (item) => item.members || item.total_members || item.member_count || item.membersCount;
-
-  // 1) Renderizar desde la caché de forma inmediata si existe
-  let cachedData = null;
-  try {
-    cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
-    if (cachedData) {
-      render(cachedData.pos, cachedData.km, cachedData.jobs, cachedData.members, cachedData.period);
-    }
-  } catch (e) {}
-
-  // 2) Consultar nuevos datos en segundo plano (SWR: siempre busca datos frescos en el servidor tras pintar la caché)
-  try {
-    const ac = new AbortController();
-    const tid = setTimeout(() => ac.abort(), 6000);
-    
-    // Detectar entorno local para usar puerto 3000 si estamos en Live Server
-    let apiUrl = "/api/ps-ranking?_=" + Date.now();
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      if (window.location.port && window.location.port !== "3000") {
-        apiUrl = "http://127.0.0.1:3000/api/ps-ranking?_=" + Date.now();
-      }
-    }
-    
-    const r = await fetch(apiUrl, { cache: "no-store", signal: ac.signal });
-    clearTimeout(tid);
-    const d = await r.json();
-    if (d.ok && d.item) {
-      const pos = d.position;
-      const km = formatKm(d.item.total_distance);
-      const jobs = d.item.total_jobs;
-      const members = getMembers(d.item);
-      const period = d.period || null;
-      
-      // Actualizar DOM y guardar en caché
-      render(pos, km, jobs, members, period);
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ pos, km, jobs, members, period, ts: Date.now() })); } catch (e) {}
-    } else {
-      console.warn("loadPSRanking: error en la respuesta del proxy -", d.error || "empresa no encontrada");
-      // Si no hay caché previa, renderizamos estado sin datos
-      if (!cachedData) {
-        render(null, null, null, null, "Sin datos");
-      }
-    }
-  } catch (e) {
-    console.error("loadPSRanking: error de conexion", e);
-    // Si la conexión falla pero tenemos caché previa, se mantiene renderizada la caché.
-    // Solo si no hay caché previa en absoluto mostramos "Sin datos"
-    if (!cachedData) {
-      render(null, null, null, null, "Sin datos");
-    }
-  }
-}
-
-// Ejecución inicial al cargar la página
-loadPSRanking();
-
-// Actualización automática cada 5 minutos
-setInterval(loadPSRanking, 5 * 60 * 1000);
-</script>
-
-<script>
-document.getElementById('form-postulacion')?.addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const form = this;
-  const btn = document.getElementById('btn-submit');
-  const errEl = document.getElementById('form-error');
-  const data = new FormData(form);
-
-  btn.disabled = true;
-  btn.textContent = 'ENVIANDO...';
-  errEl.style.display = 'none';
-
-  try {
-    const res = await fetch('https://formspree.io/f/xqevyzbe', {
-      method: 'POST',
-      body: data,
-      headers: { Accept: 'application/json' }
+  <script>
+    document.getElementById("hamburger")?.addEventListener("click", () => {
+      document.getElementById("mainMenu")?.classList.toggle("show");
     });
-    if (res.ok) {
-      form.style.display = 'none';
-      document.getElementById('success-msg').style.display = 'block';
-    } else {
-      const json = await res.json();
-      errEl.textContent = json?.error || 'Error al enviar. Intenta de nuevo.';
-      errEl.style.display = 'block';
-    }
-  } catch {
-    errEl.textContent = 'Error de conexión. Verifica tu internet.';
-    errEl.style.display = 'block';
-  }
+    const CACHE_KEY = "tepsa:ps-ranking:v6";
+    const CACHE_TTL = 5 * 60 * 1000;
+    try { localStorage.removeItem("tepsa:ps-ranking:v2"); } catch (e) { }
+    try { localStorage.removeItem("tepsa:ps-ranking:v3"); } catch (e) { }
+    try { localStorage.removeItem("tepsa:ps-ranking:v4"); } catch (e) { }
+    try { localStorage.removeItem("tepsa:ps-ranking:v5"); } catch (e) { }
 
-  btn.disabled = false;
-  btn.textContent = 'ENVIAR SOLICITUD';
-});
-</script>
+    async function loadPSRanking() {
+      const els = {
+        heroRank: document.getElementById("psvCertHeroRank"),
+        centerRank: document.getElementById("psvCertCenterRank"),
+        stats: document.getElementById("psvCertStats"),
+        monthRank: document.getElementById("psvCertMonthRank"),
+        members: document.getElementById("psvCertMembers"),
+        title: document.getElementById("psvCertTitle"),
+        subtitle: document.getElementById("psvCertSubtitle"),
+        meta: document.getElementById("psvCertMeta"),
+      };
+      if (!els.heroRank) return;
+
+      const render = (pos, km, jobs, members, period) => {
+        const p = pos || "?";
+        els.heroRank.textContent = "#" + p;
+        if (els.centerRank) els.centerRank.textContent = p;
+        if (els.stats) els.stats.textContent = (km || "?") + " KM \u00B7 " + (jobs || "?") + " Viajes";
+        if (els.monthRank) els.monthRank.textContent = "#" + p;
+        if (els.members) els.members.textContent = members || "?";
+        if (els.title) els.title.textContent = "TEPSA PSV";
+        if (els.subtitle) els.subtitle.textContent = "Ranking Mensual PeruServer";
+
+        // Format period if it is an object
+        let displayPeriod = period;
+        if (period && typeof period === "object") {
+          if (period.from && period.from.month && period.from.year) {
+            const months = [
+              "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+              "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+            ];
+            const mName = months[period.from.month - 1] || period.from.month;
+            displayPeriod = `${mName} ${period.from.year}`;
+          } else {
+            displayPeriod = JSON.stringify(period);
+          }
+        }
+
+        if (els.meta) els.meta.textContent = "Top " + (pos || "?") + " \u00B7 En vivo \u00B7 " + (displayPeriod || new Date().toLocaleDateString("es-PE"));
+      };
+
+      const formatKm = (km) => {
+        if (km == null) return null;
+        return Number(km).toLocaleString("es-PE");
+      };
+
+      const getMembers = (item) => item.members || item.total_members || item.member_count || item.membersCount;
+
+      // 1) Renderizar desde la caché de forma inmediata si existe
+      let cachedData = null;
+      try {
+        cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+        if (cachedData) {
+          render(cachedData.pos, cachedData.km, cachedData.jobs, cachedData.members, cachedData.period);
+        }
+      } catch (e) { }
+
+      // 2) Consultar nuevos datos en segundo plano (SWR: siempre busca datos frescos en el servidor tras pintar la caché)
+      try {
+        const ac = new AbortController();
+        const tid = setTimeout(() => ac.abort(), 6000);
+
+        // Detectar entorno local para usar puerto 3000 si estamos en Live Server
+        let apiUrl = "/api/ps-ranking?_=" + Date.now();
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+          if (window.location.port && window.location.port !== "3000") {
+            apiUrl = "http://127.0.0.1:3000/api/ps-ranking?_=" + Date.now();
+          }
+        }
+
+        const r = await fetch(apiUrl, { cache: "no-store", signal: ac.signal });
+        clearTimeout(tid);
+        const d = await r.json();
+        if (d.ok && d.item) {
+          const pos = d.position;
+          const km = formatKm(d.item.total_distance);
+          const jobs = d.item.total_jobs;
+          const members = getMembers(d.item);
+          const period = d.period || null;
+
+          // Actualizar DOM y guardar en caché
+          render(pos, km, jobs, members, period);
+          try { localStorage.setItem(CACHE_KEY, JSON.stringify({ pos, km, jobs, members, period, ts: Date.now() })); } catch (e) { }
+        } else {
+          console.warn("loadPSRanking: error en la respuesta del proxy -", d.error || "empresa no encontrada");
+          // Si no hay caché previa, renderizamos estado sin datos
+          if (!cachedData) {
+            render(null, null, null, null, "Sin datos");
+          }
+        }
+      } catch (e) {
+        console.error("loadPSRanking: error de conexion", e);
+        // Si la conexión falla pero tenemos caché previa, se mantiene renderizada la caché.
+        // Solo si no hay caché previa en absoluto mostramos "Sin datos"
+        if (!cachedData) {
+          render(null, null, null, null, "Sin datos");
+        }
+      }
+    }
+
+    // Ejecución inicial al cargar la página
+    loadPSRanking();
+
+    // Actualización automática cada 5 minutos
+    setInterval(loadPSRanking, 5 * 60 * 1000);
+  </script>
+
+  <script>
+    document.getElementById('form-postulacion')?.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const form = this;
+      const btn = document.getElementById('btn-submit');
+      const errEl = document.getElementById('form-error');
+      const data = new FormData(form);
+
+      btn.disabled = true;
+      btn.textContent = 'ENVIANDO...';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('https://formspree.io/f/xqevyzbe', {
+          method: 'POST',
+          body: data,
+          headers: { Accept: 'application/json' }
+        });
+        if (res.ok) {
+          form.style.display = 'none';
+          document.getElementById('success-msg').style.display = 'block';
+        } else {
+          const json = await res.json();
+          errEl.textContent = json?.error || 'Error al enviar. Intenta de nuevo.';
+          errEl.style.display = 'block';
+        }
+      } catch {
+        errEl.textContent = 'Error de conexión. Verifica tu internet.';
+        errEl.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'ENVIAR SOLICITUD';
+    });
+  </script>
 </body>
+
 </html>

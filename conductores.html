@@ -1,719 +1,953 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conductores - TEPSA PSV</title>
-<meta property="og:title" content="Conductores - TEPSA PSV">
-<meta property="og:description" content="Equipo de Conductores de TEPSA PSV - Empresa Virtual de Transporte Peruano en ETS2">
-<meta property="og:url" content="https://tepsa.vercel.app/conductores.html">
-<meta property="og:image" content="https://tepsa.vercel.app/img/galeria3.png">
-<meta property="og:image:secure_url" content="https://tepsa.vercel.app/img/galeria3.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="TEPSA PSV Conductores">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="es_PE">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Conductores - TEPSA PSV">
-<meta name="twitter:description" content="Equipo de Conductores de TEPSA PSV - Empresa Virtual de Transporte Peruano en ETS2">
-<meta name="twitter:image" content="https://tepsa.vercel.app/img/galeria3.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conductores - TEPSA PSV</title>
+  <meta property="og:title" content="Conductores - TEPSA PSV">
+  <meta property="og:description"
+    content="Equipo de Conductores de TEPSA PSV - Empresa Virtual de Transporte Peruano en ETS2">
+  <meta property="og:url" content="https://tepsa.vercel.app/conductores.html">
+  <meta property="og:image" content="https://tepsa.vercel.app/img/galeria3.png">
+  <meta property="og:image:secure_url" content="https://tepsa.vercel.app/img/galeria3.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="TEPSA PSV Conductores">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Conductores - TEPSA PSV">
+  <meta name="twitter:description"
+    content="Equipo de Conductores de TEPSA PSV - Empresa Virtual de Transporte Peruano en ETS2">
+  <meta name="twitter:image" content="https://tepsa.vercel.app/img/galeria3.png">
 
-<link rel="stylesheet" href="style.css">
-<link rel="icon" href="img/logo1.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="img/logo1.png" type="image/png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
-<style>
-.conductores-page {
-  background: #080808;
-  background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(255,45,45,.015) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(255,45,45,.01) 0%, transparent 50%);
-  min-height: 100vh;
-}
+  <style>
+    .conductores-page {
+      background: #080808;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(255, 45, 45, .015) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(255, 45, 45, .01) 0%, transparent 50%);
+      min-height: 100vh;
+    }
 
-.conductores-hero {
-  padding: 130px 10% 28px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.conductores-hero::before {
-  content: '';
-  position: absolute;
-  top: -40%;
-  left: 50%;
-  width: 700px;
-  height: 700px;
-  transform: translate(-50%, -20%);
-  background: radial-gradient(circle, rgba(255,45,45,.06) 0%, transparent 60%);
-  pointer-events: none;
-}
-.conductores-hero::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255,45,45,.5), transparent);
-  border-radius: 2px;
-}
-.conductores-hero h1 {
-  font-size: 34px;
-  font-weight: 800;
-  margin-bottom: 10px;
-  background: linear-gradient(135deg, #f0f0f0 0%, #ff2d2d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -.5px;
-}
-.conductores-hero .hero-subtitle {
-  color: #666;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: .5px;
-  max-width: 400px;
-  margin: 0 auto;
-  line-height: 1.7;
-}
+    .conductores-hero {
+      padding: 130px 10% 28px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-.conductores-stats {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  padding: 20px 10% 0;
-  flex-wrap: wrap;
-}
-.stat-card {
-  background: rgba(255,255,255,.02);
-  border: 1px solid #1a1a1a;
-  border-radius: 12px;
-  padding: 10px 22px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  backdrop-filter: blur(4px);
-}
-.stat-card .stat-icon { font-size: 16px; line-height: 1; opacity: .6; }
-.stat-card .stat-value { font-size: 16px; font-weight: 700; color: #eee; font-variant-numeric: tabular-nums; }
-.stat-card .stat-label { font-size: 11px; color: #555; letter-spacing: .3px; }
+    .conductores-hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: 50%;
+      width: 700px;
+      height: 700px;
+      transform: translate(-50%, -20%);
+      background: radial-gradient(circle, rgba(255, 45, 45, .06) 0%, transparent 60%);
+      pointer-events: none;
+    }
 
-.conductores-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 14px;
-  padding: 22px 10% 0;
-  max-width: 1400px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-}
-.search-wrapper { position: relative; flex: 1; min-width: 170px; max-width: 220px; }
-.search-wrapper input {
-  width: 100%;
-  padding: 9px 12px 9px 34px;
-  background: rgba(255,255,255,.03);
-  border: 1px solid #1e1e1e;
-  border-radius: 10px;
-  color: #ddd;
-  font-size: 13px;
-  outline: none;
-  transition: border-color .25s, box-shadow .25s;
-}
-.search-wrapper input:focus { border-color: #ff2d2d; box-shadow: 0 0 0 3px rgba(255,45,45,.06); }
-.search-wrapper input::placeholder { color: #444; }
-.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #444; font-size: 13px; pointer-events: none; }
+    .conductores-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 45, 45, .5), transparent);
+      border-radius: 2px;
+    }
 
-.filter-buttons { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.filter-btn, .status-btn {
-  padding: 7px 16px;
-  background: rgba(255,255,255,.02);
-  border: 1px solid #1e1e1e;
-  color: #666;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all .25s;
-  white-space: nowrap;
-}
-.filter-btn:hover, .status-btn:hover { border-color: #333; color: #aaa; background: rgba(255,255,255,.04); }
-.filter-btn.active { background: #ff2d2d; border-color: #ff2d2d; color: #fff; box-shadow: 0 4px 15px rgba(255,45,45,.2); }
-.status-btn.active { background: rgba(255,45,45,.1); border-color: rgba(255,45,45,.3); color: #ff2d2d; }
+    .conductores-hero h1 {
+      font-size: 34px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #f0f0f0 0%, #ff2d2d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -.5px;
+    }
 
-.drivers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 16px;
-  padding: 28px 10% 60px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
+    .conductores-hero .hero-subtitle {
+      color: #666;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: .5px;
+      max-width: 400px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
 
-.driver-card {
-  position: relative;
-  background: rgba(255,255,255,.015);
-  border: 1px solid #1a1a1a;
-  border-radius: 14px;
-  padding: 20px;
-  transition: border-color .35s, box-shadow .4s, transform .3s;
-  overflow: hidden;
-  isolation: isolate;
-  cursor: pointer; /* Clickable */
-}
-.driver-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(255,45,45,.02), transparent 50%, rgba(255,45,45,.01));
-  opacity: 0;
-  transition: opacity .4s;
-  pointer-events: none;
-}
-.driver-card:hover::before { opacity: 1; }
-.driver-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,45,45,.2), transparent);
-  opacity: 0;
-  transition: opacity .4s;
-}
-.driver-card:hover::after { opacity: 1; }
-.driver-card:hover {
-  border-color: rgba(255,45,45,.2);
-  box-shadow: 0 16px 48px rgba(255,45,45,.06), inset 0 1px 0 rgba(255,45,45,.05);
-  transform: translateY(-4px);
-}
+    .conductores-stats {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px 10% 0;
+      flex-wrap: wrap;
+    }
 
-.driver-card .card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  position: relative;
-  z-index: 1;
-}
-.driver-card .driver-info {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
-  flex: 1;
-}
-.driver-card .driver-avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-.driver-card .driver-avatar-wrap::before {
-  content: '';
-  position: absolute;
-  inset: -2.5px;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, rgba(255,45,45,.3), rgba(255,45,45,.05), rgba(255,45,45,.1), rgba(255,45,45,.3));
-  z-index: 0;
-  transition: transform .6s ease;
-}
-.driver-card:hover .driver-avatar-wrap::before {
-  transform: rotate(90deg);
-  background: conic-gradient(from 90deg, rgba(255,45,45,.5), rgba(255,45,45,.1), rgba(255,45,45,.2), rgba(255,45,45,.5));
-}
-.driver-card .driver-avatar {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: linear-gradient(135deg, #111, #1a1a1a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 800;
-  color: #ff2d2d;
-  z-index: 1;
-  text-shadow: 0 0 20px rgba(255,45,45,.15);
-}
-.driver-card .driver-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.driver-card .driver-meta { min-width: 0; flex: 1; }
-.driver-card .driver-meta .name-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 2px;
-}
-.driver-card .driver-meta h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #eee;
-  margin: 0;
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.driver-card .driver-meta .driver-role {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .3px;
-  opacity: .8;
-}
-.driver-role[data-role="Conductor"] { color: #4ecdc4; }
-.driver-role[data-role="Moderador"] { color: #4a9eff; }
-.driver-role[data-role="Administrador"] { color: #ff2d2d; }
-.driver-role[data-role="Owner"] {
-  background: linear-gradient(135deg, #ffd93d, #ff6b35);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+    .stat-card {
+      background: rgba(255, 255, 255, .02);
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 10px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(4px);
+    }
 
-.driver-card .driver-badges {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: flex-end;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-}
-.driver-card .driver-rank {
-  background: rgba(255,45,45,.08);
-  border: 1px solid rgba(255,45,45,.15);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #ff2d2d;
-  text-transform: uppercase;
-  letter-spacing: .7px;
-}
-.driver-card .driver-level {
-  font-size: 10px;
-  color: #ffd93d;
-  font-weight: 700;
-  background: rgba(255,217,61,.08);
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,217,61,.12);
-}
+    .stat-card .stat-icon {
+      font-size: 16px;
+      line-height: 1;
+      opacity: .6;
+    }
 
-.driver-card .driver-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 14px;
-  position: relative;
-  z-index: 1;
-}
-.driver-card .ds-item {
-  background: rgba(255,255,255,.015);
-  border: 1px solid #1a1a1a;
-  border-radius: 10px;
-  padding: 13px 6px 11px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  transition: border-color .3s;
-}
-.driver-card:hover .ds-item { border-color: #222; }
-.driver-card .ds-item .ds-value {
-  font-size: 17px;
-  font-weight: 800;
-  color: #eee;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -.3px;
-}
-.driver-card .ds-item .ds-label {
-  font-size: 9px;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: .8px;
-  margin-top: 4px;
-  font-weight: 600;
-}
-.driver-card .ds-item.km .ds-value { color: #4ecdc4; text-shadow: 0 0 30px rgba(78,205,196,.08); }
-.driver-card .ds-item.damage .ds-value { color: #ff6b6b; text-shadow: 0 0 30px rgba(255,107,107,.08); }
-.driver-card .ds-item.points .ds-value { color: #ffd93d; text-shadow: 0 0 30px rgba(255,217,61,.08); }
+    .stat-card .stat-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #eee;
+      font-variant-numeric: tabular-nums;
+    }
 
-.driver-card .card-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid #181818;
-  position: relative;
-  z-index: 1;
-}
-.driver-card .last-job {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 11px;
-  color: #666;
-}
-.driver-card .last-job .status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.driver-card .last-job .status-dot.active { background: #4ecdc4; box-shadow: 0 0 10px rgba(78,205,196,.35); }
-.driver-card .last-job .status-dot.inactive { background: #555; }
-.driver-card .last-job .status-dot.no-data { background: #333; }
-.driver-card .driver-position-wrap {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-.driver-card .driver-position-label {
-  font-size: 10px;
-  color: #333;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  font-weight: 600;
-}
-.driver-card .driver-position {
-  font-size: 20px;
-  font-weight: 800;
-  color: #222;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  transition: color .3s;
-}
-.driver-card:hover .driver-position { color: rgba(255,45,45,.25); }
-.driver-card .driver-country {
-  font-size: 10px;
-  color: #555;
-  font-weight: 500;
-  letter-spacing: .2px;
-  flex-shrink: 0;
-}
+    .stat-card .stat-label {
+      font-size: 11px;
+      color: #555;
+      letter-spacing: .3px;
+    }
 
-.data-status {
-  text-align: center;
-  color: #555;
-  font-size: 12px;
-  padding: 0 10%;
-  margin-top: -2px;
-  letter-spacing: .2px;
-}
+    .conductores-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 22px 10% 0;
+      max-width: 1400px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
 
-.loading-spinner { text-align: center; padding: 60px 0; color: #555; grid-column: 1 / -1; }
-.loading-spinner .spinner {
-  width: 32px; height: 32px;
-  border: 2px solid #1a1a1a;
-  border-top-color: #ff2d2d;
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  margin: 0 auto 10px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 170px;
+      max-width: 220px;
+    }
 
-.no-results { text-align: center; padding: 60px 0; color: #555; grid-column: 1 / -1; }
-.no-results h3 { font-size: 17px; color: #888; margin-bottom: 6px; }
-.no-results p { font-size: 13px; }
+    .search-wrapper input {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid #1e1e1e;
+      border-radius: 10px;
+      color: #ddd;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .25s, box-shadow .25s;
+    }
 
-@media (max-width: 900px) {
-  .drivers-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-}
-@media (max-width: 700px) {
-  .conductores-hero { padding: 110px 5% 20px; }
-  .conductores-hero h1 { font-size: 24px; }
-  .conductores-hero .hero-subtitle { font-size: 13px; }
-  .conductores-controls { flex-direction: column; align-items: stretch; }
-  .search-wrapper { max-width: 100%; }
-  .drivers-grid { padding: 20px 5% 40px; grid-template-columns: 1fr; gap: 14px; }
-  .driver-card { padding: 16px; }
-}
+    .search-wrapper input:focus {
+      border-color: #ff2d2d;
+      box-shadow: 0 0 0 3px rgba(255, 45, 45, .06);
+    }
 
-/* === Driver Photos Modal Styles === */
-.photos-modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.photos-modal.show {
-  display: flex;
-  opacity: 1;
-}
-.photos-modal-content {
-  background: rgba(18, 16, 22, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 45, 45, 0.2);
-  border-radius: 16px;
-  width: 90%;
-  max-width: 400px;
-  padding: 30px 24px;
-  position: relative;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 45, 45, 0.05);
-  transform: scale(0.9);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-family: 'Poppins', sans-serif;
-  text-align: center;
-}
-.photos-modal.show .photos-modal-content {
-  transform: scale(1);
-}
-.photos-modal-close {
-  position: absolute;
-  top: 14px;
-  right: 18px;
-  background: none;
-  border: none;
-  color: #666;
-  font-size: 24px;
-  cursor: pointer;
-  transition: color 0.2s;
-  outline: none;
-  line-height: 1;
-}
-.photos-modal-close:hover {
-  color: #ff2d2d;
-}
-.photos-modal-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-.photos-modal-icon {
-  font-size: 40px;
-  margin-bottom: 4px;
-  filter: drop-shadow(0 0 10px rgba(255, 45, 45, 0.2));
-  animation: pulse-camera 2s infinite ease-in-out;
-}
-@keyframes pulse-camera {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(255, 45, 45, 0.4)); }
-  100% { transform: scale(1); }
-}
-.photos-modal-body h2 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  letter-spacing: -0.3px;
-}
-.photos-modal-divider {
-  width: 50%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 45, 45, 0.3), transparent);
-}
-.photos-modal-body h3 {
-  font-size: 13px;
-  font-weight: 600;
-  color: #ff2d2d;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 4px 0 0 0;
-}
-.photos-modal-body p {
-  font-size: 12.5px;
-  color: #aaa;
-  line-height: 1.6;
-  margin: 0;
-}
-.photos-modal-progress {
-  width: 80%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 2px;
-  overflow: hidden;
-  margin: 8px 0;
-}
-.photos-modal-bar {
-  width: 40%;
-  height: 100%;
-  background: linear-gradient(90deg, #ff2d2d, #ff6b6b);
-  border-radius: 2px;
-  animation: loading-bar 1.5s infinite linear;
-}
-@keyframes loading-bar {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(250%); }
-}
-.photos-modal-btn {
-  background: rgba(255, 45, 45, 0.1);
-  border: 1px solid rgba(255, 45, 45, 0.3);
-  color: #ff2d2d;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 8px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.photos-modal-btn:hover {
-  background: #ff2d2d;
-  border-color: #ff2d2d;
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(255, 45, 45, 0.3);
-}
-</style>
+    .search-wrapper input::placeholder {
+      color: #444;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #444;
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-btn,
+    .status-btn {
+      padding: 7px 16px;
+      background: rgba(255, 255, 255, .02);
+      border: 1px solid #1e1e1e;
+      color: #666;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all .25s;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover,
+    .status-btn:hover {
+      border-color: #333;
+      color: #aaa;
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .filter-btn.active {
+      background: #ff2d2d;
+      border-color: #ff2d2d;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 45, 45, .2);
+    }
+
+    .status-btn.active {
+      background: rgba(255, 45, 45, .1);
+      border-color: rgba(255, 45, 45, .3);
+      color: #ff2d2d;
+    }
+
+    .drivers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 16px;
+      padding: 28px 10% 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .driver-card {
+      position: relative;
+      background: rgba(255, 255, 255, .015);
+      border: 1px solid #1a1a1a;
+      border-radius: 14px;
+      padding: 20px;
+      transition: border-color .35s, box-shadow .4s, transform .3s;
+      overflow: hidden;
+      isolation: isolate;
+      cursor: pointer;
+      /* Clickable */
+    }
+
+    .driver-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 45, 45, .02), transparent 50%, rgba(255, 45, 45, .01));
+      opacity: 0;
+      transition: opacity .4s;
+      pointer-events: none;
+    }
+
+    .driver-card:hover::before {
+      opacity: 1;
+    }
+
+    .driver-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 45, 45, .2), transparent);
+      opacity: 0;
+      transition: opacity .4s;
+    }
+
+    .driver-card:hover::after {
+      opacity: 1;
+    }
+
+    .driver-card:hover {
+      border-color: rgba(255, 45, 45, .2);
+      box-shadow: 0 16px 48px rgba(255, 45, 45, .06), inset 0 1px 0 rgba(255, 45, 45, .05);
+      transform: translateY(-4px);
+    }
+
+    .driver-card .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .driver-card .driver-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .driver-card .driver-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .driver-card .driver-avatar-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -2.5px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(255, 45, 45, .3), rgba(255, 45, 45, .05), rgba(255, 45, 45, .1), rgba(255, 45, 45, .3));
+      z-index: 0;
+      transition: transform .6s ease;
+    }
+
+    .driver-card:hover .driver-avatar-wrap::before {
+      transform: rotate(90deg);
+      background: conic-gradient(from 90deg, rgba(255, 45, 45, .5), rgba(255, 45, 45, .1), rgba(255, 45, 45, .2), rgba(255, 45, 45, .5));
+    }
+
+    .driver-card .driver-avatar {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: linear-gradient(135deg, #111, #1a1a1a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #ff2d2d;
+      z-index: 1;
+      text-shadow: 0 0 20px rgba(255, 45, 45, .15);
+    }
+
+    .driver-card .driver-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .driver-card .driver-meta {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .driver-card .driver-meta .name-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 2px;
+    }
+
+    .driver-card .driver-meta h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #eee;
+      margin: 0;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .driver-card .driver-meta .driver-role {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .3px;
+      opacity: .8;
+    }
+
+    .driver-role[data-role="Conductor"] {
+      color: #4ecdc4;
+    }
+
+    .driver-role[data-role="Moderador"] {
+      color: #4a9eff;
+    }
+
+    .driver-role[data-role="Administrador"] {
+      color: #ff2d2d;
+    }
+
+    .driver-role[data-role="Owner"] {
+      background: linear-gradient(135deg, #ffd93d, #ff6b35);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .driver-card .driver-badges {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .driver-card .driver-rank {
+      background: rgba(255, 45, 45, .08);
+      border: 1px solid rgba(255, 45, 45, .15);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #ff2d2d;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .driver-card .driver-level {
+      font-size: 10px;
+      color: #ffd93d;
+      font-weight: 700;
+      background: rgba(255, 217, 61, .08);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 217, 61, .12);
+    }
+
+    .driver-card .driver-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .driver-card .ds-item {
+      background: rgba(255, 255, 255, .015);
+      border: 1px solid #1a1a1a;
+      border-radius: 10px;
+      padding: 13px 6px 11px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .3s;
+    }
+
+    .driver-card:hover .ds-item {
+      border-color: #222;
+    }
+
+    .driver-card .ds-item .ds-value {
+      font-size: 17px;
+      font-weight: 800;
+      color: #eee;
+      line-height: 1.2;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.3px;
+    }
+
+    .driver-card .ds-item .ds-label {
+      font-size: 9px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .driver-card .ds-item.km .ds-value {
+      color: #4ecdc4;
+      text-shadow: 0 0 30px rgba(78, 205, 196, .08);
+    }
+
+    .driver-card .ds-item.damage .ds-value {
+      color: #ff6b6b;
+      text-shadow: 0 0 30px rgba(255, 107, 107, .08);
+    }
+
+    .driver-card .ds-item.points .ds-value {
+      color: #ffd93d;
+      text-shadow: 0 0 30px rgba(255, 217, 61, .08);
+    }
+
+    .driver-card .card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid #181818;
+      position: relative;
+      z-index: 1;
+    }
+
+    .driver-card .last-job {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      color: #666;
+    }
+
+    .driver-card .last-job .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .driver-card .last-job .status-dot.active {
+      background: #4ecdc4;
+      box-shadow: 0 0 10px rgba(78, 205, 196, .35);
+    }
+
+    .driver-card .last-job .status-dot.inactive {
+      background: #555;
+    }
+
+    .driver-card .last-job .status-dot.no-data {
+      background: #333;
+    }
+
+    .driver-card .driver-position-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .driver-card .driver-position-label {
+      font-size: 10px;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      font-weight: 600;
+    }
+
+    .driver-card .driver-position {
+      font-size: 20px;
+      font-weight: 800;
+      color: #222;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      transition: color .3s;
+    }
+
+    .driver-card:hover .driver-position {
+      color: rgba(255, 45, 45, .25);
+    }
+
+    .driver-card .driver-country {
+      font-size: 10px;
+      color: #555;
+      font-weight: 500;
+      letter-spacing: .2px;
+      flex-shrink: 0;
+    }
+
+    .data-status {
+      text-align: center;
+      color: #555;
+      font-size: 12px;
+      padding: 0 10%;
+      margin-top: -2px;
+      letter-spacing: .2px;
+    }
+
+    .loading-spinner {
+      text-align: center;
+      padding: 60px 0;
+      color: #555;
+      grid-column: 1 / -1;
+    }
+
+    .loading-spinner .spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #1a1a1a;
+      border-top-color: #ff2d2d;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 60px 0;
+      color: #555;
+      grid-column: 1 / -1;
+    }
+
+    .no-results h3 {
+      font-size: 17px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    .no-results p {
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .drivers-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 14px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .conductores-hero {
+        padding: 110px 5% 20px;
+      }
+
+      .conductores-hero h1 {
+        font-size: 24px;
+      }
+
+      .conductores-hero .hero-subtitle {
+        font-size: 13px;
+      }
+
+      .conductores-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-wrapper {
+        max-width: 100%;
+      }
+
+      .drivers-grid {
+        padding: 20px 5% 40px;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .driver-card {
+        padding: 16px;
+      }
+    }
+
+    /* === Driver Photos Modal Styles === */
+    .photos-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .photos-modal.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .photos-modal-content {
+      background: rgba(18, 16, 22, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 45, 45, 0.2);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      padding: 30px 24px;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 45, 45, 0.05);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+    }
+
+    .photos-modal.show .photos-modal-content {
+      transform: scale(1);
+    }
+
+    .photos-modal-close {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 24px;
+      cursor: pointer;
+      transition: color 0.2s;
+      outline: none;
+      line-height: 1;
+    }
+
+    .photos-modal-close:hover {
+      color: #ff2d2d;
+    }
+
+    .photos-modal-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .photos-modal-icon {
+      font-size: 40px;
+      margin-bottom: 4px;
+      filter: drop-shadow(0 0 10px rgba(255, 45, 45, 0.2));
+      animation: pulse-camera 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-camera {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 15px rgba(255, 45, 45, 0.4));
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .photos-modal-body h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+      letter-spacing: -0.3px;
+    }
+
+    .photos-modal-divider {
+      width: 50%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 45, 45, 0.3), transparent);
+    }
+
+    .photos-modal-body h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ff2d2d;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 4px 0 0 0;
+    }
+
+    .photos-modal-body p {
+      font-size: 12.5px;
+      color: #aaa;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .photos-modal-progress {
+      width: 80%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .photos-modal-bar {
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff2d2d, #ff6b6b);
+      border-radius: 2px;
+      animation: loading-bar 1.5s infinite linear;
+    }
+
+    @keyframes loading-bar {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(250%);
+      }
+    }
+
+    .photos-modal-btn {
+      background: rgba(255, 45, 45, 0.1);
+      border: 1px solid rgba(255, 45, 45, 0.3);
+      color: #ff2d2d;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .photos-modal-btn:hover {
+      background: #ff2d2d;
+      border-color: #ff2d2d;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 45, 45, 0.3);
+    }
+  </style>
 
 </head>
+
 <body class="conductores-page">
 
-<header>
+  <header>
     <nav class="navbar">
-        <div class="logo">TEPSA PSV</div>
-        <ul class="menu" id="mainMenu">
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="index.html#nosotros">Nosotros</a></li>
-            <li><a href="index.html#flota">Flota</a></li>
-            <li><a href="index.html#ranking">Ranking</a></li>
-            <li><a href="conductores.html">Conductores</a></li>
-            <li><a href="index.html#reclutamiento">Reclutamiento / Contacto</a></li>
-            <li><a href="index.html#galeria">Galería</a></li>
-            <li><a href="index.html#fundadores">Fundadores</a></li>
-        </ul>
-        <button class="hamburger" id="hamburger" aria-label="Menú">
-            <span></span><span></span><span></span>
-        </button>
+      <div class="logo">TEPSA PSV</div>
+      <ul class="menu" id="mainMenu">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="index.html#nosotros">Nosotros</a></li>
+        <li><a href="index.html#flota">Flota</a></li>
+        <li><a href="index.html#ranking">Ranking</a></li>
+        <li><a href="conductores.html">Conductores</a></li>
+        <li><a href="index.html#reclutamiento">Reclutamiento</a></li>
+        <li><a href="index.html#galeria">Galería</a></li>
+        <li><a href="index.html#fundadores">Fundadores</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
     </nav>
-</header>
+  </header>
 
-<section class="conductores-hero">
+  <section class="conductores-hero">
     <h1>Nuestra Tripulación</h1>
     <p class="hero-subtitle">Profesionalismo y excelencia en cada kilómetro recorrido</p>
-</section>
+  </section>
 
-<div id="stats-bar" class="conductores-stats"></div>
+  <div id="stats-bar" class="conductores-stats"></div>
 
-<div class="conductores-controls">
+  <div class="conductores-controls">
     <div class="search-wrapper">
-        <span class="search-icon">&#x1F50D;</span>
-        <input type="text" id="searchInput" placeholder="Buscar conductor..." autocomplete="off">
+      <span class="search-icon">&#x1F50D;</span>
+      <input type="text" id="searchInput" placeholder="Buscar conductor..." autocomplete="off">
     </div>
     <div class="filter-buttons">
-        <div class="status-filter">
-            <button class="status-btn active" data-status="all">Todos</button>
-            <button class="status-btn" data-status="active">Activos</button>
-            <button class="status-btn" data-status="inactive">Inactivos</button>
-        </div>
-        <button class="filter-btn active" data-sort="km">KM</button>
-        <button class="filter-btn" data-sort="damage">Daño</button>
-        <button class="filter-btn" data-sort="points">Puntos</button>
-        <button class="filter-btn" data-sort="name">Nombre</button>
+      <div class="status-filter">
+        <button class="status-btn active" data-status="all">Todos</button>
+        <button class="status-btn" data-status="active">Activos</button>
+        <button class="status-btn" data-status="inactive">Inactivos</button>
+      </div>
+      <button class="filter-btn active" data-sort="km">KM</button>
+      <button class="filter-btn" data-sort="damage">Daño</button>
+      <button class="filter-btn" data-sort="points">Puntos</button>
+      <button class="filter-btn" data-sort="name">Nombre</button>
     </div>
-</div>
+  </div>
 
-<p class="data-status" id="data-status">Cargando datos...</p>
+  <p class="data-status" id="data-status">Cargando datos...</p>
 
-<div id="drivers-grid" class="drivers-grid">
+  <div id="drivers-grid" class="drivers-grid">
     <div class="loading-spinner" id="loading-spinner">
-        <div class="spinner"></div>
-        <p>Cargando conductores...</p>
+      <div class="spinner"></div>
+      <p>Cargando conductores...</p>
     </div>
-</div>
+  </div>
 
-<!-- Modal de Fotos del Conductor -->
-<div id="driverPhotosModal" class="photos-modal">
+  <!-- Modal de Fotos del Conductor -->
+  <div id="driverPhotosModal" class="photos-modal">
     <div class="photos-modal-content">
-        <button class="photos-modal-close" id="closePhotosModal">&times;</button>
-        <div class="photos-modal-body">
-            <div class="photos-modal-icon">📸</div>
-            <h2 id="modalDriverName">Galería de Conductor</h2>
-            <div class="photos-modal-divider"></div>
-            <h3>Sección en Desarrollo</h3>
-            <p>Estamos trabajando activamente en este apartado. Pronto podrás ver la galería de fotos personal y las mejores capturas de ruta de <span id="modalDriverNameSpan" style="color: #ff2d2d; font-weight: 600;">Conductor</span>.</p>
-            <div class="photos-modal-progress">
-                <div class="photos-modal-bar"></div>
-            </div>
-            <button class="photos-modal-btn" id="closePhotosModalBtn">Aceptar</button>
+      <button class="photos-modal-close" id="closePhotosModal">&times;</button>
+      <div class="photos-modal-body">
+        <div class="photos-modal-icon">📸</div>
+        <h2 id="modalDriverName">Galería de Conductor</h2>
+        <div class="photos-modal-divider"></div>
+        <h3>Sección en Desarrollo</h3>
+        <p>Estamos trabajando activamente en este apartado. Pronto podrás ver la galería de fotos personal y las mejores
+          capturas de ruta de <span id="modalDriverNameSpan" style="color: #ff2d2d; font-weight: 600;">Conductor</span>.
+        </p>
+        <div class="photos-modal-progress">
+          <div class="photos-modal-bar"></div>
         </div>
+        <button class="photos-modal-btn" id="closePhotosModalBtn">Aceptar</button>
+      </div>
     </div>
-</div>
+  </div>
 
-<footer>
+  <footer>
     <h3>TEPSA PSV</h3>
     <p>&copy; 2026 Todos los derechos reservados</p>
-</footer>
+  </footer>
 
-<script>
-const numberFormat = new Intl.NumberFormat("es-PE", { maximumFractionDigits: 0 });
-let allDrivers = [];
-let currentSort = "km";
-let currentStatus = "all";
-let searchTerm = "";
+  <script>
+    const numberFormat = new Intl.NumberFormat("es-PE", { maximumFractionDigits: 0 });
+    let allDrivers = [];
+    let currentSort = "km";
+    let currentStatus = "all";
+    let searchTerm = "";
 
-function escapeHtml(value) {
-    return String(value ?? "")
+    function escapeHtml(value) {
+      return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-}
+    }
 
-function formatNumber(value) {
-    return numberFormat.format(Number(value) || 0);
-}
+    function formatNumber(value) {
+      return numberFormat.format(Number(value) || 0);
+    }
 
-function getSortFn(sort) {
-    switch (sort) {
+    function getSortFn(sort) {
+      switch (sort) {
         case "damage": return (a, b) => (a.damage || 0) - (b.damage || 0) || (b.kilometers || 0) - (a.kilometers || 0);
         case "points": return (a, b) => (b.points || 0) - (a.points || 0) || (b.kilometers || 0) - (a.kilometers || 0);
         case "name": return (a, b) => a.name.localeCompare(b.name);
         default: return (a, b) => (b.kilometers || 0) - (a.kilometers || 0) || (a.damage || 0) - (b.damage || 0);
+      }
     }
-}
 
-function getStatus(driver) {
-    return Number(driver.lastJobDays) <= 7 ? "active" : "inactive";
-}
+    function getStatus(driver) {
+      return Number(driver.lastJobDays) <= 7 ? "active" : "inactive";
+    }
 
-function getStatusLabel(driver) {
-    const days = Number(driver.lastJobDays);
-    if (days === 0) return "Conectado ahora";
-    if (days <= 7) return `Activo (${driver.lastJob})`;
-    if (days === 9999) return "Sin actividad";
-    return `Inactivo (${driver.lastJob})`;
-}
+    function getStatusLabel(driver) {
+      const days = Number(driver.lastJobDays);
+      if (days === 0) return "Conectado ahora";
+      if (days <= 7) return `Activo (${driver.lastJob})`;
+      if (days === 9999) return "Sin actividad";
+      return `Inactivo (${driver.lastJob})`;
+    }
 
-function getStatusDotClass(driver) {
-    const days = Number(driver.lastJobDays);
-    if (days <= 7) return "active";
-    if (days === 9999) return "no-data";
-    return "inactive";
-}
+    function getStatusDotClass(driver) {
+      const days = Number(driver.lastJobDays);
+      if (days <= 7) return "active";
+      if (days === 9999) return "no-data";
+      return "inactive";
+    }
 
-function getInitials(name) {
-    const clean = String(name).replace(/\[.*?\]/g, '').trim();
-    return clean.charAt(0).toUpperCase() || '?';
-}
+    function getInitials(name) {
+      const clean = String(name).replace(/\[.*?\]/g, '').trim();
+      return clean.charAt(0).toUpperCase() || '?';
+    }
 
-function renderStats(stats = {}) {
-    const bar = document.getElementById("stats-bar");
-    if (!bar) return;
-    bar.innerHTML = `
+    function renderStats(stats = {}) {
+      const bar = document.getElementById("stats-bar");
+      if (!bar) return;
+      bar.innerHTML = `
         <div class="stat-card">
             <span class="stat-icon">&#x1F3CE;</span>
             <span class="stat-value">${formatNumber(stats.kilometers)}</span>
@@ -730,38 +964,38 @@ function renderStats(stats = {}) {
             <span class="stat-label">Activos</span>
         </div>
     `;
-}
+    }
 
-function renderDrivers() {
-    const grid = document.getElementById("drivers-grid");
-    const statusEl = document.getElementById("data-status");
-    if (!grid) return;
+    function renderDrivers() {
+      const grid = document.getElementById("drivers-grid");
+      const statusEl = document.getElementById("data-status");
+      if (!grid) return;
 
-    let filtered = allDrivers;
-    if (currentStatus !== "all") filtered = filtered.filter(d => getStatus(d) === currentStatus);
-    if (searchTerm) {
+      let filtered = allDrivers;
+      if (currentStatus !== "all") filtered = filtered.filter(d => getStatus(d) === currentStatus);
+      if (searchTerm) {
         const term = searchTerm.toLowerCase();
         filtered = filtered.filter(d =>
-            d.name.toLowerCase().includes(term) ||
-            d.role.toLowerCase().includes(term) ||
-            d.rank.toLowerCase().includes(term)
+          d.name.toLowerCase().includes(term) ||
+          d.role.toLowerCase().includes(term) ||
+          d.rank.toLowerCase().includes(term)
         );
-    }
-    const sorted = [...filtered].sort(getSortFn(currentSort));
+      }
+      const sorted = [...filtered].sort(getSortFn(currentSort));
 
-    if (!sorted.length) {
+      if (!sorted.length) {
         grid.innerHTML = `<div class="no-results"><h3>Sin resultados</h3><p>No se encontraron conductores.</p></div>`;
         if (statusEl) statusEl.textContent = "0 conductores encontrados";
         return;
-    }
+      }
 
-    grid.innerHTML = sorted.map((driver, index) => {
+      grid.innerHTML = sorted.map((driver, index) => {
         const pos = index + 1;
         const dotClass = getStatusDotClass(driver);
         const hasAvatar = driver.avatar && driver.avatar.startsWith("http");
         const avatarImg = hasAvatar
-            ? `<img src="${escapeHtml(driver.avatar)}" alt="${escapeHtml(driver.name)}" loading="lazy" onerror="this.parentElement.innerHTML=this.parentElement.getAttribute('data-fallback')">`
-            : '';
+          ? `<img src="${escapeHtml(driver.avatar)}" alt="${escapeHtml(driver.name)}" loading="lazy" onerror="this.parentElement.innerHTML=this.parentElement.getAttribute('data-fallback')">`
+          : '';
         const avatarContent = hasAvatar ? avatarImg : `${getInitials(driver.name)}`;
 
         return `
@@ -809,86 +1043,86 @@ function renderDrivers() {
                 </div>
             </div>
         </div>`;
-    }).join("");
+      }).join("");
 
-    const sortLabel = { km: "kilometraje", damage: "menor daño", points: "puntos", name: "nombre" };
-    if (statusEl) {
+      const sortLabel = { km: "kilometraje", damage: "menor daño", points: "puntos", name: "nombre" };
+      if (statusEl) {
         const statusText = currentStatus === "all" ? "Todos" : currentStatus === "active" ? "Activos" : "Inactivos";
         statusEl.textContent = `${sorted.length} conductor(es) - Filtro: ${statusText} - Orden: ${sortLabel[currentSort] || "km"}`;
+      }
     }
-}
 
-const CACHE_KEY = "tepsa_conductores_v3";
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutos de validez de caché para consultas en segundo plano
+    const CACHE_KEY = "tepsa_conductores_v3";
+    const CACHE_TTL = 5 * 60 * 1000; // 5 minutos de validez de caché para consultas en segundo plano
 
-function getCache() {
-    try {
+    function getCache() {
+      try {
         const raw = localStorage.getItem(CACHE_KEY);
         if (!raw) return null;
         const entry = JSON.parse(raw);
         // Retornamos los datos para pintado instantáneo aunque hayan expirado
         return entry.data;
-    } catch { return null; }
-}
+      } catch { return null; }
+    }
 
-function setCache(data) {
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch { }
-}
+    function setCache(data) {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch { }
+    }
 
-function getMonthDateRange() {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, "0");
-    const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
-    return { y, m, lastDay };
-}
+    function getMonthDateRange() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
+      return { y, m, lastDay };
+    }
 
-function formatLastJob(days) {
-    if (days == null || days === "") return "Sin registro";
-    const n = Number(days);
-    if (!Number.isFinite(n)) return "Sin registro";
-    if (n === 0) return "hoy";
-    if (n === 1) return "ayer";
-    return `hace ${n} días`;
-}
+    function formatLastJob(days) {
+      if (days == null || days === "") return "Sin registro";
+      const n = Number(days);
+      if (!Number.isFinite(n)) return "Sin registro";
+      if (n === 0) return "hoy";
+      if (n === 1) return "ayer";
+      return `hace ${n} días`;
+    }
 
-async function fetchMonthJobsData() {
-    const { y, m, lastDay } = getMonthDateRange();
-    const base = `https://e.truckyapp.com/api/v1/company/44302/jobs?dateFrom=${y}-${m}-01&dateTo=${y}-${m}-${lastDay}`;
-    const stats = new Map();
-    try {
+    async function fetchMonthJobsData() {
+      const { y, m, lastDay } = getMonthDateRange();
+      const base = `https://e.truckyapp.com/api/v1/company/44302/jobs?dateFrom=${y}-${m}-01&dateTo=${y}-${m}-${lastDay}`;
+      const stats = new Map();
+      try {
         const p1 = await tryFetch(base + "&page=1");
         if (!p1 || !p1.data) return stats;
         const total = p1.last_page || 1;
         const pages = [p1];
         for (let s = 2; s <= total; s += 4) {
-            const batch = [];
-            for (let p = s; p < s + 4 && p <= total; p++) batch.push(tryFetch(base + "&page=" + p));
-            const results = await Promise.allSettled(batch);
-            for (const r of results) if (r.status === "fulfilled" && r.value) pages.push(r.value);
+          const batch = [];
+          for (let p = s; p < s + 4 && p <= total; p++) batch.push(tryFetch(base + "&page=" + p));
+          const results = await Promise.allSettled(batch);
+          for (const r of results) if (r.status === "fulfilled" && r.value) pages.push(r.value);
         }
         for (const page of pages) {
-            if (!page || !page.data) continue;
-            for (const job of page.data) {
-                const name = job.driver?.name || job.in_game_profile_name || "";
-                if (!name) continue;
-                const prev = stats.get(name) || { kilometers: 0, damage: 0, totalJobs: 0 };
-                prev.kilometers += Number(job.driven_distance_km || job.kilometers || 0);
-                prev.damage += Number(job.vehicle_damage || 0) + Number(job.cargo_damage || 0) + Number(job.trailers_damage || 0);
-                prev.totalJobs += 1;
-                stats.set(name, prev);
-            }
+          if (!page || !page.data) continue;
+          for (const job of page.data) {
+            const name = job.driver?.name || job.in_game_profile_name || "";
+            if (!name) continue;
+            const prev = stats.get(name) || { kilometers: 0, damage: 0, totalJobs: 0 };
+            prev.kilometers += Number(job.driven_distance_km || job.kilometers || 0);
+            prev.damage += Number(job.vehicle_damage || 0) + Number(job.cargo_damage || 0) + Number(job.trailers_damage || 0);
+            prev.totalJobs += 1;
+            stats.set(name, prev);
+          }
         }
-    } catch (e) { console.error("fetchMonthJobsData:", e); }
-    return stats;
-}
+      } catch (e) { console.error("fetchMonthJobsData:", e); }
+      return stats;
+    }
 
-function transformTruckyMember(m, monthStats) {
-    const lastJobDays = m.last_job_days != null && Number.isFinite(Number(m.last_job_days))
+    function transformTruckyMember(m, monthStats) {
+      const lastJobDays = m.last_job_days != null && Number.isFinite(Number(m.last_job_days))
         ? Number(m.last_job_days) : 9999;
-    const name = m.name || m.username || "Sin nombre";
-    const ms = monthStats.get(name) || { kilometers: 0, damage: 0, totalJobs: 0 };
-    return {
+      const name = m.name || m.username || "Sin nombre";
+      const ms = monthStats.get(name) || { kilometers: 0, damage: 0, totalJobs: 0 };
+      return {
         name,
         kilometers: Math.round(ms.kilometers),
         damage: Math.round(ms.damage),
@@ -903,33 +1137,33 @@ function transformTruckyMember(m, monthStats) {
         country: m.country || "",
         cargoMass: Math.round(m.total_cargo_mass_t || 0),
         revenue: Math.round(m.total_revenue || 0),
-    };
-}
-
-function applyData(data, source) {
-    allDrivers = (data.ranking || []).filter(d => d.role?.toLowerCase() !== "owner");
-    renderStats(data.stats);
-    renderDrivers();
-    setCache(data);
-    const statusEl = document.getElementById("data-status");
-    if (statusEl) statusEl.textContent = `Trucky Hub · ${allDrivers.length} miembros · ${source}`;
-}
-
-async function tryFetch(url) {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-}
-
-async function fetchFresh() {
-    const errors = [];
-    for (const url of ["/api/trucky/conductores", "http://127.0.0.1:3001/api/trucky/conductores"]) {
-        try { const d = await tryFetch(url); applyData(d, "Servidor"); return; } catch { errors.push(url); continue; }
+      };
     }
-    try {
+
+    function applyData(data, source) {
+      allDrivers = (data.ranking || []).filter(d => d.role?.toLowerCase() !== "owner");
+      renderStats(data.stats);
+      renderDrivers();
+      setCache(data);
+      const statusEl = document.getElementById("data-status");
+      if (statusEl) statusEl.textContent = `Trucky Hub · ${allDrivers.length} miembros · ${source}`;
+    }
+
+    async function tryFetch(url) {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }
+
+    async function fetchFresh() {
+      const errors = [];
+      for (const url of ["/api/trucky/conductores", "http://127.0.0.1:3001/api/trucky/conductores"]) {
+        try { const d = await tryFetch(url); applyData(d, "Servidor"); return; } catch { errors.push(url); continue; }
+      }
+      try {
         const [raw, monthStats] = await Promise.all([
-            tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
-            fetchMonthJobsData(),
+          tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
+          fetchMonthJobsData(),
         ]);
         const members = raw.data || [];
         const ranking = members.map(m => transformTruckyMember(m, monthStats)).sort((a, b) => b.kilometers - a.kilometers);
@@ -937,132 +1171,133 @@ async function fetchFresh() {
         const active = ranking.filter(d => d.lastJobDays <= 7).length;
         applyData({ ranking, stats: { kilometers: totalKm, drivers: ranking.filter(d => d.kilometers > 0).length, active } }, "Trucky directo");
         return;
-    } catch { errors.push("Trucky directo"); }
-    throw new Error("Fallaron todos los orígenes: " + errors.join(", "));
-}
+      } catch { errors.push("Trucky directo"); }
+      throw new Error("Fallaron todos los orígenes: " + errors.join(", "));
+    }
 
-async function loadData(force) {
-    const cached = getCache();
-    if (cached) {
+    async function loadData(force) {
+      const cached = getCache();
+      if (cached) {
         allDrivers = (cached.ranking || []).filter(d => d.role?.toLowerCase() !== "owner");
         renderStats(cached.stats);
         renderDrivers();
         const statusEl = document.getElementById("data-status");
         if (statusEl) {
-            statusEl.textContent = `📡 Datos en caché · ${allDrivers.length} miembros`;
+          statusEl.textContent = `📡 Datos en caché · ${allDrivers.length} miembros`;
         }
-    }
-    
-    // Si la caché es reciente y no se fuerza, evitamos consultar al servidor
-    try {
+      }
+
+      // Si la caché es reciente y no se fuerza, evitamos consultar al servidor
+      try {
         const raw = localStorage.getItem(CACHE_KEY);
         if (raw && !force) {
-            const entry = JSON.parse(raw);
-            if (Date.now() - entry.ts < CACHE_TTL) {
-                return;
-            }
+          const entry = JSON.parse(raw);
+          if (Date.now() - entry.ts < CACHE_TTL) {
+            return;
+          }
         }
-    } catch (e) {}
+      } catch (e) { }
 
-    try {
+      try {
         await fetchFresh();
-    } catch (e) {
+      } catch (e) {
         console.error("loadData: error al actualizar en segundo plano", e);
         if (!cached) {
-            allDrivers = [
-                { name: "[TPS]SABROSAURIO", kilometers: 43400, damage: 3263, totalJobs: 78, points: 63897, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Administrador", avatar: "", level: 8, country: "PE", cargoMass: 663, revenue: 34542506 },
-                { name: "[TPS] Cristofer Jonathan QM", kilometers: 35229, damage: 3289, totalJobs: 51, points: 36230, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 6, country: "", cargoMass: 350, revenue: 28848413 },
-                { name: "[TPS] Lexus", kilometers: 27203, damage: 16448, totalJobs: 27, points: 30305, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 155, revenue: 13398366 },
-                { name: "[TPS] Joker", kilometers: 26369, damage: 3355, totalJobs: 64, points: 41526, lastJob: "hace 3 días", lastJobDays: 3, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 388, revenue: 27920645 },
-                { name: "[ TPS ] KEVIN", kilometers: 22888, damage: 1928, totalJobs: 32, points: 24089, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Conductor", avatar: "", level: 5, country: "", cargoMass: 212, revenue: 19590207 },
-                { name: "[TPS]KIRITO", kilometers: 20512, damage: 416, totalJobs: 33, points: 23113, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 5, country: "", cargoMass: 238, revenue: 15645932 },
-                { name: "[TPS] Johan-19", kilometers: 16337, damage: 12929, totalJobs: 31, points: 19138, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 170, revenue: 14940683 },
-                { name: "[TPS] Angel", kilometers: 15896, damage: 3610, totalJobs: 22, points: 18097, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 127, revenue: 13414766 },
-                { name: "[TPS]KANIEL_OUT", kilometers: 9452, damage: 569, totalJobs: 15, points: 11424, lastJob: "hace 19 días", lastJobDays: 19, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "PE", cargoMass: 101, revenue: 8326510 },
-                { name: "[TPS]RENZITO", kilometers: 6362, damage: 2124, totalJobs: 15, points: 7963, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 64, revenue: 5282808 },
-                { name: "[TPS]EMPERADOR", kilometers: 3719, damage: 1625, totalJobs: 10, points: 4119, lastJob: "hace 16 días", lastJobDays: 16, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 34, revenue: 3037086 },
-                { name: "banco bcp", kilometers: 2606, damage: 1146, totalJobs: 9, points: 4567, lastJob: "hace 35 días", lastJobDays: 35, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 79, revenue: 2052853 },
-                { name: "[TPS] juan david", kilometers: 1850, damage: 308, totalJobs: 5, points: 7981, lastJob: "hoy", lastJobDays: 0, rank: "novato", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 32, revenue: 781421 },
-            ];
-            const totalKm = allDrivers.reduce((s, d) => s + d.kilometers, 0);
-            const active = allDrivers.filter(d => d.lastJobDays <= 7).length;
-            renderStats({ kilometers: totalKm, drivers: allDrivers.length, active });
-            renderDrivers();
-            document.getElementById("data-status").textContent = "Sin conexión. Mostrando datos de respaldo.";
+          allDrivers = [
+            { name: "[TPS]SABROSAURIO", kilometers: 43400, damage: 3263, totalJobs: 78, points: 63897, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Administrador", avatar: "", level: 8, country: "PE", cargoMass: 663, revenue: 34542506 },
+            { name: "[TPS] Cristofer Jonathan QM", kilometers: 35229, damage: 3289, totalJobs: 51, points: 36230, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 6, country: "", cargoMass: 350, revenue: 28848413 },
+            { name: "[TPS] Lexus", kilometers: 27203, damage: 16448, totalJobs: 27, points: 30305, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 155, revenue: 13398366 },
+            { name: "[TPS] Joker", kilometers: 26369, damage: 3355, totalJobs: 64, points: 41526, lastJob: "hace 3 días", lastJobDays: 3, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 388, revenue: 27920645 },
+            { name: "[ TPS ] KEVIN", kilometers: 22888, damage: 1928, totalJobs: 32, points: 24089, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Conductor", avatar: "", level: 5, country: "", cargoMass: 212, revenue: 19590207 },
+            { name: "[TPS]KIRITO", kilometers: 20512, damage: 416, totalJobs: 33, points: 23113, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 5, country: "", cargoMass: 238, revenue: 15645932 },
+            { name: "[TPS] Johan-19", kilometers: 16337, damage: 12929, totalJobs: 31, points: 19138, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 170, revenue: 14940683 },
+            { name: "[TPS] Angel", kilometers: 15896, damage: 3610, totalJobs: 22, points: 18097, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 127, revenue: 13414766 },
+            { name: "[TPS]KANIEL_OUT", kilometers: 9452, damage: 569, totalJobs: 15, points: 11424, lastJob: "hace 19 días", lastJobDays: 19, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "PE", cargoMass: 101, revenue: 8326510 },
+            { name: "[TPS]RENZITO", kilometers: 6362, damage: 2124, totalJobs: 15, points: 7963, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 64, revenue: 5282808 },
+            { name: "[TPS]EMPERADOR", kilometers: 3719, damage: 1625, totalJobs: 10, points: 4119, lastJob: "hace 16 días", lastJobDays: 16, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 34, revenue: 3037086 },
+            { name: "banco bcp", kilometers: 2606, damage: 1146, totalJobs: 9, points: 4567, lastJob: "hace 35 días", lastJobDays: 35, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 79, revenue: 2052853 },
+            { name: "[TPS] juan david", kilometers: 1850, damage: 308, totalJobs: 5, points: 7981, lastJob: "hoy", lastJobDays: 0, rank: "novato", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 32, revenue: 781421 },
+          ];
+          const totalKm = allDrivers.reduce((s, d) => s + d.kilometers, 0);
+          const active = allDrivers.filter(d => d.lastJobDays <= 7).length;
+          renderStats({ kilometers: totalKm, drivers: allDrivers.length, active });
+          renderDrivers();
+          document.getElementById("data-status").textContent = "Sin conexión. Mostrando datos de respaldo.";
         }
+      }
     }
-}
 
-document.getElementById("searchInput")?.addEventListener("input", (e) => {
-    searchTerm = e.target.value.trim();
-    renderDrivers();
-});
+    document.getElementById("searchInput")?.addEventListener("input", (e) => {
+      searchTerm = e.target.value.trim();
+      renderDrivers();
+    });
 
-document.querySelectorAll(".filter-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
         document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         currentSort = btn.dataset.sort;
         renderDrivers();
+      });
     });
-});
 
-document.querySelectorAll(".status-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
+    document.querySelectorAll(".status-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
         document.querySelectorAll(".status-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         currentStatus = btn.dataset.status;
         renderDrivers();
+      });
     });
-});
 
-const modal = document.getElementById("driverPhotosModal");
-const modalDriverName = document.getElementById("modalDriverName");
-const modalDriverNameSpan = document.getElementById("modalDriverNameSpan");
+    const modal = document.getElementById("driverPhotosModal");
+    const modalDriverName = document.getElementById("modalDriverName");
+    const modalDriverNameSpan = document.getElementById("modalDriverNameSpan");
 
-function openPhotosModal(name) {
-    if (!modal) return;
-    modalDriverName.textContent = `Galería de ${name}`;
-    modalDriverNameSpan.textContent = name;
-    modal.style.display = "flex";
-    setTimeout(() => modal.classList.add("show"), 10);
-}
+    function openPhotosModal(name) {
+      if (!modal) return;
+      modalDriverName.textContent = `Galería de ${name}`;
+      modalDriverNameSpan.textContent = name;
+      modal.style.display = "flex";
+      setTimeout(() => modal.classList.add("show"), 10);
+    }
 
-function closePhotosModal() {
-    if (!modal) return;
-    modal.classList.remove("show");
-    setTimeout(() => modal.style.display = "none", 300);
-}
+    function closePhotosModal() {
+      if (!modal) return;
+      modal.classList.remove("show");
+      setTimeout(() => modal.style.display = "none", 300);
+    }
 
-document.getElementById("closePhotosModal")?.addEventListener("click", closePhotosModal);
-document.getElementById("closePhotosModalBtn")?.addEventListener("click", closePhotosModal);
-modal?.addEventListener("click", (e) => {
-    if (e.target === modal) closePhotosModal();
-});
+    document.getElementById("closePhotosModal")?.addEventListener("click", closePhotosModal);
+    document.getElementById("closePhotosModalBtn")?.addEventListener("click", closePhotosModal);
+    modal?.addEventListener("click", (e) => {
+      if (e.target === modal) closePhotosModal();
+    });
 
-// Registrar evento click para tarjetas mediante delegación de eventos
-document.getElementById("drivers-grid")?.addEventListener("click", (e) => {
-    const card = e.target.closest(".driver-card");
-    if (!card) return;
-    const nameEl = card.querySelector(".driver-meta h3");
-    if (!nameEl) return;
-    openPhotosModal(nameEl.textContent);
-});
+    // Registrar evento click para tarjetas mediante delegación de eventos
+    document.getElementById("drivers-grid")?.addEventListener("click", (e) => {
+      const card = e.target.closest(".driver-card");
+      if (!card) return;
+      const nameEl = card.querySelector(".driver-meta h3");
+      if (!nameEl) return;
+      openPhotosModal(nameEl.textContent);
+    });
 
-loadData();
-setInterval(() => loadData(true), 5 * 60 * 1000); // Polling cada 5 minutos en segundo plano
-document.getElementById("hamburger")?.addEventListener("click", () => {
-  document.getElementById("mainMenu")?.classList.toggle("show");
-});
-{
-    const navbar = document.querySelector(".navbar");
-    if (navbar) {
+    loadData();
+    setInterval(() => loadData(true), 5 * 60 * 1000); // Polling cada 5 minutos en segundo plano
+    document.getElementById("hamburger")?.addEventListener("click", () => {
+      document.getElementById("mainMenu")?.classList.toggle("show");
+    });
+    {
+      const navbar = document.querySelector(".navbar");
+      if (navbar) {
         function update() { navbar.classList.toggle("scrolled", window.scrollY > 60); }
         window.addEventListener("scroll", update, { passive: true });
         update();
+      }
     }
-}
-</script>
+  </script>
 
 </body>
+
 </html>
