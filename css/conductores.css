@@ -1068,14 +1068,23 @@
 }
 
 /* ===== RESPONSIVE MEDIA QUERIES (CONDUCTORES) ===== */
-@media (max-width: 900px) {
+@media (min-width: 1025px) {
     .drivers-grid {
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 14px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        padding: 28px 10% 60px;
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 1024px) and (min-width: 601px) {
+    .drivers-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        padding: 20px 4% 40px;
+    }
+}
+
+@media (max-width: 600px) {
     .conductores-hero {
         padding: 110px 5% 20px;
     }
@@ -1098,13 +1107,88 @@
     }
 
     .drivers-grid {
-        padding: 20px 5% 40px;
-        grid-template-columns: 1fr;
-        gap: 14px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 15px 3% 40px;
     }
 
     .driver-card {
-        padding: 16px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .driver-card .card-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        margin-bottom: 10px;
+    }
+
+    .driver-card .driver-info {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .driver-card .driver-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+    }
+
+    .driver-card .driver-meta h3 {
+        font-size: 11px;
+    }
+
+    .driver-card .driver-meta .driver-role {
+        font-size: 9px;
+    }
+
+    .driver-card .driver-badges {
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .driver-card .driver-level,
+    .driver-card .driver-rank {
+        font-size: 8px;
+        padding: 2px 6px;
+    }
+
+    .driver-card .driver-stats {
+        gap: 4px;
+        margin-bottom: 8px;
+    }
+
+    .driver-card .ds-item {
+        padding: 8px 4px 6px;
+        border-radius: 6px;
+    }
+
+    .driver-card .ds-item .ds-value {
+        font-size: 11px;
+    }
+
+    .driver-card .ds-item .ds-label {
+        font-size: 7px;
+        margin-top: 2px;
+    }
+
+    .driver-card .card-bottom {
+        padding-top: 8px;
+    }
+
+    .driver-card .last-job span {
+        font-size: 9px;
+    }
+
+    .driver-card .driver-position {
+        font-size: 11px;
+    }
+
+    .driver-card .driver-position-label {
+        font-size: 9px;
     }
 
     .photos-modal-content {

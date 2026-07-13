@@ -48,7 +48,7 @@ function renderStats(stats = {}) {
     if (!bar) return;
     bar.innerHTML = `
         <div class="stat-card">
-            <span class="stat-icon">🏎️</span>
+            <span class="stat-icon">🚌</span>
             <span class="stat-value">${formatNumber(stats.kilometers)}</span>
             <span class="stat-label">KM Totales</span>
         </div>
@@ -239,6 +239,12 @@ function formatLastJob(days) {
     if (n === 0) return "hoy";
     if (n === 1) return "ayer";
     return `hace ${n} días`;
+}
+
+async function tryFetch(url) {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
 }
 
 async function fetchMonthJobsData() {
