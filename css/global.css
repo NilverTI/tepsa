@@ -11,7 +11,8 @@
 }
 
 body {
-    background: #0f0f0f;
+    background: linear-gradient(rgba(15, 15, 15, 0.90), rgba(15, 15, 15, 0.90)), url('../assets/img/bus_in_motion.jpg') no-repeat center center fixed;
+    background-size: cover;
     color: #fff;
     overflow-x: hidden;
 }
