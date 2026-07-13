@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conductores | TEPSA PSV</title>
+  <meta property="og:title" content="Conductores | TEPSA PSV">
+  <meta property="og:description" content="Lista oficial y estadísticas de la tripulación de TEPSA PSV en Euro Truck Simulator 2">
+  <meta property="og:url" content="https://tepsa.vercel.app/conductores.html">
+  <meta property="og:image" content="https://tepsa.vercel.app/assets/img/galeria3.png">
+  <meta property="og:image:secure_url" content="https://tepsa.vercel.app/assets/img/galeria3.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="TEPSA PSV">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PE">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Conductores | TEPSA PSV">
+  <meta name="twitter:description" content="Lista oficial y estadísticas de la tripulación de TEPSA PSV en Euro Truck Simulator 2">
+  <meta name="twitter:image" content="https://tepsa.vercel.app/assets/img/galeria3.png">
+
+  <!-- Style Sheets Reorganized -->
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/conductores.css">
+  <link rel="icon" href="../assets/img/logo1.png" type="image/png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="conductores-page">
+
+  <!-- Header Section -->
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">TEPSA PSV</a>
+      <ul class="menu" id="mainMenu">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="index.html#nosotros">Nosotros</a></li>
+        <li><a href="index.html#flota">Flota</a></li>
+        <li><a href="index.html#ranking">Ranking</a></li>
+        <li><a href="conductores.html">Conductores</a></li>
+        <li><a href="index.html#reclutamiento">Reclutamiento</a></li>
+        <li><a href="index.html#galeria">Galería</a></li>
+        <li><a href="index.html#fundadores">Fundadores</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="conductores-hero">
+    <h1>Nuestra Tripulación</h1>
+    <p class="hero-subtitle">Profesionalismo y excelencia en cada kilómetro recorrido</p>
+  </section>
+
+  <!-- Stats Bar -->
+  <div id="stats-bar" class="conductores-stats"></div>
+
+  <!-- Search & Filter Controls -->
+  <div class="conductores-controls">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Buscar conductor..." autocomplete="off">
+    </div>
+    <div class="filter-buttons">
+      <div class="status-filter">
+        <button class="status-btn active" data-status="all">Todos</button>
+        <button class="status-btn" data-status="active">Activos</button>
+        <button class="status-btn" data-status="inactive">Inactivos</button>
+      </div>
+      <button class="filter-btn active" data-sort="km">KM</button>
+      <button class="filter-btn" data-sort="damage">Daño</button>
+      <button class="filter-btn" data-sort="points">Puntos</button>
+      <button class="filter-btn" data-sort="name">Nombre</button>
+    </div>
+  </div>
+
+  <p class="data-status" id="data-status">Cargando datos...</p>
+
+  <!-- Drivers Grid -->
+  <div id="drivers-grid" class="drivers-grid">
+    <div class="loading-spinner" id="loading-spinner">
+      <div class="spinner"></div>
+      <p>Cargando conductores...</p>
+    </div>
+  </div>
+
+  <!-- Modal de Fotos del Conductor -->
+  <div id="driverPhotosModal" class="photos-modal">
+    <div class="photos-modal-content">
+      <button class="photos-modal-close" id="closePhotosModal">&times;</button>
+
+      <!-- Encabezado del Modal -->
+      <div class="modal-header">
+        <h2 id="modalDriverName">Galería del Conductor</h2>
+        <button class="subir-login-btn" id="btnOpenAuthModal">
+          <span>🔒</span> Subir (Login)
+        </button>
+      </div>
+
+      <!-- Contenido de la Galería -->
+      <div id="galleryView" class="tab-content">
+        <div id="galleryPhotosGrid" class="gallery-grid">
+          <!-- Las fotos se cargarán dinámicamente aquí -->
+        </div>
+        <div id="galleryPagination" class="gallery-pagination">
+          <!-- Controles de paginación dinámicos -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Autenticación y Subida (Login / Upload Popup) -->
+  <div id="driverAuthModal" class="auth-popup-modal">
+    <div class="auth-popup-content">
+      <button class="auth-popup-close" id="closeAuthModal">&times;</button>
+
+      <!-- Avatar circular superior -->
+      <div class="login-avatar-wrap">
+        <svg viewBox="0 0 24 24">
+          <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A3,3 0 0,1 15,7A3,3 0 0,1 12,10A3,3 0 0,1 9,7A3,3 0 0,1 12,4M12,20C9.97,20 8.2,18.83 7.28,17.12C7.3,15.5 10.5,14.6 12,14.6C13.5,14.6 16.7,15.5 16.72,17.12C15.8,18.83 14.03,20 12,20Z" />
+        </svg>
+      </div>
+
+      <!-- ESTADO A: Formulario de Login -->
+      <div id="loginFormState">
+        <form id="popupLoginForm">
+          <div class="login-input-group">
+            <span class="input-icon">👤</span>
+            <input type="text" id="loginUsernameInput" placeholder="Nombre de Conductor" required>
+          </div>
+
+          <div class="login-input-group">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="loginPasswordInput" placeholder="Contraseña de Acceso" required>
+          </div>
+
+          <button type="submit" id="btnSubmitLogin" class="login-submit">Entrar</button>
+          <div id="loginPopupError" class="form-error-global" style="display:none; margin-top: 15px;"></div>
+        </form>
+      </div>
+
+      <!-- ESTADO B: Formulario de Subida -->
+      <div id="uploadFormState" style="display: none;">
+        <form id="popupUploadForm">
+          <p class="upload-state-title">Subir captura para <strong id="uploadActiveDriverText" style="color: #ff2d2d;"></strong></p>
+
+          <div class="login-input-group">
+            <span class="input-icon">🔗</span>
+            <input type="url" id="uploadImageUrlInput" placeholder="Enlace de la Imagen (Directo, Drive, Imgur...)" required>
+          </div>
+
+          <div class="login-input-group">
+            <span class="input-icon">📝</span>
+            <input type="text" id="uploadDescInput" placeholder="Descripción (máx. 120 caracteres)" maxlength="120" required>
+          </div>
+
+          <button type="submit" id="btnSubmitPopupUpload" class="login-submit">Publicar Captura</button>
+          <div id="uploadPopupError" class="form-error-global" style="display:none; margin-top: 15px;"></div>
+          <div id="uploadPopupSuccess" class="form-success-global" style="display:none; margin-top: 15px; text-align: center; color: #4ecdc4; font-weight: 500;"></div>
+          <a href="#" id="linkLogout" style="display: block; text-align: center; font-size: 11px; color: #555; margin-top: 15px; text-decoration: none; transition: color .2s;">Cerrar Sesión / Cambiar Contraseña</a>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div id="photoLightbox" class="lightbox-modal">
+    <span class="lightbox-close" id="closeLightbox">&times;</span>
+    <img class="lightbox-content" id="lightboxImg" alt="Captura ampliada">
+    <div id="lightboxCaption" class="lightbox-caption"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <h3>TEPSA PSV</h3>
+    <p>&copy; 2026 Todos los derechos reservados</p>
+  </footer>
+
+  <!-- Scripts Reorganized -->
+  <script src="../js/global.js"></script>
+  <script src="../js/conductores.js"></script>
+</body>
+
+</html>

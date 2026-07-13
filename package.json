@@ -1,3 +1,11 @@
 {
-  "scripts": {}
+  "name": "tepsa-psv-web",
+  "version": "1.0.0",
+  "description": "Sitio web de la VTC TEPSA PSV",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {}
 }

@@ -1,7 +1,14 @@
 {
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/pages/index.html" },
+    { "source": "/conductores", "destination": "/pages/conductores.html" },
+    { "source": "/conductores.html", "destination": "/pages/conductores.html" },
+    { "source": "/img/(.*)", "destination": "/assets/img/$1" }
+  ],
   "headers": [
     {
-      "source": "/img/(.*)",
+      "source": "/assets/img/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

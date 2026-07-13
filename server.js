@@ -807,10 +807,18 @@ function sumBy(items, key) {
 }
 
 function serveStaticFile(urlPath, response) {
-  const cleanPath = decodeURIComponent(urlPath.split("?")[0]);
-  const filePath = path.normalize(
-    path.join(publicDir, cleanPath === "/" ? "index.html" : cleanPath),
-  );
+  let cleanPath = decodeURIComponent(urlPath.split("?")[0]);
+
+  // Ruteo inteligente local para mantener la estructura modular
+  if (cleanPath === "/") {
+    cleanPath = "/pages/index.html";
+  } else if (cleanPath === "/conductores" || cleanPath === "/conductores.html") {
+    cleanPath = "/pages/conductores.html";
+  } else if (cleanPath.startsWith("/img/")) {
+    cleanPath = cleanPath.replace("/img/", "/assets/img/");
+  }
+
+  const filePath = path.normalize(path.join(publicDir, cleanPath));
   const relativePath = path.relative(publicDir, filePath);
   const privateFiles = new Set(["server.js", "package.json", "package-lock.json"]);
 
