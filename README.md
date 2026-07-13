@@ -28,7 +28,6 @@ El proyecto ha sido reorganizado profesionalmente bajo la siguiente estructura m
 │   └── conductores.js    # Lógica de tripulación, filtros, galerías Supabase y subida
 ├── server.js             # Servidor de desarrollo HTTP nativo en Node.js (con ruteo inteligente)
 ├── vercel.json           # Configuración de despliegue en Vercel (rewrites y headers)
-├── .env.example          # Plantilla de variables de entorno para Supabase y Trucky VTC
 ├── .gitignore            # Archivos excluidos del control de versiones
 └── README.md             # Documentación del proyecto
 ```
@@ -46,15 +45,8 @@ Descarga o clona el repositorio localmente, sitúate en la raíz del proyecto y 
 npm install
 ```
 
-### 3. Variables de Entorno (`.env`)
-Crea un archivo `.env` en la raíz del proyecto basándote en `.env.example`:
-```ini
-SUPABASE_URL=https://db.natrscfdveztkerxyhoc.supabase.co
-SUPABASE_ANON_KEY=tu_anon_key_aqui
-```
-
-### 4. Iniciar el Servidor de Desarrollo
-Para arrancar el servidor web local con soporte de enrutamiento modular (para `/`, `/conductores`, etc.) y las APIs proxies:
+### 3. Iniciar el Servidor de Desarrollo
+Para arrancar el servidor web local con soporte de enrutamiento modular (para `/`, `/conductores`, etc.) y las APIs proxies sin necesidad de configurar ningún archivo `.env` externo:
 ```bash
 npm run dev
 ```
@@ -62,7 +54,7 @@ o directamente:
 ```bash
 node server.js
 ```
-El sitio estará disponible en: [http://localhost:3000](http://localhost:3000)
+El sitio estará disponible de inmediato en: [http://localhost:3000](http://localhost:3000)
 
 ---
 
@@ -73,3 +65,4 @@ Este proyecto está listo para ser desplegado de manera instantánea en **Vercel
 - Las rutas de páginas estáticas se mapean de forma transparente sin extensión `.html` gracias a las directivas de `vercel.json` (`cleanUrls` y `rewrites`).
 - Las APIs se ejecutan automáticamente como Serverless Functions bajo el directorio `/api`.
 - Se aplican políticas de caché optimizadas para los recursos estáticos en la ruta `/assets/img/*`.
+- **Portabilidad Total**: Todo el ruteo de base de datos de Supabase y consultas de ranking a PeruServer se resuelven de manera estática mediante constantes codificadas directamente, lo que garantiza el correcto funcionamiento sin variables de entorno en producción.

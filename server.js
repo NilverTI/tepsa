@@ -3,7 +3,6 @@ const fs = require("fs");
 const path = require("path");
 
 const publicDir = __dirname;
-loadEnvFile();
 
 const COMPANY_ID = "44302";
 const MEMBERS_URL = `https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/members`;
@@ -184,9 +183,8 @@ async function handleTruckyRequest(response) {
   }
 
   try {
-    const membersUrl = process.env.TRUCKY_API_URL || MEMBERS_URL;
+    const membersUrl = MEMBERS_URL;
     const headers = { ...TRUCKY_HEADERS };
-    if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
 
     const rawData = await fetchJSON(membersUrl, headers);
     const result = normalizeTruckyData(rawData);
@@ -211,10 +209,9 @@ async function handleTruckyJobsRequest(response) {
   }
 
   try {
-    const companyId = process.env.TRUCKY_COMPANY_ID || COMPANY_ID;
+    const companyId = COMPANY_ID;
     const jobsUrl = `https://e.truckyapp.com/api/v1/company/${companyId}/jobs`;
     const headers = { ...TRUCKY_HEADERS };
-    if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
 
     const rawJobs = await fetchAllPages(jobsUrl, headers);
     const jobs = rawJobs
@@ -244,15 +241,14 @@ async function handleConductoresRanking(response) {
   }
 
   try {
-    const membersUrl = process.env.TRUCKY_API_URL || MEMBERS_URL;
-    const companyId = process.env.TRUCKY_COMPANY_ID || COMPANY_ID;
+    const membersUrl = MEMBERS_URL;
+    const companyId = COMPANY_ID;
     const now = new Date();
     const y = now.getFullYear();
     const m = String(now.getMonth() + 1).padStart(2, "0");
     const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
     const jobsUrl = `https://e.truckyapp.com/api/v1/company/${companyId}/jobs?dateFrom=${y}-${m}-01&dateTo=${y}-${m}-${lastDay}`;
     const headers = { ...TRUCKY_HEADERS };
-    if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
 
     const [membersRaw, jobsRaw] = await Promise.all([
       fetchJSON(membersUrl, headers),
@@ -408,8 +404,8 @@ async function handleGaleriaFotos(request, response) {
     return;
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
-  const supabaseKey = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
+  const supabaseUrl = "https://natrscfdveztkerxyhoc.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
 
   if (!supabaseUrl || !supabaseKey) {
     await handleLocalGaleriaFotos(request, response, driver, page);
@@ -458,8 +454,8 @@ async function handleGaleriaUpload(request, response) {
 
   const body = await parseBody(request);
 
-  const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
-  const supabaseKey = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
+  const supabaseUrl = "https://natrscfdveztkerxyhoc.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
 
   if (!supabaseUrl || !supabaseKey) {
     await handleLocalGaleriaUpload(request, response, body);
@@ -856,32 +852,4 @@ function sendJson(response, data, statusCode = 200) {
   response.end(JSON.stringify(data));
 }
 
-function loadEnvFile() {
-  const envPath = path.join(__dirname, ".env");
 
-  if (!fs.existsSync(envPath)) {
-    return;
-  }
-
-  const lines = fs.readFileSync(envPath, "utf8").split(/\r?\n/);
-
-  lines.forEach((line) => {
-    const trimmed = line.trim();
-
-    if (!trimmed || trimmed.startsWith("#")) {
-      return;
-    }
-
-    const separatorIndex = trimmed.indexOf("=");
-    if (separatorIndex === -1) {
-      return;
-    }
-
-    const key = trimmed.slice(0, separatorIndex).trim();
-    const value = trimmed.slice(separatorIndex + 1).trim();
-
-    if (!process.env[key]) {
-      process.env[key] = value;
-    }
-  });
-}
