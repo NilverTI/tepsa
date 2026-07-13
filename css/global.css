@@ -11,7 +11,7 @@
 }
 
 body {
-    background: linear-gradient(rgba(15, 15, 15, 0.90), rgba(15, 15, 15, 0.90)), url('../assets/img/bus_in_motion.jpg') no-repeat center center fixed;
+    background: linear-gradient(rgba(10, 10, 10, 0.93), rgba(10, 10, 10, 0.93)), url('../assets/img/bus_in_motion.jpg') no-repeat center center fixed;
     background-size: cover;
     color: #fff;
     overflow-x: hidden;
@@ -73,10 +73,10 @@ section h2 {
     backdrop-filter: blur(0px);
     -webkit-backdrop-filter: blur(0px);
     z-index: 1000;
-    transition: padding 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
-                background 0.4s ease, 
-                backdrop-filter 0.4s ease, 
-                box-shadow 0.4s ease;
+    transition: padding 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+        background 0.4s ease,
+        backdrop-filter 0.4s ease,
+        box-shadow 0.4s ease;
 }
 
 .navbar.scrolled {
@@ -236,11 +236,25 @@ footer {
 }
 
 @keyframes discordSpin {
-    0% { transform: rotate(0deg) scale(1); }
-    25% { transform: rotate(-15deg) scale(1.15); }
-    50% { transform: rotate(10deg) scale(1.15); }
-    75% { transform: rotate(-5deg) scale(1.05); }
-    100% { transform: rotate(0deg) scale(1); }
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: rotate(-15deg) scale(1.15);
+    }
+
+    50% {
+        transform: rotate(10deg) scale(1.15);
+    }
+
+    75% {
+        transform: rotate(-5deg) scale(1.05);
+    }
+
+    100% {
+        transform: rotate(0deg) scale(1);
+    }
 }
 
 .footer-bottom {
@@ -258,7 +272,7 @@ footer {
     .navbar {
         padding: 15px 5%;
     }
-    
+
     .menu {
         display: none;
         position: fixed;
@@ -272,21 +286,21 @@ footer {
         padding: 10px 0;
         border-bottom: 1px solid #1a1a1a;
     }
-    
+
     .menu.show {
         display: flex;
     }
-    
+
     .menu a {
         display: block;
         padding: 14px 5%;
         border-bottom: 1px solid rgba(255, 255, 255, .05);
     }
-    
+
     .menu a::after {
         display: none;
     }
-    
+
     .menu li:last-child a {
         border-bottom: none;
     }
@@ -300,7 +314,7 @@ footer {
         border: none;
         padding: 5px;
     }
-    
+
     .hamburger span {
         display: block;
         width: 24px;
@@ -313,7 +327,7 @@ footer {
     section {
         padding: 60px 5%;
     }
-    
+
     section h2 {
         font-size: 28px;
         margin-bottom: 20px;
@@ -323,54 +337,54 @@ footer {
         padding: 30px 5% 0;
         margin-top: 30px;
     }
-    
+
     .footer-content {
         grid-template-columns: 1fr;
         gap: 20px;
         padding-bottom: 20px;
         text-align: center;
     }
-    
+
     .footer-brand h3 {
         font-size: 20px;
         margin-bottom: 4px;
     }
-    
+
     .footer-brand p {
         max-width: 100%;
         font-size: 13px;
     }
-    
+
     .footer-links h4,
     .footer-social h4 {
         font-size: 12px;
         margin-bottom: 10px;
     }
-    
+
     .footer-links {
         gap: 4px;
     }
-    
+
     .footer-links a {
         justify-content: center;
         font-size: 13px;
     }
-    
+
     .footer-social {
         align-items: center;
         gap: 8px;
     }
-    
+
     .discord-link {
         justify-content: center;
         padding: 8px 14px;
         font-size: 13px;
     }
-    
+
     .footer-bottom {
         padding: 12px 0;
     }
-    
+
     .footer-bottom p {
         font-size: 11px;
     }
@@ -382,10 +396,12 @@ footer {
         opacity: 0.55;
         background-color: #121212;
     }
+
     50% {
         opacity: 1;
         background-color: #1b1b1b;
     }
+
     100% {
         opacity: 0.55;
         background-color: #121212;
@@ -406,4 +422,3 @@ footer {
 #drivers-grid {
     transition: opacity 0.25s ease-in-out;
 }
-
