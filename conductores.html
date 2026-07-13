@@ -1224,9 +1224,24 @@
 
     async function fetchFresh() {
       const errors = [];
-      for (const url of ["/api/trucky/conductores", "http://127.0.0.1:3001/api/trucky/conductores"]) {
-        try { const d = await tryFetch(url); applyData(d, "Servidor"); return; } catch { errors.push(url); continue; }
+      const urls = [
+        "/api/trucky/conductores",
+        "http://127.0.0.1:3000/api/trucky/conductores",
+        "http://127.0.0.1:3001/api/trucky/conductores",
+        "https://tepsa.vercel.app/api/trucky/conductores"
+      ];
+      
+      for (const url of urls) {
+        try {
+          const d = await tryFetch(url);
+          applyData(d, "Servidor");
+          return;
+        } catch {
+          errors.push(url);
+          continue;
+        }
       }
+      
       try {
         const [raw, monthStats] = await Promise.all([
           tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
@@ -1238,7 +1253,9 @@
         const active = ranking.filter(d => d.lastJobDays <= 7).length;
         applyData({ ranking, stats: { kilometers: totalKm, drivers: ranking.filter(d => d.kilometers > 0).length, active } }, "Trucky directo");
         return;
-      } catch { errors.push("Trucky directo"); }
+      } catch {
+        errors.push("Trucky directo");
+      }
       throw new Error("Fallaron todos los orígenes: " + errors.join(", "));
     }
 
@@ -1251,6 +1268,31 @@
         const statusEl = document.getElementById("data-status");
         if (statusEl) {
           statusEl.textContent = `📡 Datos en caché · ${allDrivers.length} miembros`;
+        }
+      } else {
+        // Carga inmediata de datos de respaldo
+        allDrivers = [
+          { name: "[TPS]SABROSAURIO", kilometers: 43400, damage: 3263, totalJobs: 78, points: 63897, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Administrador", avatar: "", level: 8, country: "PE", cargoMass: 663, revenue: 34542506 },
+          { name: "[TPS] Cristofer Jonathan QM", kilometers: 35229, damage: 3289, totalJobs: 51, points: 36230, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 6, country: "", cargoMass: 350, revenue: 28848413 },
+          { name: "[TPS] Lexus", kilometers: 27203, damage: 16448, totalJobs: 27, points: 30305, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 155, revenue: 13398366 },
+          { name: "[TPS] Joker", kilometers: 26369, damage: 3355, totalJobs: 64, points: 41526, lastJob: "hace 3 días", lastJobDays: 3, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 388, revenue: 27920645 },
+          { name: "[ TPS ] KEVIN", kilometers: 22888, damage: 1928, totalJobs: 32, points: 24089, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Conductor", avatar: "", level: 5, country: "", cargoMass: 212, revenue: 19590207 },
+          { name: "[TPS]KIRITO", kilometers: 20512, damage: 416, totalJobs: 33, points: 23113, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 5, country: "", cargoMass: 238, revenue: 15645932 },
+          { name: "[TPS] Johan-19", kilometers: 16337, damage: 12929, totalJobs: 31, points: 19138, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 170, revenue: 14940683 },
+          { name: "[TPS] Angel", kilometers: 15896, damage: 3610, totalJobs: 22, points: 18097, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 127, revenue: 13414766 },
+          { name: "[TPS]KANIEL_OUT", kilometers: 9452, damage: 569, totalJobs: 15, points: 11424, lastJob: "hace 19 días", lastJobDays: 19, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "PE", cargoMass: 101, revenue: 8326510 },
+          { name: "[TPS]RENZITO", kilometers: 6362, damage: 2124, totalJobs: 15, points: 7963, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 64, revenue: 5282808 },
+          { name: "[TPS]EMPERADOR", kilometers: 3719, damage: 1625, totalJobs: 10, points: 4119, lastJob: "hace 16 días", lastJobDays: 16, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 34, revenue: 3037086 },
+          { name: "banco bcp", kilometers: 2606, damage: 1146, totalJobs: 9, points: 4567, lastJob: "hace 35 días", lastJobDays: 35, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 79, revenue: 2052853 },
+          { name: "[TPS] juan david", kilometers: 1850, damage: 308, totalJobs: 5, points: 7981, lastJob: "hoy", lastJobDays: 0, rank: "novato", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 32, revenue: 781421 },
+        ];
+        const totalKm = allDrivers.reduce((s, d) => s + d.kilometers, 0);
+        const active = allDrivers.filter(d => d.lastJobDays <= 7).length;
+        renderStats({ kilometers: totalKm, drivers: allDrivers.length, active });
+        renderDrivers();
+        const statusEl = document.getElementById("data-status");
+        if (statusEl) {
+          statusEl.textContent = "Cargando datos frescos...";
         }
       }
 
@@ -1269,27 +1311,9 @@
         await fetchFresh();
       } catch (e) {
         console.error("loadData: error al actualizar en segundo plano", e);
-        if (!cached) {
-          allDrivers = [
-            { name: "[TPS]SABROSAURIO", kilometers: 43400, damage: 3263, totalJobs: 78, points: 63897, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Administrador", avatar: "", level: 8, country: "PE", cargoMass: 663, revenue: 34542506 },
-            { name: "[TPS] Cristofer Jonathan QM", kilometers: 35229, damage: 3289, totalJobs: 51, points: 36230, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 6, country: "", cargoMass: 350, revenue: 28848413 },
-            { name: "[TPS] Lexus", kilometers: 27203, damage: 16448, totalJobs: 27, points: 30305, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 155, revenue: 13398366 },
-            { name: "[TPS] Joker", kilometers: 26369, damage: 3355, totalJobs: 64, points: 41526, lastJob: "hace 3 días", lastJobDays: 3, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 388, revenue: 27920645 },
-            { name: "[ TPS ] KEVIN", kilometers: 22888, damage: 1928, totalJobs: 32, points: 24089, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Conductor", avatar: "", level: 5, country: "", cargoMass: 212, revenue: 19590207 },
-            { name: "[TPS]KIRITO", kilometers: 20512, damage: 416, totalJobs: 33, points: 23113, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 5, country: "", cargoMass: 238, revenue: 15645932 },
-            { name: "[TPS] Johan-19", kilometers: 16337, damage: 12929, totalJobs: 31, points: 19138, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 170, revenue: 14940683 },
-            { name: "[TPS] Angel", kilometers: 15896, damage: 3610, totalJobs: 22, points: 18097, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 127, revenue: 13414766 },
-            { name: "[TPS]KANIEL_OUT", kilometers: 9452, damage: 569, totalJobs: 15, points: 11424, lastJob: "hace 19 días", lastJobDays: 19, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "PE", cargoMass: 101, revenue: 8326510 },
-            { name: "[TPS]RENZITO", kilometers: 6362, damage: 2124, totalJobs: 15, points: 7963, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 64, revenue: 5282808 },
-            { name: "[TPS]EMPERADOR", kilometers: 3719, damage: 1625, totalJobs: 10, points: 4119, lastJob: "hace 16 días", lastJobDays: 16, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 34, revenue: 3037086 },
-            { name: "banco bcp", kilometers: 2606, damage: 1146, totalJobs: 9, points: 4567, lastJob: "hace 35 días", lastJobDays: 35, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 79, revenue: 2052853 },
-            { name: "[TPS] juan david", kilometers: 1850, damage: 308, totalJobs: 5, points: 7981, lastJob: "hoy", lastJobDays: 0, rank: "novato", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 32, revenue: 781421 },
-          ];
-          const totalKm = allDrivers.reduce((s, d) => s + d.kilometers, 0);
-          const active = allDrivers.filter(d => d.lastJobDays <= 7).length;
-          renderStats({ kilometers: totalKm, drivers: allDrivers.length, active });
-          renderDrivers();
-          document.getElementById("data-status").textContent = "Sin conexión. Mostrando datos de respaldo.";
+        const statusEl = document.getElementById("data-status");
+        if (statusEl) {
+          statusEl.textContent = cached ? `📡 Datos en caché (error al actualizar)` : "Sin conexión. Mostrando datos de respaldo.";
         }
       }
     }
