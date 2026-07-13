@@ -12,7 +12,6 @@ const TRUCKY_HEADERS = {
 
 async function fetchJSON(url) {
   const headers = { ...TRUCKY_HEADERS };
-  if (process.env.TRUCKY_API_TOKEN) headers["x-access-token"] = process.env.TRUCKY_API_TOKEN;
   const res = await fetch(url, { headers });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
@@ -62,8 +61,8 @@ module.exports = async function handler(req, res) {
   try {
     // Cache exitoso en Edge CDN por 5 minutos, sin cache local en navegador
     res.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=60");
-    const membersUrl = process.env.TRUCKY_API_URL || MEMBERS_URL;
-    const companyId = process.env.TRUCKY_COMPANY_ID || COMPANY_ID;
+    const membersUrl = MEMBERS_URL;
+    const companyId = COMPANY_ID;
     const now = new Date();
     const y = now.getFullYear();
     const m = String(now.getMonth() + 1).padStart(2, "0");
