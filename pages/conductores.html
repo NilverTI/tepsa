@@ -65,7 +65,7 @@
   <div class="conductores-controls">
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" placeholder="Buscar conductor..." autocomplete="off">
+      <input type="text" id="searchInput" placeholder="Buscar conductor..." autocomplete="off" aria-label="Buscar conductor por nombre o rol">
     </div>
     <div class="filter-buttons">
       <div class="status-filter">
@@ -132,12 +132,12 @@
         <form id="popupLoginForm">
           <div class="login-input-group">
             <span class="input-icon">👤</span>
-            <input type="text" id="loginUsernameInput" placeholder="Nombre de Conductor" required>
+            <input type="text" id="loginUsernameInput" placeholder="Nombre de Conductor" required aria-label="Nombre de Conductor para iniciar sesión">
           </div>
 
           <div class="login-input-group">
             <span class="input-icon">🔒</span>
-            <input type="password" id="loginPasswordInput" placeholder="Contraseña de Acceso" required>
+            <input type="password" id="loginPasswordInput" placeholder="Contraseña de Acceso" required aria-label="Contraseña de acceso">
           </div>
 
           <button type="submit" id="btnSubmitLogin" class="login-submit">Entrar</button>
@@ -152,12 +152,12 @@
 
           <div class="login-input-group">
             <span class="input-icon">🔗</span>
-            <input type="url" id="uploadImageUrlInput" placeholder="Enlace de la Imagen (Directo, Drive, Imgur...)" required>
+            <input type="url" id="uploadImageUrlInput" placeholder="Enlace de la Imagen (Directo, Drive, Imgur...)" required aria-label="Enlace URL de la captura">
           </div>
 
           <div class="login-input-group">
             <span class="input-icon">📝</span>
-            <input type="text" id="uploadDescInput" placeholder="Descripción (máx. 120 caracteres)" maxlength="120" required>
+            <input type="text" id="uploadDescInput" placeholder="Descripción (máx. 120 caracteres)" maxlength="120" required aria-label="Descripción de la captura de viaje">
           </div>
 
           <button type="submit" id="btnSubmitPopupUpload" class="login-submit">Publicar Captura</button>

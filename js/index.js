@@ -27,6 +27,57 @@ const CACHE_KEY_TRUCKY = "tepsa_index_v3";
 const CACHE_TTL_TRUCKY = 5 * 60 * 1000;
 const CACHE_KEY_PS_RANKING = "tepsa:ps-ranking:v6";
 
+let activeTruckyFetchPromise = null;
+
+function smoothUpdate(element, newHtml) {
+    if (!element) return;
+    element.style.opacity = "0.3";
+    setTimeout(() => {
+        element.innerHTML = newHtml;
+        element.style.opacity = "1";
+    }, 250);
+}
+
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return "hace un momento";
+    const diffMs = Date.now() - new Date(timestamp).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return "hace un momento";
+    if (diffMins === 1) return "hace 1 minuto";
+    return `hace ${diffMins} minutos`;
+}
+
+function renderRankingSkeletons() {
+    const container = document.getElementById("ranking-podium");
+    if (!container) return;
+    container.innerHTML = Array.from({ length: 3 }).map(() => `
+        <div class="podium-item skeleton" style="height: 320px; display: flex; flex-direction: column; gap: 15px; padding: 20px; border-radius: 14px; background: #161616; border: 1px solid #222;">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: #2a2a2a; margin: 0 auto;"></div>
+            <div style="width: 70%; height: 16px; background: #2a2a2a; border-radius: 4px; margin: 10px auto;"></div>
+            <div style="width: 50%; height: 12px; background: #2a2a2a; border-radius: 4px; margin: 0 auto 15px;"></div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <div style="height: 35px; background: #2a2a2a; border-radius: 8px;"></div>
+                <div style="height: 35px; background: #2a2a2a; border-radius: 8px;"></div>
+                <div style="height: 35px; background: #2a2a2a; border-radius: 8px;"></div>
+            </div>
+            <div style="width: 80%; height: 12px; background: #2a2a2a; border-radius: 4px; margin: 15px auto 0;"></div>
+        </div>
+    `).join("");
+}
+
+function renderJobsSkeletons() {
+    const jobsGrid = document.getElementById("jobs-grid");
+    if (!jobsGrid) return;
+    jobsGrid.innerHTML = Array.from({ length: 4 }).map(() => `
+        <div class="job-card skeleton" style="display: flex; flex-direction: column; gap: 10px; padding: 15px; border-radius: 10px; background: #161616; border: 1px solid #222; height: 160px;">
+            <div style="width: 40%; height: 14px; background: #2a2a2a; border-radius: 4px;"></div>
+            <div style="width: 60%; height: 12px; background: #2a2a2a; border-radius: 4px;"></div>
+            <div style="width: 30%; height: 12px; background: #2a2a2a; border-radius: 4px;"></div>
+            <div style="width: 50%; height: 12px; background: #2a2a2a; border-radius: 4px;"></div>
+        </div>
+    `).join("");
+}
+
 function isFounder(member) {
     const role = (member.role || "").toLowerCase();
     if (/owner|fundador|founder|administrador|moderador/.test(role)) return true;
@@ -71,7 +122,7 @@ function renderRanking(ranking = []) {
     const podiumOrder = [1, 0, 2];
     const labels = ["ORO", "PLATA", "BRONCE"];
 
-    container.innerHTML = podiumOrder.map(i => {
+    const html = podiumOrder.map(i => {
         const d = top3[i];
         if (!d) return "";
         const isFirst = i === 0;
@@ -104,6 +155,12 @@ function renderRanking(ranking = []) {
       </div>
     `;
     }).join("");
+
+    if (container.querySelector(".skeleton") || container.innerHTML.trim() === "" || container.style.opacity === "0.3") {
+        container.innerHTML = html;
+    } else {
+        smoothUpdate(container, html);
+    }
 }
 
 function renderJobs(jobs = []) {
@@ -113,7 +170,7 @@ function renderJobs(jobs = []) {
         jobsGrid.innerHTML = `<div class="job-card"><p>Aún no hay trabajos recientes para mostrar.</p></div>`;
         return;
     }
-    jobsGrid.innerHTML = jobs.map(j => `
+    const html = jobs.map(j => `
     <article class="job-card">
       <h3>${escapeHtml(j.driver || "Conductor TEPSA")}</h3>
       <p><strong>Ruta:</strong> ${escapeHtml(j.route || "Sin ruta")}</p>
@@ -122,6 +179,12 @@ function renderJobs(jobs = []) {
       <p><strong>Estado:</strong> ${escapeHtml(j.status || "Registrado")}</p>
     </article>
   `).join("");
+
+    if (jobsGrid.querySelector(".skeleton") || jobsGrid.innerHTML.trim() === "" || jobsGrid.style.opacity === "0.3") {
+        jobsGrid.innerHTML = html;
+    } else {
+        smoothUpdate(jobsGrid, html);
+    }
 }
 
 function renderTruckyData(data) {
@@ -212,106 +275,158 @@ async function fetchMonthJobs() {
 }
 
 async function loadTruckyData(force) {
-    const cached = getTruckyCache();
-    if (cached) {
-        renderTruckyData(cached);
-        const status = document.getElementById("trucky-status");
-        if (status) status.textContent = `📡 Datos en caché · ${cached.ranking.length} miembros`;
-    }
-
+    let cached = null;
+    let cacheTime = null;
     try {
         const raw = localStorage.getItem(CACHE_KEY_TRUCKY);
-        if (raw && !force) {
+        if (raw) {
             const entry = JSON.parse(raw);
-            if (Date.now() - entry.ts < CACHE_TTL_TRUCKY) {
-                return;
-            }
+            cached = entry.data;
+            cacheTime = entry.ts;
         }
     } catch (e) {}
 
-    let apiUrl = "/api/trucky/conductores";
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        if (window.location.port && window.location.port !== "3000") {
-            apiUrl = "http://127.0.0.1:3000/api/trucky/conductores";
+    const status = document.getElementById("trucky-status");
+
+    if (cached) {
+        renderTruckyData(cached);
+        if (status) {
+            status.innerHTML = `📡 <strong>Datos locales</strong> · Actualizado: ${formatTimeAgo(cacheTime)}`;
         }
+        
+        if (cacheTime && (Date.now() - cacheTime < CACHE_TTL_TRUCKY) && !force) {
+            return;
+        }
+    } else {
+        renderRankingSkeletons();
+        renderJobsSkeletons();
+        if (status) status.innerHTML = `⏳ Cargando datos del servidor...`;
+    }
+
+    if (activeTruckyFetchPromise) {
+        try {
+            await activeTruckyFetchPromise;
+        } catch (e) {}
+        return;
     }
 
     let data = null;
-    try {
-        const d = await tryFetch(apiUrl);
-        data = {
-            source: "trucky",
-            updatedAt: new Date().toISOString(),
-            stats: d.stats || {},
-            ranking: (d.ranking || []).map(transformMember),
-            recentJobs: d.recentJobs || [],
-        };
-    } catch (e) {
-        console.warn("loadTruckyData: falló API proxy, probando alternativa...", e);
-        if (!apiUrl.includes("3000") && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
-            try {
-                const d = await tryFetch("http://127.0.0.1:3000/api/trucky/conductores");
-                data = {
-                    source: "trucky",
-                    updatedAt: new Date().toISOString(),
-                    stats: d.stats || {},
-                    ranking: (d.ranking || []).map(transformMember),
-                    recentJobs: d.recentJobs || [],
-                };
-            } catch (err) {}
+
+    activeTruckyFetchPromise = (async () => {
+        let apiUrl = "/api/trucky/conductores";
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+            if (window.location.port && window.location.port !== "3000") {
+                apiUrl = "http://127.0.0.1:3000/api/trucky/conductores";
+            }
         }
-    }
 
-    if (!data) {
+        let fetchedData = null;
         try {
-            const [raw, monthStats] = await Promise.all([
-                tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
-                fetchMonthJobs(),
-            ]);
-            const members = (raw.data || [])
-                .map(m => {
-                    const name = m.name || "Sin nombre";
-                    const ms = monthStats.get(name) || { kilometers: 0, damage: 0 };
-                    return {
-                        name,
-                        kilometers: Math.round(ms.kilometers),
-                        points: Math.round(m.points || 0),
-                        lastJobDays: m.lastJobDays ?? m.last_job_days,
-                        role: m.role?.name || m.role || "",
-                        avatar: m.avatar_url || m.avatar || "",
-                        damage: Math.round(ms.damage),
-                        level: m.level || 0,
-                        revenue: m.revenue || m.total_revenue || 0,
-                        cargo: m.cargoMass || m.cargo || m.total_cargo_mass_t || 0,
-                    };
-                })
-                .filter(m => {
-                    const role = m.role || "";
-                    const name = m.name || "";
-                    return role.toLowerCase() !== "owner" && name.toLowerCase() !== "admpsv";
-                });
-            const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
-            const active = members.filter(d => Number(d.lastJobDays ?? 9999) <= 7).length;
-            const drivers = members.length;
-            members.sort((a, b) => b.kilometers - a.kilometers);
-
-            data = {
+            const d = await tryFetch(apiUrl);
+            fetchedData = {
                 source: "trucky",
                 updatedAt: new Date().toISOString(),
-                stats: { kilometers: Math.round(totalKm), drivers, active },
-                ranking: members,
-                recentJobs: [],
+                stats: d.stats || {},
+                ranking: (d.ranking || []).map(transformMember),
+                recentJobs: d.recentJobs || [],
             };
         } catch (e) {
-            console.error("loadTruckyData: todos los orígenes fallaron en segundo plano", e);
+            console.warn("loadTruckyData: falló API proxy, probando alternativa...", e);
+            if (!apiUrl.includes("3000") && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+                try {
+                    const d = await tryFetch("http://127.0.0.1:3000/api/trucky/conductores");
+                    fetchedData = {
+                        source: "trucky",
+                        updatedAt: new Date().toISOString(),
+                        stats: d.stats || {},
+                        ranking: (d.ranking || []).map(transformMember),
+                        recentJobs: d.recentJobs || [],
+                    };
+                } catch (err) {}
+            }
         }
+
+        if (!fetchedData) {
+            try {
+                const [raw, monthStats] = await Promise.all([
+                    tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
+                    fetchMonthJobs(),
+                ]);
+                const members = (raw.data || [])
+                    .map(m => {
+                        const name = m.name || "Sin nombre";
+                        const ms = monthStats.get(name) || { kilometers: 0, damage: 0 };
+                        return {
+                            name,
+                            kilometers: Math.round(ms.kilometers),
+                            points: Math.round(m.points || 0),
+                            lastJobDays: m.lastJobDays ?? m.last_job_days,
+                            role: m.role?.name || m.role || "",
+                            avatar: m.avatar_url || m.avatar || "",
+                            damage: Math.round(ms.damage),
+                            level: m.level || 0,
+                            revenue: m.revenue || m.total_revenue || 0,
+                            cargo: m.cargoMass || m.cargo || m.total_cargo_mass_t || 0,
+                        };
+                    })
+                    .filter(m => {
+                        const role = m.role || "";
+                        const name = m.name || "";
+                        return role.toLowerCase() !== "owner" && name.toLowerCase() !== "admpsv";
+                    });
+                const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
+                const active = members.filter(d => Number(d.lastJobDays ?? 9999) <= 7).length;
+                const drivers = members.length;
+                members.sort((a, b) => b.kilometers - a.kilometers);
+
+                fetchedData = {
+                    source: "trucky",
+                    updatedAt: new Date().toISOString(),
+                    stats: { kilometers: Math.round(totalKm), drivers, active },
+                    ranking: members,
+                    recentJobs: [],
+                };
+            } catch (e) {
+                console.error("loadTruckyData: todos los orígenes fallaron en segundo plano", e);
+            }
+        }
+        return fetchedData;
+    })();
+
+    try {
+        data = await activeTruckyFetchPromise;
+    } catch (e) {
+        console.error("loadTruckyData fetch error:", e);
+    } finally {
+        activeTruckyFetchPromise = null;
     }
 
     if (data) {
+        const isChanged = !cached || 
+            JSON.stringify(cached.stats) !== JSON.stringify(data.stats) ||
+            JSON.stringify(cached.ranking) !== JSON.stringify(data.ranking) ||
+            JSON.stringify(cached.recentJobs) !== JSON.stringify(data.recentJobs);
+
         setTruckyCache(data);
-        renderTruckyData(data);
-    } else if (!cached) {
-        renderTruckyData(fallbackTruckyData);
+
+        if (isChanged) {
+            renderTruckyData(data);
+        } else {
+            if (status) {
+                status.innerHTML = `📡 <strong>Trucky Hub</strong> · Actualizado: hace un momento`;
+            }
+        }
+    } else {
+        if (cached) {
+            if (status) {
+                status.innerHTML = `⚠️ Mostrando datos guardados. Última actualización: ${formatTimeAgo(cacheTime)}`;
+            }
+        } else {
+            renderTruckyData(fallbackTruckyData);
+            if (status) {
+                status.innerHTML = `⚠️ Error al conectar. Mostrando datos por defecto.`;
+            }
+        }
     }
 }
 
@@ -383,64 +498,57 @@ async function loadPSRanking() {
     };
     if (!els.heroRank) return;
 
-    const render = (pos, km, jobs, members, period) => {
+    const render = (pos, prevPos, km, jobs, members, tendencia, actualizadoEn) => {
         const p = pos || "3";
+        const pp = prevPos || "4";
+        const tend = tendencia || "subio";
+        const formattedKm = typeof km === "number" || !isNaN(Number(km)) ? Number(km).toLocaleString("es-PE") : (km || "69.725");
+        
         els.heroRank.textContent = "#" + p;
         if (els.centerRank) els.centerRank.textContent = p;
-        if (els.stats) els.stats.textContent = (km || "69.725") + " KM · " + (jobs || "76") + " Viajes";
+        if (els.stats) els.stats.textContent = formattedKm + " KM · " + (jobs || "76") + " Viajes";
         if (els.monthRank) els.monthRank.textContent = "#" + p;
         if (els.members) els.members.textContent = members || "16";
         if (els.title) els.title.textContent = "TEPSA PSV";
         if (els.subtitle) els.subtitle.textContent = "Ranking Mensual PeruServer";
 
-        let displayPeriod = period;
-        if (period && typeof period === "object") {
-            if (period.from && period.from.month && period.from.year) {
-                const months = [
-                    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-                ];
-                const mName = months[period.from.month - 1] || period.from.month;
-                displayPeriod = `${mName} ${period.from.year}`;
-            } else {
-                displayPeriod = JSON.stringify(period);
-            }
-        } else if (!period) {
-            const months = [
-                "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-            ];
-            const now = new Date();
-            displayPeriod = `${months[now.getMonth()]} ${now.getFullYear()}`;
+        const trendSymbol = tend === "subio" ? "▲" : tend === "bajo" ? "▼" : "●";
+        const trendText = tend === "subio" ? `subió de #${pp}` : tend === "bajo" ? `bajó de #${pp}` : "mantiene";
+
+        const date = actualizadoEn ? new Date(actualizadoEn) : new Date();
+        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const displayPeriod = `${months[date.getMonth()]} ${date.getFullYear()}`;
+
+        if (els.meta) {
+            els.meta.textContent = `Top ${p} (${trendSymbol} ${trendText}) · En vivo · ${displayPeriod}`;
         }
-
-        if (els.meta) els.meta.textContent = "Top " + p + " · En vivo · " + displayPeriod;
     };
-
-    const formatKmValue = (km) => {
-        if (km == null) return null;
-        return Number(km).toLocaleString("es-PE");
-    };
-
-    const getMembersCount = (item) => item.members || item.total_members || item.member_count || item.membersCount;
 
     let cachedData = null;
     try {
         cachedData = JSON.parse(localStorage.getItem(CACHE_KEY_PS_RANKING));
         if (cachedData) {
-            render(cachedData.pos, cachedData.km, cachedData.jobs, cachedData.members, cachedData.period);
+            render(
+                cachedData.pos,
+                cachedData.prevPos,
+                cachedData.km,
+                cachedData.jobs,
+                cachedData.members,
+                cachedData.tendencia,
+                cachedData.actualizadoEn
+            );
         } else {
-            render(3, "69.725", 76, 16, null);
+            render(3, 4, 69725, 76, 16, "subio", null);
         }
     } catch (e) {
-        render(3, "69.725", 76, 16, null);
+        render(3, 4, 69725, 76, 16, "subio", null);
     }
 
     const urls = [
-        "/api/ps-ranking",
-        "http://127.0.0.1:3000/api/ps-ranking",
-        "http://127.0.0.1:3001/api/ps-ranking",
-        "https://tepsa.vercel.app/api/ps-ranking"
+        "/api/ranking",
+        "http://127.0.0.1:3000/api/ranking",
+        "http://127.0.0.1:3001/api/ranking",
+        "https://tepsa.vercel.app/api/ranking"
     ];
 
     let fetchedData = null;
@@ -454,7 +562,7 @@ async function loadPSRanking() {
             clearTimeout(tid);
             if (r.ok) {
                 const d = await r.json();
-                if (d.ok && d.item) {
+                if (d && d.puestoActual) {
                     fetchedData = d;
                     break;
                 }
@@ -465,20 +573,22 @@ async function loadPSRanking() {
     }
 
     if (fetchedData) {
-        const pos = fetchedData.position;
-        const km = formatKmValue(fetchedData.item.total_distance);
-        const jobs = fetchedData.item.total_jobs;
-        const members = getMembersCount(fetchedData.item);
-        const period = fetchedData.period || null;
+        const pos = fetchedData.puestoActual;
+        const prevPos = fetchedData.puestoAnterior;
+        const km = fetchedData.kilometros;
+        const jobs = fetchedData.viajes;
+        const members = fetchedData.miembros;
+        const tendencia = fetchedData.tendencia;
+        const actualizadoEn = fetchedData.actualizadoEn;
 
-        render(pos, km, jobs, members, period);
+        render(pos, prevPos, km, jobs, members, tendencia, actualizadoEn);
         try { 
-            localStorage.setItem(CACHE_KEY_PS_RANKING, JSON.stringify({ pos, km, jobs, members, period, ts: Date.now() })); 
+            localStorage.setItem(CACHE_KEY_PS_RANKING, JSON.stringify({ pos, prevPos, km, jobs, members, tendencia, actualizadoEn })); 
         } catch (e) { }
     } else {
         console.warn("loadPSRanking: all fetch URLs failed. Maintaining previous/default values.");
         if (!cachedData) {
-            render(3, "69.725", 76, 16, null);
+            render(3, 4, 69725, 76, 16, "subio", null);
         }
     }
 }
@@ -494,9 +604,11 @@ function setupPostulationForm() {
         const errEl = document.getElementById('form-error');
         const data = new FormData(form);
 
-        btn.disabled = true;
-        btn.textContent = 'ENVIANDO...';
-        errEl.style.display = 'none';
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'ENVIANDO...';
+        }
+        if (errEl) errEl.style.display = 'none';
 
         try {
             const res = await fetch('https://formspree.io/f/xqevyzbe', {
@@ -510,16 +622,22 @@ function setupPostulationForm() {
                 if (successMsg) successMsg.style.display = 'block';
             } else {
                 const json = await res.json();
-                errEl.textContent = json?.error || 'Error al enviar. Intenta de nuevo.';
-                errEl.style.display = 'block';
+                if (errEl) {
+                    errEl.textContent = json?.error || 'Error al enviar. Intenta de nuevo.';
+                    errEl.style.display = 'block';
+                }
             }
         } catch {
-            errEl.textContent = 'Error de conexión. Verifica tu internet.';
-            errEl.style.display = 'block';
+            if (errEl) {
+                errEl.textContent = 'Error de conexión. Verifica tu internet.';
+                errEl.style.display = 'block';
+            }
         }
 
-        btn.disabled = false;
-        btn.textContent = 'ENVIAR SOLICITUD';
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'ENVIAR SOLICITUD';
+        }
     });
 }
 
@@ -539,4 +657,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Auto refresh rankings every 5 minutes
     setInterval(loadPSRanking, 5 * 60 * 1000);
+
+    // Refresh when user returns to the tab
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            loadPSRanking();
+        }
+    });
 });

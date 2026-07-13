@@ -373,15 +373,36 @@ footer {
     .footer-bottom p {
         font-size: 11px;
     }
-    
-    .card-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
+}
+
+/* ===== SKELETON ANIMATION AND STYLES ===== */
+@keyframes skeleton-pulse {
+    0% {
+        opacity: 0.55;
+        background-color: #121212;
     }
-    
-    .convocatoria-link {
-        text-decoration: none;
-        color: #fff;
+    50% {
+        opacity: 1;
+        background-color: #1b1b1b;
+    }
+    100% {
+        opacity: 0.55;
+        background-color: #121212;
     }
 }
+
+.skeleton {
+    animation: skeleton-pulse 1.8s infinite ease-in-out;
+    border-color: rgba(255, 255, 255, 0.04) !important;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Smooth transitions for content updates */
+.ranking-podium,
+.jobs-grid,
+.conductores-stats,
+#drivers-grid {
+    transition: opacity 0.25s ease-in-out;
+}
+

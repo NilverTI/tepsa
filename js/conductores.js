@@ -83,27 +83,32 @@ function renderDrivers() {
     const sorted = [...filtered].sort(getSortFn(currentSort));
 
     if (!sorted.length) {
-        grid.innerHTML = `<div class="no-results"><h3>Sin resultados</h3><p>No se encontraron conductores.</p></div>`;
+        const noResultsHtml = `<div class="no-results"><h3>Sin resultados</h3><p>No se encontraron conductores.</p></div>`;
+        if (grid.querySelector(".skeleton") || grid.innerHTML.trim() === "") {
+            grid.innerHTML = noResultsHtml;
+        } else {
+            smoothUpdate(grid, noResultsHtml);
+        }
         if (statusEl) statusEl.textContent = "0 conductores encontrados";
         return;
     }
 
-    grid.innerHTML = sorted.map((driver, index) => {
+    const html = sorted.map((driver, index) => {
         const pos = index + 1;
         const dotClass = getStatusDotClass(driver);
-        const hasAvatar = driver.avatar && driver.avatar.startsWith("http");
-        const avatarImg = hasAvatar
-            ? `<img src="${escapeHtml(driver.avatar)}" alt="${escapeHtml(driver.name)}" loading="lazy" onerror="this.parentElement.innerHTML=this.parentElement.getAttribute('data-fallback')">`
-            : '';
         const initials = getDriverInitials(driver.name);
-        const avatarContent = hasAvatar ? avatarImg : escapeHtml(initials);
+        const hasAvatar = driver.avatar && driver.avatar.startsWith("http");
+        const avatarContent = hasAvatar
+            ? `<img src="${escapeHtml(driver.avatar)}" alt="${escapeHtml(driver.name)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+               <span style="display:none;">${escapeHtml(initials)}</span>`
+            : escapeHtml(initials);
 
         return `
         <div class="driver-card">
             <div class="card-top">
                 <div class="driver-info">
                     <div class="driver-avatar-wrap">
-                        <div class="driver-avatar" data-fallback="${escapeHtml(initials)}">${avatarContent}</div>
+                        <div class="driver-avatar">${avatarContent}</div>
                     </div>
                     <div class="driver-meta">
                         <div class="name-row">
@@ -145,6 +150,12 @@ function renderDrivers() {
         </div>`;
     }).join("");
 
+    if (grid.querySelector(".skeleton") || grid.innerHTML.trim() === "" || grid.style.opacity === "0.3") {
+        grid.innerHTML = html;
+    } else {
+        smoothUpdate(grid, html);
+    }
+
     const sortLabel = { km: "kilometraje", damage: "menor daño", points: "puntos", name: "nombre" };
     if (statusEl) {
         const statusText = currentStatus === "all" ? "Todos" : currentStatus === "active" ? "Activos" : "Inactivos";
@@ -154,6 +165,51 @@ function renderDrivers() {
 
 const CACHE_KEY = "tepsa_conductores_v3";
 const CACHE_TTL = 5 * 60 * 1000;
+
+let activeConductoresFetchPromise = null;
+
+function smoothUpdate(element, newHtml) {
+    if (!element) return;
+    element.style.opacity = "0.3";
+    setTimeout(() => {
+        element.innerHTML = newHtml;
+        element.style.opacity = "1";
+    }, 250);
+}
+
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return "hace un momento";
+    const diffMs = Date.now() - new Date(timestamp).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return "hace un momento";
+    if (diffMins === 1) return "hace 1 minuto";
+    return `hace ${diffMins} minutos`;
+}
+
+function renderDriversSkeletons() {
+    const grid = document.getElementById("drivers-grid");
+    if (!grid) return;
+    grid.innerHTML = Array.from({ length: 8 }).map(() => `
+        <div class="driver-card skeleton" style="display: flex; flex-direction: column; gap: 15px; padding: 20px; border-radius: 14px; background: #161616; border: 1px solid #222; height: 210px;">
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: #2a2a2a;"></div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                    <div style="width: 60%; height: 14px; background: #2a2a2a; border-radius: 4px;"></div>
+                    <div style="width: 40%; height: 11px; background: #2a2a2a; border-radius: 4px;"></div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0;">
+                <div style="height: 40px; background: #2a2a2a; border-radius: 8px;"></div>
+                <div style="height: 40px; background: #2a2a2a; border-radius: 8px;"></div>
+                <div style="height: 40px; background: #2a2a2a; border-radius: 8px;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="width: 30%; height: 11px; background: #2a2a2a; border-radius: 4px;"></div>
+                <div style="width: 15%; height: 14px; background: #2a2a2a; border-radius: 4px;"></div>
+            </div>
+        </div>
+    `).join("");
+}
 
 function getCache() {
     try {
@@ -239,21 +295,6 @@ function transformTruckyMember(m, monthStats) {
     };
 }
 
-function applyData(data, source) {
-    allDrivers = (data.ranking || []).filter(d => d.role?.toLowerCase() !== "owner");
-    renderStats(data.stats);
-    renderDrivers();
-    setCache(data);
-    const statusEl = document.getElementById("data-status");
-    if (statusEl) statusEl.textContent = `Trucky Hub · ${allDrivers.length} miembros · ${source}`;
-}
-
-async function tryFetch(url) {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-}
-
 async function fetchFresh() {
     const errors = [];
     const urls = [
@@ -266,8 +307,7 @@ async function fetchFresh() {
     for (const url of urls) {
         try {
             const d = await tryFetch(url);
-            applyData(d, "Servidor");
-            return;
+            return d;
         } catch {
             errors.push(url);
             continue;
@@ -283,8 +323,7 @@ async function fetchFresh() {
         const ranking = members.map(m => transformTruckyMember(m, monthStats)).sort((a, b) => b.kilometers - a.kilometers);
         const totalKm = ranking.reduce((s, d) => s + d.kilometers, 0);
         const active = ranking.filter(d => d.lastJobDays <= 7).length;
-        applyData({ ranking, stats: { kilometers: totalKm, drivers: ranking.filter(d => d.kilometers > 0).length, active } }, "Trucky directo");
-        return;
+        return { ranking, stats: { kilometers: totalKm, drivers: ranking.filter(d => d.kilometers > 0).length, active } };
     } catch {
         errors.push("Trucky directo");
     }
@@ -292,59 +331,100 @@ async function fetchFresh() {
 }
 
 async function loadData(force) {
-    const cached = getCache();
+    let cached = null;
+    let cacheTime = null;
+    try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (raw) {
+            const entry = JSON.parse(raw);
+            cached = entry.data;
+            cacheTime = entry.ts;
+        }
+    } catch (e) {}
+
+    const statusEl = document.getElementById("data-status");
+
     if (cached) {
         allDrivers = (cached.ranking || []).filter(d => d.role?.toLowerCase() !== "owner");
         renderStats(cached.stats);
         renderDrivers();
-        const statusEl = document.getElementById("data-status");
         if (statusEl) {
-            statusEl.textContent = `📡 Datos en caché · ${allDrivers.length} miembros`;
+            statusEl.textContent = `📡 Datos locales · Actualizado: ${formatTimeAgo(cacheTime)}`;
+        }
+
+        if (cacheTime && (Date.now() - cacheTime < CACHE_TTL) && !force) {
+            return;
         }
     } else {
-        // Carga inmediata de datos de respaldo
-        allDrivers = [
-            { name: "[TPS]SABROSAURIO", kilometers: 43400, damage: 3263, totalJobs: 78, points: 63897, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Administrador", avatar: "", level: 8, country: "PE", cargoMass: 663, revenue: 34542506 },
-            { name: "[TPS] Cristofer Jonathan QM", kilometers: 35229, damage: 3289, totalJobs: 51, points: 36230, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 6, country: "", cargoMass: 350, revenue: 28848413 },
-            { name: "[TPS] Lexus", kilometers: 27203, damage: 16448, totalJobs: 27, points: 30305, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 155, revenue: 13398366 },
-            { name: "[TPS] Joker", kilometers: 26369, damage: 3355, totalJobs: 64, points: 41526, lastJob: "hace 3 días", lastJobDays: 3, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 388, revenue: 27920645 },
-            { name: "[ TPS ] KEVIN", kilometers: 22888, damage: 1928, totalJobs: 32, points: 24089, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Conductor", avatar: "", level: 5, country: "", cargoMass: 212, revenue: 19590207 },
-            { name: "[TPS]KIRITO", kilometers: 20512, damage: 416, totalJobs: 33, points: 23113, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "", level: 5, country: "", cargoMass: 238, revenue: 15645932 },
-            { name: "[TPS] Johan-19", kilometers: 16337, damage: 12929, totalJobs: 31, points: 19138, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 170, revenue: 14940683 },
-            { name: "[TPS] Angel", kilometers: 15896, damage: 3610, totalJobs: 22, points: 18097, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 127, revenue: 13414766 },
-            { name: "[TPS]KANIEL_OUT", kilometers: 9452, damage: 569, totalJobs: 15, points: 11424, lastJob: "hace 19 días", lastJobDays: 19, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "PE", cargoMass: 101, revenue: 8326510 },
-            { name: "[TPS]RENZITO", kilometers: 6362, damage: 2124, totalJobs: 15, points: 7963, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 64, revenue: 5282808 },
-            { name: "[TPS]EMPERADOR", kilometers: 3719, damage: 1625, totalJobs: 10, points: 4119, lastJob: "hace 16 días", lastJobDays: 16, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 34, revenue: 3037086 },
-            { name: "banco bcp", kilometers: 2606, damage: 1146, totalJobs: 9, points: 4567, lastJob: "hace 35 días", lastJobDays: 35, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 79, revenue: 2052853 },
-            { name: "[TPS] juan david", kilometers: 1850, damage: 308, totalJobs: 5, points: 7981, lastJob: "hoy", lastJobDays: 0, rank: "novato", role: "Conductor", avatar: "", level: 3, country: "", cargoMass: 32, revenue: 781421 },
-        ];
-        const totalKm = allDrivers.reduce((s, d) => s + d.kilometers, 0);
-        const active = allDrivers.filter(d => d.lastJobDays <= 7).length;
-        renderStats({ kilometers: totalKm, drivers: allDrivers.length, active });
-        renderDrivers();
-        const statusEl = document.getElementById("data-status");
+        renderDriversSkeletons();
         if (statusEl) {
-            statusEl.textContent = "Cargando datos frescos...";
+            statusEl.textContent = "⏳ Cargando datos del servidor...";
         }
     }
 
-    try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        if (raw && !force) {
-            const entry = JSON.parse(raw);
-            if (Date.now() - entry.ts < CACHE_TTL) {
-                return;
-            }
-        }
-    } catch (e) { }
+    if (activeConductoresFetchPromise) {
+        try {
+            await activeConductoresFetchPromise;
+        } catch (e) {}
+        return;
+    }
+
+    let data = null;
+    activeConductoresFetchPromise = fetchFresh();
 
     try {
-        await fetchFresh();
+        data = await activeConductoresFetchPromise;
     } catch (e) {
-        console.error("loadData: error al actualizar en segundo plano", e);
-        const statusEl = document.getElementById("data-status");
-        if (statusEl) {
-            statusEl.textContent = cached ? `📡 Datos en caché (error al actualizar)` : "Sin conexión. Mostrando datos de respaldo.";
+        console.error("loadData fetch error:", e);
+    } finally {
+        activeConductoresFetchPromise = null;
+    }
+
+    if (data) {
+        const isChanged = !cached ||
+            JSON.stringify(cached.stats) !== JSON.stringify(data.stats) ||
+            JSON.stringify(cached.ranking) !== JSON.stringify(data.ranking);
+
+        setCache(data);
+
+        allDrivers = (data.ranking || []).filter(d => d.role?.toLowerCase() !== "owner");
+        
+        if (isChanged) {
+            renderStats(data.stats);
+            renderDrivers();
+        } else {
+            if (statusEl) {
+                statusEl.textContent = `📡 Datos actualizados · ${allDrivers.length} miembros`;
+            }
+        }
+    } else {
+        if (cached) {
+            if (statusEl) {
+                statusEl.textContent = `⚠️ Mostrando datos guardados. Última actualización: ${formatTimeAgo(cacheTime)}`;
+            }
+        } else {
+            allDrivers = [
+                { name: "[TPS]SABROSAURIO", kilometers: 43400, damage: 3263, totalJobs: 78, points: 63897, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Administrador", avatar: "https://cdn.truckyapp.com/public/users/262175/yS9Jl3fpMP9x0UwHGZ2Q.png", level: 8, country: "PE", cargoMass: 663, revenue: 34542506 },
+                { name: "[TPS] Cristofer Jonathan QM", kilometers: 35229, damage: 3289, totalJobs: 51, points: 36230, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "https://avatars.steamstatic.com/c3f55192adc55003cf213ef22fb2fa948f255e66_full.jpg", level: 6, country: "", cargoMass: 350, revenue: 28848413 },
+                { name: "[TPS] Lexus", kilometers: 27203, damage: 16448, totalJobs: 27, points: 30305, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Conductor", avatar: "https://avatars.steamstatic.com/afbd9b7d1fcb595c2af3a889126eb2d633da0643_full.jpg", level: 6, country: "", cargoMass: 155, revenue: 13398366 },
+                { name: "[TPS] Joker", kilometers: 26369, damage: 3355, totalJobs: 64, points: 41526, lastJob: "hace 3 días", lastJobDays: 3, rank: "Veterano", role: "Conductor", avatar: "", level: 6, country: "", cargoMass: 388, revenue: 27920645 },
+                { name: "[ TPS ] KEVIN", kilometers: 22888, damage: 1928, totalJobs: 32, points: 24089, lastJob: "hoy", lastJobDays: 0, rank: "Veterano", role: "Conductor", avatar: "https://avatars.steamstatic.com/7b66986ac882de1f95b9b947e85e7fac32a5d02e_full.jpg", level: 5, country: "", cargoMass: 212, revenue: 19590207 },
+                { name: "[TPS]KIRITO", kilometers: 20512, damage: 416, totalJobs: 33, points: 23113, lastJob: "ayer", lastJobDays: 1, rank: "Veterano", role: "Moderador", avatar: "https://cdn.truckyapp.com/public/users/264396/MZLTiXQQkRCC20bZ2WT4.jpg", level: 5, country: "", cargoMass: 238, revenue: 15645932 },
+                { name: "[TPS] Johan-19", kilometers: 16337, damage: 12929, totalJobs: 31, points: 19138, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "", level: 4, country: "", cargoMass: 170, revenue: 14940683 },
+                { name: "[TPS] Angel", kilometers: 15896, damage: 3610, totalJobs: 22, points: 18097, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "https://cdn.truckyapp.com/public/users/273992/WZnmQpZBkGQUE298GDyh.jpeg", level: 4, country: "", cargoMass: 127, revenue: 13414766 },
+                { name: "[TPS]KANIEL_OUT", kilometers: 9452, damage: 569, totalJobs: 15, points: 11424, lastJob: "hace 19 días", lastJobDays: 19, rank: "Conductor", role: "Conductor", avatar: "", level: 3, country: "PE", cargoMass: 101, revenue: 8326510 },
+                { name: "[TPS]RENZITO", kilometers: 6362, damage: 2124, totalJobs: 15, points: 7963, lastJob: "hoy", lastJobDays: 0, rank: "Conductor", role: "Conductor", avatar: "https://avatars.steamstatic.com/20350153c82aa90d7dcf947e103eb16593597d49_full.jpg", level: 3, country: "", cargoMass: 64, revenue: 5282808 },
+                { name: "[TPS]EMPERADOR", kilometers: 3719, damage: 1625, totalJobs: 10, points: 4119, lastJob: "hace 16 días", lastJobDays: 16, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 34, revenue: 3037086 },
+                { name: "banco bcp", kilometers: 2606, damage: 1146, totalJobs: 9, points: 4567, lastJob: "hace 35 días", lastJobDays: 35, rank: "novato", role: "Conductor", avatar: "", level: 2, country: "", cargoMass: 79, revenue: 2052853 },
+                { name: "[TPS] juan david", kilometers: 1850, damage: 308, totalJobs: 5, points: 7981, lastJob: "hoy", lastJobDays: 0, rank: "novato", role: "Conductor", avatar: "https://avatars.steamstatic.com/05abc1a0da733e816b15973c762a2fdd511a3274_full.jpg", level: 3, country: "", cargoMass: 32, revenue: 781421 },
+            ];
+            const totalKm = allDrivers.reduce((s, d) => s + d.kilometers, 0);
+            const active = allDrivers.filter(d => d.lastJobDays <= 7).length;
+            renderStats({ kilometers: totalKm, drivers: allDrivers.length, active });
+            renderDrivers();
+            if (statusEl) {
+                statusEl.textContent = "Sin conexión. Mostrando datos de respaldo.";
+            }
         }
     }
 }
@@ -394,15 +474,15 @@ function openPhotosModal(name) {
     if (!modal) return;
     activeModalDriver = name;
     currentGalleryPage = 1;
-    modalDriverName.textContent = `Galería de ${name}`;
+    if (modalDriverName) modalDriverName.textContent = `Galería de ${name}`;
     modal.style.display = "flex";
     setTimeout(() => modal.classList.add("show"), 10);
 
     const savedPw = localStorage.getItem(`tepsa:driver-pw:${activeModalDriver}`);
     if (savedPw) {
-        btnOpenAuthModal.innerHTML = `<span>🔓</span> Subir Captura`;
+        if (btnOpenAuthModal) btnOpenAuthModal.innerHTML = `<span>🔓</span> Subir Captura`;
     } else {
-        btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
+        if (btnOpenAuthModal) btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
     }
 
     fetchPhotos(name, 1);
@@ -420,19 +500,19 @@ function openAuthModal() {
 
     const savedPw = localStorage.getItem(`tepsa:driver-pw:${activeModalDriver}`);
     if (savedPw) {
-        loginFormState.style.display = "none";
-        uploadFormState.style.display = "block";
-        uploadActiveDriverText.textContent = activeModalDriver;
-        uploadImageUrlInput.value = "";
-        uploadDescInput.value = "";
-        uploadPopupError.style.display = "none";
-        uploadPopupSuccess.style.display = "none";
+        if (loginFormState) loginFormState.style.display = "none";
+        if (uploadFormState) uploadFormState.style.display = "block";
+        if (uploadActiveDriverText) uploadActiveDriverText.textContent = activeModalDriver;
+        if (uploadImageUrlInput) uploadImageUrlInput.value = "";
+        if (uploadDescInput) uploadDescInput.value = "";
+        if (uploadPopupError) uploadPopupError.style.display = "none";
+        if (uploadPopupSuccess) uploadPopupSuccess.style.display = "none";
     } else {
-        loginFormState.style.display = "block";
-        uploadFormState.style.display = "none";
-        loginUsernameInput.value = activeModalDriver;
-        loginPasswordInput.value = "";
-        loginPopupError.style.display = "none";
+        if (loginFormState) loginFormState.style.display = "block";
+        if (uploadFormState) uploadFormState.style.display = "none";
+        if (loginUsernameInput) loginUsernameInput.value = activeModalDriver;
+        if (loginPasswordInput) loginPasswordInput.value = "";
+        if (loginPopupError) loginPopupError.style.display = "none";
     }
 
     authModal.style.display = "flex";
@@ -618,33 +698,33 @@ document.addEventListener("DOMContentLoaded", () => {
     // Login Form Submit
     popupLoginForm?.addEventListener("submit", (e) => {
         e.preventDefault();
-        const name = loginUsernameInput.value.trim();
-        const password = loginPasswordInput.value.trim();
+        const name = loginUsernameInput ? loginUsernameInput.value.trim() : "";
+        const password = loginPasswordInput ? loginPasswordInput.value.trim() : "";
 
         if (!name || !password) return;
 
         localStorage.setItem(`tepsa:driver-pw:${name}`, password);
-        btnOpenAuthModal.innerHTML = `<span>🔓</span> Subir Captura`;
+        if (btnOpenAuthModal) btnOpenAuthModal.innerHTML = `<span>🔓</span> Subir Captura`;
 
-        loginFormState.style.display = "none";
-        uploadFormState.style.display = "block";
-        uploadActiveDriverText.textContent = name;
-        uploadImageUrlInput.value = "";
-        uploadDescInput.value = "";
-        uploadPopupError.style.display = "none";
-        uploadPopupSuccess.style.display = "none";
+        if (loginFormState) loginFormState.style.display = "none";
+        if (uploadFormState) uploadFormState.style.display = "block";
+        if (uploadActiveDriverText) uploadActiveDriverText.textContent = name;
+        if (uploadImageUrlInput) uploadImageUrlInput.value = "";
+        if (uploadDescInput) uploadDescInput.value = "";
+        if (uploadPopupError) uploadPopupError.style.display = "none";
+        if (uploadPopupSuccess) uploadPopupSuccess.style.display = "none";
     });
 
     // Logout Link
     linkLogout?.addEventListener("click", (e) => {
         e.preventDefault();
         localStorage.removeItem(`tepsa:driver-pw:${activeModalDriver}`);
-        btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
+        if (btnOpenAuthModal) btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
 
-        loginFormState.style.display = "block";
-        uploadFormState.style.display = "none";
-        loginUsernameInput.value = activeModalDriver;
-        loginPasswordInput.value = "";
+        if (loginFormState) loginFormState.style.display = "block";
+        if (uploadFormState) uploadFormState.style.display = "none";
+        if (loginUsernameInput) loginUsernameInput.value = activeModalDriver;
+        if (loginPasswordInput) loginPasswordInput.value = "";
     });
 
     // Upload Capture Form Submit
@@ -652,17 +732,21 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
 
         const password = localStorage.getItem(`tepsa:driver-pw:${activeModalDriver}`) || "";
-        const url = uploadImageUrlInput.value.trim();
-        const description = uploadDescInput.value.trim();
+        const url = uploadImageUrlInput ? uploadImageUrlInput.value.trim() : "";
+        const description = uploadDescInput ? uploadDescInput.value.trim() : "";
 
         if (!password || !url || !description) {
-            uploadPopupError.textContent = "Falta contraseña o campos requeridos. Por favor inicia sesión de nuevo.";
-            uploadPopupError.style.display = "block";
+            if (uploadPopupError) {
+                uploadPopupError.textContent = "Falta contraseña o campos requeridos. Por favor inicia sesión de nuevo.";
+                uploadPopupError.style.display = "block";
+            }
             return;
         }
 
-        btnSubmitPopupUpload.disabled = true;
-        btnSubmitPopupUpload.textContent = "Publicando...";
+        if (btnSubmitPopupUpload) {
+            btnSubmitPopupUpload.disabled = true;
+            btnSubmitPopupUpload.textContent = "Publicando...";
+        }
         try {
             let apiUrl = "/api/galeria/upload";
             if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
@@ -690,7 +774,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     if (response.status === 401) {
                         localStorage.removeItem(`tepsa:driver-pw:${activeModalDriver}`);
-                        btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
+                        if (btnOpenAuthModal) btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
                         throw new Error("Contraseña incorrecta. Por favor, vuelve a ingresar tu contraseña.");
                     }
                     useDirectUploadFallback = true;
@@ -728,7 +812,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     if (authData[0].password !== password) {
                         localStorage.removeItem(`tepsa:driver-pw:${activeModalDriver}`);
-                        btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
+                        if (btnOpenAuthModal) btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
                         throw new Error("Contraseña incorrecta. Por favor, vuelve a ingresar tu contraseña.");
                     }
                 }
@@ -750,10 +834,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 resData = { success: true };
             }
 
-            uploadPopupSuccess.textContent = "¡Captura publicada con éxito!";
-            uploadPopupSuccess.style.display = "block";
-            uploadImageUrlInput.value = "";
-            uploadDescInput.value = "";
+            if (uploadPopupSuccess) {
+                uploadPopupSuccess.textContent = "¡Captura publicada con éxito!";
+                uploadPopupSuccess.style.display = "block";
+            }
+            if (uploadImageUrlInput) uploadImageUrlInput.value = "";
+            if (uploadDescInput) uploadDescInput.value = "";
 
             setTimeout(() => {
                 closeAuthModal();
@@ -762,23 +848,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error("Subida fallida:", err);
-            uploadPopupError.textContent = err.message;
-            uploadPopupError.style.display = "block";
+            if (uploadPopupError) {
+                uploadPopupError.textContent = err.message;
+                uploadPopupError.style.display = "block";
+            }
 
             if (err.message.includes("Contraseña incorrecta")) {
                 setTimeout(() => {
-                    loginFormState.style.display = "block";
-                    uploadFormState.style.display = "none";
-                    loginUsernameInput.value = activeModalDriver;
-                    loginPasswordInput.value = "";
-                    loginPopupError.textContent = err.message;
-                    loginPopupError.style.display = "block";
-                    uploadPopupError.style.display = "none";
+                    if (loginFormState) loginFormState.style.display = "block";
+                    if (uploadFormState) uploadFormState.style.display = "none";
+                    if (loginUsernameInput) loginUsernameInput.value = activeModalDriver;
+                    if (loginPasswordInput) loginPasswordInput.value = "";
+                    if (loginPopupError) {
+                        loginPopupError.textContent = err.message;
+                        loginPopupError.style.display = "block";
+                    }
+                    if (uploadPopupError) uploadPopupError.style.display = "none";
                 }, 1000);
             }
         } finally {
-            btnSubmitPopupUpload.disabled = false;
-            btnSubmitPopupUpload.textContent = "Publicar Captura";
+            if (btnSubmitPopupUpload) {
+                btnSubmitPopupUpload.disabled = false;
+                btnSubmitPopupUpload.textContent = "Publicar Captura";
+            }
         }
     });
 
