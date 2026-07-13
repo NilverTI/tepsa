@@ -870,7 +870,7 @@
   <div id="driverPhotosModal" class="photos-modal">
     <div class="photos-modal-content">
       <button class="photos-modal-close" id="closePhotosModal">&times;</button>
-      
+
       <!-- Encabezado del Modal -->
       <div class="modal-header">
         <h2 id="modalDriverName">Galería del Conductor</h2>
@@ -895,11 +895,12 @@
   <div id="driverAuthModal" class="auth-popup-modal">
     <div class="auth-popup-content">
       <button class="auth-popup-close" id="closeAuthModal">&times;</button>
-      
+
       <!-- Avatar circular superior -->
       <div class="login-avatar-wrap">
         <svg viewBox="0 0 24 24">
-          <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A3,3 0 0,1 15,7A3,3 0 0,1 12,10A3,3 0 0,1 9,7A3,3 0 0,1 12,4M12,20C9.97,20 8.2,18.83 7.28,17.12C7.3,15.5 10.5,14.6 12,14.6C13.5,14.6 16.7,15.5 16.72,17.12C15.8,18.83 14.03,20 12,20Z" />
+          <path
+            d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A3,3 0 0,1 15,7A3,3 0 0,1 12,10A3,3 0 0,1 9,7A3,3 0 0,1 12,4M12,20C9.97,20 8.2,18.83 7.28,17.12C7.3,15.5 10.5,14.6 12,14.6C13.5,14.6 16.7,15.5 16.72,17.12C15.8,18.83 14.03,20 12,20Z" />
         </svg>
       </div>
 
@@ -910,7 +911,7 @@
             <span class="input-icon">👤</span>
             <input type="text" id="loginUsernameInput" placeholder="Nombre de Conductor" required>
           </div>
-          
+
           <div class="login-input-group">
             <span class="input-icon">🔒</span>
             <input type="password" id="loginPasswordInput" placeholder="Contraseña de Acceso" required>
@@ -924,22 +925,28 @@
       <!-- ESTADO B: Formulario de Subida (Una vez autenticado) -->
       <div id="uploadFormState" style="display: none;">
         <form id="popupUploadForm">
-          <p class="upload-state-title">Subir captura para <strong id="uploadActiveDriverText" style="color: #ff2d2d;"></strong></p>
-          
+          <p class="upload-state-title">Subir captura para <strong id="uploadActiveDriverText"
+              style="color: #ff2d2d;"></strong></p>
+
           <div class="login-input-group">
             <span class="input-icon">🔗</span>
-            <input type="url" id="uploadImageUrlInput" placeholder="Enlace de la Imagen (Directo, Drive, Imgur...)" required>
+            <input type="url" id="uploadImageUrlInput" placeholder="Enlace de la Imagen (Directo, Drive, Imgur...)"
+              required>
           </div>
-          
+
           <div class="login-input-group">
             <span class="input-icon">📝</span>
-            <input type="text" id="uploadDescInput" placeholder="Descripción (máx. 120 caracteres)" maxlength="120" required>
+            <input type="text" id="uploadDescInput" placeholder="Descripción (máx. 120 caracteres)" maxlength="120"
+              required>
           </div>
 
           <button type="submit" id="btnSubmitPopupUpload" class="login-submit">Publicar Captura</button>
           <div id="uploadPopupError" class="form-error-global" style="display:none; margin-top: 15px;"></div>
-          <div id="uploadPopupSuccess" class="form-success-global" style="display:none; margin-top: 15px; text-align: center; color: #4ecdc4; font-weight: 500;"></div>
-          <a href="#" id="linkLogout" style="display: block; text-align: center; font-size: 11px; color: #555; margin-top: 15px; text-decoration: none; transition: color .2s;">Cerrar Sesión / Cambiar Contraseña</a>
+          <div id="uploadPopupSuccess" class="form-success-global"
+            style="display:none; margin-top: 15px; text-align: center; color: #4ecdc4; font-weight: 500;"></div>
+          <a href="#" id="linkLogout"
+            style="display: block; text-align: center; font-size: 11px; color: #555; margin-top: 15px; text-decoration: none; transition: color .2s;">Cerrar
+            Sesión / Cambiar Contraseña</a>
         </form>
       </div>
 
@@ -1230,7 +1237,7 @@
         "http://127.0.0.1:3001/api/trucky/conductores",
         "https://tepsa.vercel.app/api/trucky/conductores"
       ];
-      
+
       for (const url of urls) {
         try {
           const d = await tryFetch(url);
@@ -1241,7 +1248,7 @@
           continue;
         }
       }
-      
+
       try {
         const [raw, monthStats] = await Promise.all([
           tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
@@ -1345,25 +1352,25 @@
     const modalDriverName = document.getElementById("modalDriverName");
     const galleryPhotosGrid = document.getElementById("galleryPhotosGrid");
     const galleryPagination = document.getElementById("galleryPagination");
-    
+
     // Auth Modal
     const authModal = document.getElementById("driverAuthModal");
     const btnOpenAuthModal = document.getElementById("btnOpenAuthModal");
     const closeAuthModalBtn = document.getElementById("closeAuthModal");
     const loginFormState = document.getElementById("loginFormState");
     const uploadFormState = document.getElementById("uploadFormState");
-    
+
     // Forms
     const popupLoginForm = document.getElementById("popupLoginForm");
     const popupUploadForm = document.getElementById("popupUploadForm");
-    
+
     // Inputs
     const loginUsernameInput = document.getElementById("loginUsernameInput");
     const loginPasswordInput = document.getElementById("loginPasswordInput");
     const uploadImageUrlInput = document.getElementById("uploadImageUrlInput");
     const uploadDescInput = document.getElementById("uploadDescInput");
     const uploadActiveDriverText = document.getElementById("uploadActiveDriverText");
-    
+
     // Buttons & Status
     const btnSubmitLogin = document.getElementById("btnSubmitLogin");
     const btnSubmitPopupUpload = document.getElementById("btnSubmitPopupUpload");
@@ -1388,7 +1395,7 @@
       modalDriverName.textContent = `Galería de ${name}`;
       modal.style.display = "flex";
       setTimeout(() => modal.classList.add("show"), 10);
-      
+
       // Update lock icon text based on login state
       const savedPw = localStorage.getItem(`tepsa:driver-pw:${activeModalDriver}`);
       if (savedPw) {
@@ -1409,7 +1416,7 @@
 
     function openAuthModal() {
       if (!authModal) return;
-      
+
       const savedPw = localStorage.getItem(`tepsa:driver-pw:${activeModalDriver}`);
       if (savedPw) {
         // Ir directo a la vista de subida
@@ -1457,7 +1464,7 @@
 
         let res, data;
         let useDirectFallback = false;
-        
+
         try {
           res = await fetch(apiUrl);
           if (res.ok) {
@@ -1473,7 +1480,7 @@
         if (useDirectFallback || !data || !data.success) {
           const supabaseUrl = "https://natrscfdveztkerxyhoc.supabase.co";
           const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
-          
+
           const limit = 12;
           const offset = (page - 1) * limit;
           const dbUrl = `${supabaseUrl}/rest/v1/fotos_conductores?driver_name=eq.${encodeURIComponent(driverName)}&order=created_at.desc&limit=${limit}&offset=${offset}`;
@@ -1635,7 +1642,7 @@
       e.preventDefault();
       localStorage.removeItem(`tepsa:driver-pw:${activeModalDriver}`);
       btnOpenAuthModal.innerHTML = `<span>🔒</span> Subir (Login)`;
-      
+
       // Regresar a login
       loginFormState.style.display = "block";
       uploadFormState.style.display = "none";
@@ -1646,7 +1653,7 @@
     // Formulario de Subida
     popupUploadForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
-      
+
       const password = localStorage.getItem(`tepsa:driver-pw:${activeModalDriver}`) || "";
       const url = uploadImageUrlInput.value.trim();
       const description = uploadDescInput.value.trim();
@@ -1659,7 +1666,7 @@
 
       btnSubmitPopupUpload.disabled = true;
       btnSubmitPopupUpload.textContent = "Publicando...";
-      uploadPopup      try {
+      try {
         let apiUrl = "/api/galeria/upload";
         if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
           if (window.location.port && window.location.port !== "3000") {
@@ -1763,7 +1770,7 @@
         console.error("Subida fallida:", err);
         uploadPopupError.textContent = err.message;
         uploadPopupError.style.display = "block";
-        
+
         // Si fue error de contraseña, regresar al login
         if (err.message.includes("Contraseña incorrecta")) {
           setTimeout(() => {
