@@ -313,45 +313,53 @@ async function loadTruckyData(force) {
     let data = null;
 
     activeTruckyFetchPromise = (async () => {
-        let apiUrl = "/api/trucky/conductores";
-        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-            if (window.location.port && window.location.port !== "3000") {
-                apiUrl = "http://127.0.0.1:3000/api/trucky/conductores";
-            }
-        }
+        const urls = [
+            "/api/trucky/conductores",
+            "http://127.0.0.1:3000/api/trucky/conductores",
+            "http://127.0.0.1:3001/api/trucky/conductores",
+            "https://tepsa.vercel.app/api/trucky/conductores"
+        ];
 
         let fetchedData = null;
-        try {
-            const d = await tryFetch(apiUrl);
-            fetchedData = {
-                source: "trucky",
-                updatedAt: new Date().toISOString(),
-                stats: d.stats || {},
-                ranking: (d.ranking || []).map(transformMember),
-                recentJobs: d.recentJobs || [],
-            };
-        } catch (e) {
-            console.warn("loadTruckyData: falló API proxy, probando alternativa...", e);
-            if (!apiUrl.includes("3000") && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
-                try {
-                    const d = await tryFetch("http://127.0.0.1:3000/api/trucky/conductores");
-                    fetchedData = {
-                        source: "trucky",
-                        updatedAt: new Date().toISOString(),
-                        stats: d.stats || {},
-                        ranking: (d.ranking || []).map(transformMember),
-                        recentJobs: d.recentJobs || [],
-                    };
-                } catch (err) {}
+
+        const promises = urls.map(async (url) => {
+            const isLocal = url.startsWith("/") || url.includes("127.0.0.1") || url.includes("localhost");
+            const timeoutMs = isLocal ? 1500 : 8000;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const res = await fetch(url, { cache: "no-store", signal: controller.signal });
+                clearTimeout(id);
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                const d = await res.json();
+                return {
+                    source: "trucky",
+                    updatedAt: new Date().toISOString(),
+                    stats: d.stats || {},
+                    ranking: (d.ranking || []).map(transformMember),
+                    recentJobs: d.recentJobs || [],
+                };
+            } catch (err) {
+                clearTimeout(id);
+                throw err;
             }
+        });
+
+        try {
+            fetchedData = await Promise.any(promises);
+        } catch (e) {
+            console.warn("loadTruckyData: falló API proxy, probando alternativa directa...");
         }
 
         if (!fetchedData) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), 8000);
             try {
                 const [raw, monthStats] = await Promise.all([
-                    tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
+                    fetch("https://e.truckyapp.com/api/v1/company/44302/members", { cache: "no-store", signal: controller.signal }).then(r => r.json()),
                     fetchMonthJobs(),
                 ]);
+                clearTimeout(id);
                 const members = (raw.data || [])
                     .map(m => {
                         const name = m.name || "Sin nombre";
@@ -387,6 +395,7 @@ async function loadTruckyData(force) {
                     recentJobs: [],
                 };
             } catch (e) {
+                clearTimeout(id);
                 console.error("loadTruckyData: todos los orígenes fallaron en segundo plano", e);
             }
         }

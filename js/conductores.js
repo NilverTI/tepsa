@@ -302,7 +302,6 @@ function transformTruckyMember(m, monthStats) {
 }
 
 async function fetchFresh() {
-    const errors = [];
     const urls = [
         "/api/trucky/conductores",
         "http://127.0.0.1:3000/api/trucky/conductores",
@@ -310,30 +309,47 @@ async function fetchFresh() {
         "https://tepsa.vercel.app/api/trucky/conductores"
     ];
 
-    for (const url of urls) {
+    const promises = urls.map(async (url) => {
+        const isLocal = url.startsWith("/") || url.includes("127.0.0.1") || url.includes("localhost");
+        const timeoutMs = isLocal ? 1500 : 8000;
+        
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeoutMs);
+        
         try {
-            const d = await tryFetch(url);
-            return d;
-        } catch {
-            errors.push(url);
-            continue;
+            const res = await fetch(url, { cache: "no-store", signal: controller.signal });
+            clearTimeout(id);
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return await res.json();
+        } catch (err) {
+            clearTimeout(id);
+            throw err;
         }
-    }
+    });
 
     try {
+        return await Promise.any(promises);
+    } catch (err) {
+        console.warn("All primary URLs failed or timed out, trying direct Trucky backup...");
+    }
+
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 8000);
+    try {
         const [raw, monthStats] = await Promise.all([
-            tryFetch("https://e.truckyapp.com/api/v1/company/44302/members"),
+            fetch("https://e.truckyapp.com/api/v1/company/44302/members", { cache: "no-store", signal: controller.signal }).then(r => r.json()),
             fetchMonthJobsData(),
         ]);
+        clearTimeout(id);
         const members = raw.data || [];
         const ranking = members.map(m => transformTruckyMember(m, monthStats)).sort((a, b) => b.kilometers - a.kilometers);
         const totalKm = ranking.reduce((s, d) => s + d.kilometers, 0);
         const active = ranking.filter(d => d.lastJobDays <= 7).length;
         return { ranking, stats: { kilometers: totalKm, drivers: ranking.filter(d => d.kilometers > 0).length, active } };
-    } catch {
-        errors.push("Trucky directo");
+    } catch (err) {
+        clearTimeout(id);
+        throw err;
     }
-    throw new Error("Fallaron todos los orígenes: " + errors.join(", "));
 }
 
 async function loadData(force) {
