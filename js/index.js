@@ -25,7 +25,7 @@ const fallbackTruckyData = {
 
 const CACHE_KEY_TRUCKY = "tepsa_index_v3";
 const CACHE_TTL_TRUCKY = 5 * 60 * 1000;
-const CACHE_KEY_PS_RANKING = "tepsa:ps-ranking:v8";
+const CACHE_KEY_PS_RANKING = "tepsa:ps-ranking:v9";
 
 let activeTruckyFetchPromise = null;
 
@@ -542,22 +542,59 @@ async function loadPSRanking() {
                 cachedData.actualizadoEn
             );
         } else {
-            render(2, 3, 129809, 166, 16, "subio", null);
+            render(2, 3, 132010, 170, 16, "subio", null);
         }
     } catch (e) {
-        render(2, 3, 129809, 166, 16, "subio", null);
+        render(2, 3, 132010, 170, 16, "subio", null);
     }
 
     if (activePSFetchPromise) return;
 
-    const urls = [
-        ...getApiEndpointsList("/api/ps-ranking"),
-        ...getApiEndpointsList("/api/ranking")
-    ];
-
     let fetchedData = null;
 
     activePSFetchPromise = (async () => {
+        // 1. Direct fetch to PeruServer Monthly API
+        try {
+            const ac = new AbortController();
+            const tid = setTimeout(() => ac.abort(), 4000);
+            const res = await fetch("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100", {
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Accept": "application/json",
+                    "Origin": "https://peruserver.pe",
+                    "Referer": "https://peruserver.pe/"
+                },
+                signal: ac.signal
+            });
+            clearTimeout(tid);
+            if (res.ok) {
+                const data = await res.json();
+                const items = data?.items || [];
+                const idx = items.findIndex(x => x.id === 44302 || (x.name || "").includes("TEPSA"));
+                if (idx >= 0) {
+                    const item = items[idx];
+                    const pos = idx + 1;
+                    return {
+                        pos: pos,
+                        prevPos: pos > 1 ? pos + 1 : 1,
+                        km: Math.round(item.total_distance || 132010),
+                        jobs: item.total_jobs || 170,
+                        members: item.members || 16,
+                        tendencia: "subio",
+                        actualizadoEn: new Date().toISOString()
+                    };
+                }
+            }
+        } catch (e) {
+            console.warn("loadPSRanking: direct monthly API error, trying endpoints", e);
+        }
+
+        // 2. Fallback to API proxies
+        const urls = [
+            ...getApiEndpointsList("/api/ps-ranking"),
+            ...getApiEndpointsList("/api/ranking")
+        ];
+
         for (const url of urls) {
             try {
                 const ac = new AbortController();
@@ -600,35 +637,6 @@ async function loadPSRanking() {
         activePSFetchPromise = null;
     }
 
-    if (!fetchedData) {
-        try {
-            const ac = new AbortController();
-            const tid = setTimeout(() => ac.abort(), 5000);
-            const r = await fetch("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100", { signal: ac.signal });
-            clearTimeout(tid);
-            if (r.ok) {
-                const data = await r.json();
-                const items = data?.items || [];
-                const idx = items.findIndex(x => x.id === 44302);
-                if (idx >= 0) {
-                    const item = items[idx];
-                    const pos = idx + 1;
-                    fetchedData = {
-                        pos: pos,
-                        prevPos: pos + 1,
-                        km: item.total_distance || 0,
-                        jobs: item.total_jobs || 0,
-                        members: item.members || 16,
-                        tendencia: "subio",
-                        actualizadoEn: new Date().toISOString()
-                    };
-                }
-            }
-        } catch (e) {
-            console.warn("loadPSRanking: direct fallback API failed", e);
-        }
-    }
-
     if (fetchedData) {
         render(
             fetchedData.pos,
@@ -645,7 +653,7 @@ async function loadPSRanking() {
     } else {
         console.warn("loadPSRanking: all fetch sources failed. Maintaining current values.");
         if (!cachedData) {
-            render(2, 3, 129809, 166, 16, "subio", null);
+            render(2, 3, 132010, 170, 16, "subio", null);
         }
     }
 }

@@ -145,8 +145,8 @@ module.exports = async function handler(req, res) {
       empresa: "TEPSA PSV",
       puestoActual: 2,
       puestoAnterior: 3,
-      kilometros: 129809,
-      viajes: 166,
+      kilometros: 132010,
+      viajes: 170,
       miembros: 16,
       tendencia: "subio",
       actualizadoEn: new Date().toISOString()
