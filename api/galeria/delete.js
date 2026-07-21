@@ -1,4 +1,9 @@
-const ADMIN_USERS = ["alexander", "cesar", "cristofer", "sabrosaurio", "kirito"];
+const {
+  SUPABASE_URL,
+  SUPABASE_KEY,
+  isUserAdmin,
+  fetchWithTimeout
+} = require("../_config");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -22,7 +27,7 @@ module.exports = async function handler(req, res) {
 
   const lowerUser = cleanUser.toLowerCase();
   const lowerTargetDriver = (targetDriver || "").trim().toLowerCase();
-  const isAdmin = ADMIN_USERS.some(a => lowerUser.includes(a));
+  const isAdmin = isUserAdmin(cleanUser);
 
   // Restricción de Seguridad: Un conductor no-admin solo puede borrar fotos de su propio perfil
   if (!isAdmin && lowerTargetDriver && lowerUser !== lowerTargetDriver) {
@@ -31,9 +36,6 @@ module.exports = async function handler(req, res) {
       error: `Seguridad: Como conductor solo puedes borrar capturas de tu propio perfil (${cleanUser}).`
     });
   }
-
-  const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
-  const supabaseKey = process.env.SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
 
   try {
     let deleteQuery = "";
@@ -45,18 +47,17 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ success: false, error: "Falta el ID o la URL de la imagen a eliminar." });
     }
 
-    // Si no es admin, forzar que la foto en DB pertenezca al usuario
     if (!isAdmin) {
       deleteQuery += `&driver_name=eq.${encodeURIComponent(cleanUser)}`;
     }
 
-    const deleteRes = await fetch(`${supabaseUrl}/rest/v1/fotos_conductores?${deleteQuery}`, {
+    const deleteRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/fotos_conductores?${deleteQuery}`, {
       method: "DELETE",
       headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
       }
-    });
+    }, 5000);
 
     if (!deleteRes.ok) {
       const errText = await deleteRes.text();

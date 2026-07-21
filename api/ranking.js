@@ -1,13 +1,11 @@
-const supabaseUrl = "https://natrscfdveztkerxyhoc.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
-const API_URL = "https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100";
-const COMPANY_ID = 44302;
-const headers = {
-  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-  Accept: "application/json",
-  Origin: "https://peruserver.pe",
-  Referer: "https://peruserver.pe/",
-};
+const {
+  SUPABASE_URL,
+  SUPABASE_KEY,
+  PERUSERVER_API_URL,
+  TEPSA_COMPANY_ID,
+  PERUSERVER_HEADERS,
+  fetchWithTimeout
+} = require("./_config");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -20,15 +18,12 @@ module.exports = async function handler(req, res) {
 
   try {
     // 1. Obtener datos en vivo de PeruServer
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 8000);
-    const apiRes = await fetch(API_URL, { headers, signal: controller.signal });
-    clearTimeout(timer);
+    const apiRes = await fetchWithTimeout(PERUSERVER_API_URL, { headers: PERUSERVER_HEADERS }, 8000);
 
     if (!apiRes.ok) throw new Error("Error al consultar PeruServer API: HTTP " + apiRes.status);
     const apiData = await apiRes.json();
     const items = apiData?.items || [];
-    const idx = items.findIndex(x => x.id === COMPANY_ID);
+    const idx = items.findIndex(x => x.id === TEPSA_COMPANY_ID);
 
     if (idx === -1) {
       throw new Error("Empresa TEPSA PSV (ID 44302) no encontrada en PeruServer");
@@ -42,19 +37,15 @@ module.exports = async function handler(req, res) {
 
     let puestoAnterior = currentPuesto > 1 ? currentPuesto + 1 : currentPuesto;
 
-    // 2. Consultar / actualizar historial en Supabase de forma segura (sin bloquear en caso de error)
+    // 2. Consultar / actualizar historial en Supabase de forma segura
     try {
-      const historyUrl = `${supabaseUrl}/rest/v1/ranking_historial?order=fecha_registro.desc&limit=2`;
-      const historyController = new AbortController();
-      const hTimer = setTimeout(() => historyController.abort(), 3000);
-      const historyRes = await fetch(historyUrl, {
+      const historyUrl = `${SUPABASE_URL}/rest/v1/ranking_historial?order=fecha_registro.desc&limit=2`;
+      const historyRes = await fetchWithTimeout(historyUrl, {
         headers: {
-          "apikey": supabaseKey,
-          "Authorization": `Bearer ${supabaseKey}`
-        },
-        signal: historyController.signal
-      });
-      clearTimeout(hTimer);
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`
+        }
+      }, 3000);
 
       if (historyRes.ok) {
         const history = await historyRes.json();
@@ -69,15 +60,15 @@ module.exports = async function handler(req, res) {
 
         const todayStr = new Date().toDateString();
         if (!latestRecord) {
-          await fetch(`${supabaseUrl}/rest/v1/ranking_historial`, {
+          await fetch(`${SUPABASE_URL}/rest/v1/ranking_historial`, {
             method: "POST",
             headers: {
-              "apikey": supabaseKey,
-              "Authorization": `Bearer ${supabaseKey}`,
+              "apikey": SUPABASE_KEY,
+              "Authorization": `Bearer ${SUPABASE_KEY}`,
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              empresa_id: COMPANY_ID,
+              empresa_id: TEPSA_COMPANY_ID,
               puesto: currentPuesto,
               kilometros: currentKm,
               viajes: currentJobs,
@@ -87,15 +78,15 @@ module.exports = async function handler(req, res) {
         } else {
           const latestDateStr = new Date(latestRecord.fecha_registro).toDateString();
           if (latestDateStr !== todayStr || latestRecord.puesto !== currentPuesto) {
-            await fetch(`${supabaseUrl}/rest/v1/ranking_historial`, {
+            await fetch(`${SUPABASE_URL}/rest/v1/ranking_historial`, {
               method: "POST",
               headers: {
-                "apikey": supabaseKey,
-                "Authorization": `Bearer ${supabaseKey}`,
+                "apikey": SUPABASE_KEY,
+                "Authorization": `Bearer ${SUPABASE_KEY}`,
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                empresa_id: COMPANY_ID,
+                empresa_id: TEPSA_COMPANY_ID,
                 puesto: currentPuesto,
                 kilometros: currentKm,
                 viajes: currentJobs,
@@ -104,11 +95,11 @@ module.exports = async function handler(req, res) {
             });
             puestoAnterior = latestRecord.puesto;
           } else {
-            await fetch(`${supabaseUrl}/rest/v1/ranking_historial?id=eq.${latestRecord.id}`, {
+            await fetch(`${SUPABASE_URL}/rest/v1/ranking_historial?id=eq.${latestRecord.id}`, {
               method: "PATCH",
               headers: {
-                "apikey": supabaseKey,
-                "Authorization": `Bearer ${supabaseKey}`,
+                "apikey": SUPABASE_KEY,
+                "Authorization": `Bearer ${SUPABASE_KEY}`,
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
@@ -132,7 +123,7 @@ module.exports = async function handler(req, res) {
       tendencia = "bajo";
     }
 
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=30");
     return res.status(200).json({
       ok: true,
       empresa: "TEPSA PSV",

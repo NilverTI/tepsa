@@ -422,3 +422,37 @@ footer {
 #drivers-grid {
     transition: opacity 0.25s ease-in-out;
 }
+
+/* ===== BACK TO TOP BUTTON ===== */
+.back-to-top-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 45, 45, 0.4);
+    background: radial-gradient(circle, #ff2d2d 0%, #b80000 100%);
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px) scale(0.9);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 10px 25px rgba(255, 45, 45, 0.35);
+}
+
+.back-to-top-btn.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.back-to-top-btn:hover {
+    background: radial-gradient(circle, #ff4d4d 0%, #d60000 100%);
+    transform: translateY(-3px) scale(1.08);
+    box-shadow: 0 14px 30px rgba(255, 45, 45, 0.5);
+}

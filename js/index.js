@@ -313,12 +313,7 @@ async function loadTruckyData(force) {
     let data = null;
 
     activeTruckyFetchPromise = (async () => {
-        const urls = [
-            "/api/trucky/conductores",
-            "http://127.0.0.1:3000/api/trucky/conductores",
-            "http://127.0.0.1:3001/api/trucky/conductores",
-            "https://tepsa.vercel.app/api/trucky/conductores"
-        ];
+        const urls = getApiEndpointsList("/api/trucky/conductores");
 
         let fetchedData = null;
 
@@ -461,15 +456,15 @@ function setupRevealAnimation() {
 }
 
 function setupBackToTopButton() {
-    const btn = document.createElement("button");
-    btn.textContent = "↑";
-    btn.setAttribute("aria-label", "Volver arriba");
-    Object.assign(btn.style, {
-        position: "fixed", bottom: "20px", right: "20px", width: "50px", height: "50px",
-        borderRadius: "50%", border: "none", background: "#ff2d2d", color: "white",
-        fontSize: "22px", cursor: "pointer", zIndex: "999"
-    });
-    document.body.appendChild(btn);
+    const btn = document.getElementById("back-to-top");
+    if (!btn) return;
+    
+    function toggleBtn() {
+        btn.classList.toggle("show", window.scrollY > 300);
+    }
+    
+    window.addEventListener("scroll", toggleBtn, { passive: true });
+    toggleBtn();
     btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 }
 
@@ -553,53 +548,56 @@ async function loadPSRanking() {
         render(2, 3, 129809, 166, 16, "subio", null);
     }
 
+    if (activePSFetchPromise) return;
+
     const urls = [
-        "/api/ps-ranking",
-        "https://tepsa.vercel.app/api/ps-ranking",
-        "/api/ranking",
-        "https://tepsa.vercel.app/api/ranking",
-        "http://127.0.0.1:3000/api/ps-ranking",
-        "http://127.0.0.1:3000/api/ranking"
+        ...getApiEndpointsList("/api/ps-ranking"),
+        ...getApiEndpointsList("/api/ranking")
     ];
 
     let fetchedData = null;
 
-    for (const url of urls) {
-        try {
-            const ac = new AbortController();
-            const tid = setTimeout(() => ac.abort(), 4000);
-            const cleanUrl = url + (url.includes("?") ? "&" : "?") + "_=" + Date.now();
-            const r = await fetch(cleanUrl, { cache: "no-store", signal: ac.signal });
-            clearTimeout(tid);
-            if (r.ok) {
-                const d = await r.json();
-                if (d && d.ok !== false && (d.puestoActual || d.puestoActual === 0)) {
-                    fetchedData = {
-                        pos: d.puestoActual,
-                        prevPos: d.puestoAnterior || (d.puestoActual > 1 ? d.puestoActual + 1 : 1),
-                        km: d.kilometros,
-                        jobs: d.viajes,
-                        members: d.miembros,
-                        tendencia: d.tendencia || "subio",
-                        actualizadoEn: d.actualizadoEn
-                    };
-                    break;
-                } else if (d && d.ok !== false && (d.position || d.item)) {
-                    fetchedData = {
-                        pos: d.position || 2,
-                        prevPos: (d.position || 2) + 1,
-                        km: d.item?.total_distance || 0,
-                        jobs: d.item?.total_jobs || 0,
-                        members: d.item?.members || 16,
-                        tendencia: "subio",
-                        actualizadoEn: new Date().toISOString()
-                    };
-                    break;
+    activePSFetchPromise = (async () => {
+        for (const url of urls) {
+            try {
+                const ac = new AbortController();
+                const tid = setTimeout(() => ac.abort(), 3500);
+                const cleanUrl = url + (url.includes("?") ? "&" : "?") + "_=" + Date.now();
+                const r = await fetch(cleanUrl, { cache: "no-store", signal: ac.signal });
+                clearTimeout(tid);
+                if (r.ok) {
+                    const d = await r.json();
+                    if (d && d.ok !== false && (d.puestoActual || d.puestoActual === 0)) {
+                        return {
+                            pos: d.puestoActual,
+                            prevPos: d.puestoAnterior || (d.puestoActual > 1 ? d.puestoActual + 1 : 1),
+                            km: d.kilometros,
+                            jobs: d.viajes,
+                            members: d.miembros,
+                            tendencia: d.tendencia || "subio",
+                            actualizadoEn: d.actualizadoEn
+                        };
+                    } else if (d && d.ok !== false && (d.position || d.item)) {
+                        return {
+                            pos: d.position || 2,
+                            prevPos: (d.position || 2) + 1,
+                            km: d.item?.total_distance || 0,
+                            jobs: d.item?.total_jobs || 0,
+                            members: d.item?.members || 16,
+                            tendencia: "subio",
+                            actualizadoEn: new Date().toISOString()
+                        };
+                    }
                 }
-            }
-        } catch (e) {
-            console.warn(`loadPSRanking: URL failed: ${url}`);
+            } catch (e) {}
         }
+        return null;
+    })();
+
+    try {
+        fetchedData = await activePSFetchPromise;
+    } finally {
+        activePSFetchPromise = null;
     }
 
     if (!fetchedData) {

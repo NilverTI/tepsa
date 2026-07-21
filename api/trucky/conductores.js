@@ -1,18 +1,14 @@
-const COMPANY_ID = "44302";
-const MEMBERS_URL = `https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/members`;
-const JOBS_URL = `https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/jobs`;
+const {
+  TEPSA_COMPANY_ID,
+  TRUCKY_HEADERS,
+  fetchWithTimeout
+} = require("../_config");
 
-const TRUCKY_HEADERS = {
-  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-  Accept: "application/json, text/plain, */*",
-  Referer: "https://hub.truckyapp.com/",
-  Origin: "https://hub.truckyapp.com",
-  "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
-};
+const COMPANY_ID = String(TEPSA_COMPANY_ID);
+const MEMBERS_URL = `https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/members`;
 
 async function fetchJSON(url) {
-  const headers = { ...TRUCKY_HEADERS };
-  const res = await fetch(url, { headers });
+  const res = await fetchWithTimeout(url, { headers: TRUCKY_HEADERS }, 7000);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -25,12 +21,13 @@ async function fetchAllPages(baseUrl) {
   const separator = baseUrl.includes("?") ? "&" : "?";
   const pages = await Promise.all(
     Array.from({ length: totalPages - 1 }, (_, i) =>
-      fetchJSON(`${baseUrl}${separator}page=${i + 2}`)
+      fetchJSON(`${baseUrl}${separator}page=${i + 2}`).catch(() => null)
     )
   );
   for (const page of pages) {
-    const pageItems = page.data || [];
-    items.push(...pageItems);
+    if (page && page.data) {
+      items.push(...page.data);
+    }
   }
   return items;
 }
@@ -52,14 +49,13 @@ function formatLastJob(days) {
   const n = Number(days);
   if (n === 0) return "hoy";
   if (n === 1) return "ayer";
-  return `hace ${n} d\u00edas`;
+  return `hace ${n} días`;
 }
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   try {
-    // Cache exitoso en Edge CDN por 5 minutos, sin cache local en navegador
     res.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=60");
     const membersUrl = MEMBERS_URL;
     const companyId = COMPANY_ID;
@@ -110,7 +106,6 @@ module.exports = async function handler(req, res) {
       })
       .filter(m => {
         const role = m.role || "";
-        const name = m.name || "";
         return role.toLowerCase() !== "owner";
       })
       .sort((a, b) => {
@@ -138,4 +133,4 @@ module.exports = async function handler(req, res) {
       error: error.message,
     });
   }
-}
+};

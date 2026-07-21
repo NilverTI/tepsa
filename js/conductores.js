@@ -651,11 +651,7 @@ async function fetchPhotos(driverName, page) {
     `;
     if (galleryPagination) galleryPagination.innerHTML = "";
 
-    const urls = [
-        `/api/galeria/fotos?driver=${encodeURIComponent(driverName)}&page=${page}`,
-        `https://tepsa.vercel.app/api/galeria/fotos?driver=${encodeURIComponent(driverName)}&page=${page}`,
-        `http://127.0.0.1:3000/api/galeria/fotos?driver=${encodeURIComponent(driverName)}&page=${page}`
-    ];
+    const urls = getApiEndpointsList(`/api/galeria/fotos?driver=${encodeURIComponent(driverName)}&page=${page}`);
 
     let data = null;
 
@@ -738,7 +734,7 @@ async function deletePhoto(photoId, imageUrl) {
         return;
     }
 
-    const urls = ["/api/galeria/delete", "https://tepsa.vercel.app/api/galeria/delete"];
+    const urls = getApiEndpointsList("/api/galeria/delete");
     for (const url of urls) {
         try {
             await fetch(url, {
@@ -808,13 +804,19 @@ async function loadAdminDriversList() {
     `;
 
     let drivers = [];
-    try {
-        const res = await fetch("/api/admin/conductores");
-        if (res.ok) {
-            const data = await res.json();
-            if (data.drivers) drivers = data.drivers;
-        }
-    } catch (e) {}
+    const urls = getApiEndpointsList("/api/admin/conductores");
+    for (const url of urls) {
+        try {
+            const res = await fetch(url);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.drivers) {
+                    drivers = data.drivers;
+                    break;
+                }
+            }
+        } catch (e) {}
+    }
 
     if (drivers.length === 0) {
         const defaultAccounts = JSON.parse(localStorage.getItem("tepsa:driver-accounts")) || [
@@ -1055,7 +1057,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btnSubmitPopupUpload.textContent = "Publicando...";
         }
         try {
-            const urls = ["/api/galeria/upload", "https://tepsa.vercel.app/api/galeria/upload"];
+            const urls = getApiEndpointsList("/api/galeria/upload");
             let uploaded = false;
 
             for (const apiUrl of urls) {

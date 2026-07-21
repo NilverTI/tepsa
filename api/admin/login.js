@@ -1,4 +1,9 @@
-const ADMIN_USERS = ["alexander", "cesar", "cristofer", "sabrosaurio", "kirito"];
+const {
+  SUPABASE_URL,
+  SUPABASE_KEY,
+  isUserAdmin,
+  fetchWithTimeout
+} = require("../_config");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -21,20 +26,14 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ success: false, error: "Ingresa tu usuario y contraseña" });
   }
 
-  const lowerUser = cleanUsername.toLowerCase();
-  const isDefaultAdmin = ADMIN_USERS.some(a => lowerUser.includes(a));
-
-  const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
-  const supabaseKey = process.env.SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
+  const isDefaultAdmin = isUserAdmin(cleanUsername);
 
   try {
-    const ac = new AbortController();
-    const timer = setTimeout(() => ac.abort(), 3000);
-    const authRes = await fetch(`${supabaseUrl}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(cleanUsername)}`, {
-      headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` },
-      signal: ac.signal
-    });
-    clearTimeout(timer);
+    const authRes = await fetchWithTimeout(
+      `${SUPABASE_URL}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(cleanUsername)}`,
+      { headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` } },
+      3500
+    );
 
     if (authRes.ok) {
       const authData = await authRes.json();

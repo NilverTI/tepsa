@@ -1,4 +1,9 @@
-const ADMIN_USERS = ["alexander", "cesar", "cristofer", "sabrosaurio", "kirito"];
+const {
+  SUPABASE_URL,
+  SUPABASE_KEY,
+  isUserAdmin,
+  fetchWithTimeout
+} = require("../_config");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -9,16 +14,11 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
-  const supabaseKey = process.env.SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
-
   if (req.method === "POST") {
     const { adminUser, action, targetDriver, newPassword, role, status } = req.body || {};
+    const isAdmin = isUserAdmin(adminUser);
 
-    const lowerAdmin = (adminUser || "").toLowerCase();
-    const isAdmin = ADMIN_USERS.some(a => lowerAdmin.includes(a));
-
-    if (!isAdmin && lowerAdmin !== "admin") {
+    if (!isAdmin && (adminUser || "").toLowerCase() !== "admin") {
       return res.status(403).json({ success: false, error: "Solo los administradores autorizados pueden realizar esta acción." });
     }
 
@@ -28,11 +28,11 @@ module.exports = async function handler(req, res) {
 
     try {
       if (action === "create") {
-        const createRes = await fetch(`${supabaseUrl}/rest/v1/conductores_auth`, {
+        const createRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/conductores_auth`, {
           method: "POST",
           headers: {
-            "apikey": supabaseKey,
-            "Authorization": `Bearer ${supabaseKey}`,
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
             "Content-Type": "application/json",
             "Prefer": "return=representation"
           },
@@ -41,9 +41,9 @@ module.exports = async function handler(req, res) {
             password: (newPassword || "tepsa2026").trim(),
             role: role || "Conductor",
             status: status || "active",
-            is_admin: ADMIN_USERS.some(a => targetDriver.toLowerCase().includes(a)) || /admin|moderador/i.test(role || "")
+            is_admin: isUserAdmin(targetDriver) || /admin|moderador/i.test(role || "")
           })
-        });
+        }, 5000);
 
         if (!createRes.ok) {
           const errText = await createRes.text();
@@ -57,30 +57,30 @@ module.exports = async function handler(req, res) {
       }
 
       if (action === "toggle-status") {
-        const patchRes = await fetch(`${supabaseUrl}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(targetDriver)}`, {
+        const patchRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(targetDriver)}`, {
           method: "PATCH",
           headers: {
-            "apikey": supabaseKey,
-            "Authorization": `Bearer ${supabaseKey}`,
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({ status: status })
-        });
+        }, 5000);
 
         if (!patchRes.ok) throw new Error("Error al actualizar estado");
         return res.status(200).json({ success: true, message: `Estado de ${targetDriver} cambiado a ${status}.` });
       }
 
       if (action === "reset-password") {
-        const patchRes = await fetch(`${supabaseUrl}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(targetDriver)}`, {
+        const patchRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(targetDriver)}`, {
           method: "PATCH",
           headers: {
-            "apikey": supabaseKey,
-            "Authorization": `Bearer ${supabaseKey}`,
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({ password: newPassword })
-        });
+        }, 5000);
 
         if (!patchRes.ok) throw new Error("Error al resetear contraseña");
         return res.status(200).json({ success: true, message: `Contraseña de ${targetDriver} actualizada.` });
@@ -96,9 +96,9 @@ module.exports = async function handler(req, res) {
 
   // GET: Obtener lista completa de conductores (excluyendo admpsv)
   try {
-    const fetchRes = await fetch(`${supabaseUrl}/rest/v1/conductores_auth?select=*&order=created_at.desc`, {
-      headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` }
-    });
+    const fetchRes = await fetchWithTimeout(`${SUPABASE_URL}/rest/v1/conductores_auth?select=*&order=created_at.desc`, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    }, 4000);
     if (fetchRes.ok) {
       const data = await fetchRes.json();
       const filtered = (data || []).filter(d => (d.driver_name || "").toLowerCase() !== "admpsv");

@@ -33,6 +33,35 @@ function getInitials(name) {
 }
 
 /**
+ * Resolves optimal API endpoint based on current environment.
+ * Prevents 404 console errors when running under VS Code Live Server.
+ */
+function getApiEndpoint(path) {
+    const cleanPath = path.startsWith('/') ? path : '/' + path;
+    const port = window.location.port;
+
+    if (port && port !== '3000' && port !== '3001' && port !== '80' && port !== '443') {
+        return `https://tepsa.vercel.app${cleanPath}`;
+    }
+
+    return cleanPath;
+}
+
+/**
+ * Returns prioritized fallback API endpoints array.
+ */
+function getApiEndpointsList(path) {
+    const cleanPath = path.startsWith('/') ? path : '/' + path;
+    const primary = getApiEndpoint(cleanPath);
+    const list = [
+        primary,
+        `https://tepsa.vercel.app${cleanPath}`,
+        `http://127.0.0.1:3000${cleanPath}`
+    ];
+    return Array.from(new Set(list));
+}
+
+/**
  * Enables smooth scrolling classes for the navbar header.
  */
 function setupNavbarScroll() {
@@ -57,7 +86,8 @@ function setupHamburgerMenu() {
     if (!hamburger || !mainMenu) return;
     
     hamburger.addEventListener("click", () => {
-        mainMenu.classList.toggle("show");
+        const isExpanded = mainMenu.classList.toggle("show");
+        hamburger.setAttribute("aria-expanded", isExpanded ? "true" : "false");
     });
 }
 
