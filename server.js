@@ -386,9 +386,23 @@ async function handleLocalGaleriaFotos(request, response, driver, page) {
 
 async function handleLocalGaleriaUpload(request, response, body) {
   const { driver, password, url, description } = body;
+function normalizeImageUrl(url) {
+  if (!url) return "";
+  let clean = url.trim();
+  const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=|thumbnail\?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]+)/;
+  const match = clean.match(driveRegex);
+  if (match && match[1]) {
+    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1600`;
+  }
+  if (clean.includes("dropbox.com") && clean.includes("dl=0")) {
+    return clean.replace("dl=0", "raw=1");
+  }
+  return clean;
+}
+
   const cleanDriver = (driver || "").trim();
   const cleanPassword = (password || "").trim();
-  const cleanUrl = (url || "").trim();
+  const cleanUrl = normalizeImageUrl(url || "");
   const cleanDescription = (description || "").trim();
 
   if (!cleanDriver || !cleanPassword || !cleanUrl) {

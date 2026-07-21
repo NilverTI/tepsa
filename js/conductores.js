@@ -460,6 +460,26 @@ function isUserAdmin(username) {
     return ADMIN_USERS_LIST.some(a => lower.includes(a));
 }
 
+function normalizeImageUrl(url) {
+    if (!url) return "";
+    let clean = url.trim();
+
+    // Convert Google Drive Links (file/d/, open?id=, uc?id=, etc.) to direct image CDN links
+    const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=|thumbnail\?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]+)/;
+    const match = clean.match(driveRegex);
+    if (match && match[1]) {
+        const fileId = match[1];
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+    }
+
+    // Convert Dropbox links (dl=0 -> raw=1)
+    if (clean.includes("dropbox.com") && clean.includes("dl=0")) {
+        return clean.replace("dl=0", "raw=1");
+    }
+
+    return clean;
+}
+
 function getActiveSession() {
     try {
         const raw = localStorage.getItem("tepsa:driver-session");
@@ -680,11 +700,12 @@ async function fetchPhotos(driverName, page) {
 
     galleryPhotosGrid.innerHTML = photos.map(p => {
         const pId = p.id || p.image_url;
+        const imgUrl = normalizeImageUrl(p.image_url);
         return `
         <div class="gallery-card" style="position: relative;">
           ${canDelete ? `<button class="delete-photo-btn" data-id="${escapeHtml(pId)}" data-url="${escapeHtml(p.image_url)}" title="Eliminar foto">🗑️</button>` : ""}
           <div class="gallery-img-wrapper">
-            <img src="${escapeHtml(p.image_url)}" alt="Captura de ${escapeHtml(driverName)}" loading="lazy" onerror="this.src='../assets/img/portada.png';">
+            <img src="${escapeHtml(imgUrl)}" alt="Captura de ${escapeHtml(driverName)}" loading="lazy" onerror="this.src='../assets/img/portada.png';">
           </div>
         </div>
       `;
@@ -1008,7 +1029,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const password = session.password;
-        const url = uploadImageUrlInput ? uploadImageUrlInput.value.trim() : "";
+        const rawUrl = uploadImageUrlInput ? uploadImageUrlInput.value.trim() : "";
+        const url = normalizeImageUrl(rawUrl);
         const description = uploadDescInput ? uploadDescInput.value.trim() : "";
 
         // Validación de Seguridad: Conductor estándar no puede subir fotos a la cuenta de otro

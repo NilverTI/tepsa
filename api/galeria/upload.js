@@ -1,5 +1,25 @@
 const ADMIN_USERS = ["alexander", "cesar", "cristofer", "sabrosaurio", "kirito"];
 
+function normalizeImageUrl(url) {
+  if (!url) return "";
+  let clean = url.trim();
+
+  // Convert Google Drive Links (file/d/, open?id=, uc?id=, etc.) to direct image CDN links
+  const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=|thumbnail\?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]+)/;
+  const match = clean.match(driveRegex);
+  if (match && match[1]) {
+    const fileId = match[1];
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+  }
+
+  // Convert Dropbox links (dl=0 -> raw=1)
+  if (clean.includes("dropbox.com") && clean.includes("dl=0")) {
+    return clean.replace("dl=0", "raw=1");
+  }
+
+  return clean;
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -18,7 +38,8 @@ module.exports = async function handler(req, res) {
   const cleanDriver = (driver || "").trim();
   const cleanUploader = (uploader || driver || "").trim();
   const cleanPassword = (password || "").trim();
-  const cleanUrl = (url || "").trim();
+  const rawUrl = (url || "").trim();
+  const cleanUrl = normalizeImageUrl(rawUrl);
   const cleanDescription = (description || "").trim();
 
   if (!cleanDriver || !cleanPassword || !cleanUrl) {
@@ -29,7 +50,6 @@ module.exports = async function handler(req, res) {
   const lowerDriver = cleanDriver.toLowerCase();
   const isUploaderAdmin = ADMIN_USERS.some(a => lowerUploader.includes(a));
 
-  // Validación de seguridad: Un conductor no puede subir fotos a la cuenta de otro a menos que sea Admin/Moderador
   if (!isUploaderAdmin && lowerUploader !== lowerDriver) {
     return res.status(403).json({
       success: false,
@@ -41,7 +61,6 @@ module.exports = async function handler(req, res) {
   const supabaseKey = process.env.SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
 
   try {
-    // 1. Verificar autenticación del usuario que sube la imagen
     const authUrl = `${supabaseUrl}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(cleanUploader)}`;
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), 4000);
@@ -58,7 +77,6 @@ module.exports = async function handler(req, res) {
     if (authRes.ok) {
       const authData = await authRes.json();
       if (authData.length === 0) {
-        // Registrar automáticamente primer acceso del conductor
         await fetch(`${supabaseUrl}/rest/v1/conductores_auth`, {
           method: "POST",
           headers: {
@@ -82,7 +100,6 @@ module.exports = async function handler(req, res) {
         }
       }
 
-      // 2. Guardar foto bajo el perfil del conductor objetivo
       const insertRes = await fetch(`${supabaseUrl}/rest/v1/fotos_conductores`, {
         method: "POST",
         headers: {
@@ -105,6 +122,5 @@ module.exports = async function handler(req, res) {
     console.warn("upload.js Supabase bypass:", error.message);
   }
 
-  // Fallback seguro de subida si Supabase aún no responde
   return res.status(200).json({ success: true, message: "Foto publicada en modo local" });
 };
