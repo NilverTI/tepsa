@@ -892,16 +892,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Auth trigger binding
     btnOpenAuthModal?.addEventListener("click", openAuthModal);
     closeAuthModalBtn?.addEventListener("click", closeAuthModal);
-    authModal?.addEventListener("click", (e) => {
-        if (e.target === authModal) closeAuthModal();
-    });
 
     // Admin Panel trigger binding
     btnOpenAdminModal?.addEventListener("click", openAdminModal);
     closeAdminModalBtn?.addEventListener("click", closeAdminModal);
-    adminControlModal?.addEventListener("click", (e) => {
-        if (e.target === adminControlModal) closeAdminModal();
-    });
 
     // Admin Tabs switching
     tabDriversListBtn?.addEventListener("click", () => {
@@ -963,9 +957,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Close Modals
     document.getElementById("closePhotosModal")?.addEventListener("click", closePhotosModal);
-    modal?.addEventListener("click", (e) => {
-        if (e.target === modal) closePhotosModal();
-    });
 
     // Login Form Submit
     popupLoginForm?.addEventListener("submit", (e) => {
