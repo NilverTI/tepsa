@@ -675,8 +675,8 @@ async function fetchPhotos(driverName, page) {
         return;
     }
 
-    const activeUser = localStorage.getItem("tepsa:active-driver") || activeModalDriver;
-    const canDelete = isUserAdmin(activeUser) || activeUser === driverName;
+    const session = getActiveSession();
+    const canDelete = session && (session.isAdmin || session.username.toLowerCase() === driverName.toLowerCase());
 
     galleryPhotosGrid.innerHTML = photos.map(p => {
         const pId = p.id || p.image_url;
@@ -711,6 +711,12 @@ async function fetchPhotos(driverName, page) {
 }
 
 async function deletePhoto(photoId, imageUrl) {
+    const session = getActiveSession();
+    if (!session) {
+        alert("Debes iniciar sesión para eliminar capturas.");
+        return;
+    }
+
     const urls = ["/api/galeria/delete", "https://tepsa.vercel.app/api/galeria/delete"];
     for (const url of urls) {
         try {
@@ -720,7 +726,8 @@ async function deletePhoto(photoId, imageUrl) {
                 body: JSON.stringify({
                     photoId,
                     imageUrl,
-                    user: localStorage.getItem("tepsa:active-driver") || "admin"
+                    user: session.username,
+                    targetDriver: activeModalDriver
                 })
             });
         } catch (e) {}

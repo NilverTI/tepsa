@@ -13,13 +13,23 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ success: false, error: "Método no permitido" });
   }
 
-  const { photoId, imageUrl, user } = req.body || {};
+  const { photoId, imageUrl, user, targetDriver } = req.body || {};
 
-  const cleanUser = (user || "").trim().toLowerCase();
-  const isAdmin = ADMIN_USERS.some(a => cleanUser.includes(a));
+  const cleanUser = (user || "").trim();
+  if (!cleanUser) {
+    return res.status(401).json({ success: false, error: "Debes iniciar sesión para eliminar capturas." });
+  }
 
-  if (!isAdmin && !cleanUser) {
-    return res.status(403).json({ success: false, error: "Solo administradores o moderadores pueden eliminar capturas." });
+  const lowerUser = cleanUser.toLowerCase();
+  const lowerTargetDriver = (targetDriver || "").trim().toLowerCase();
+  const isAdmin = ADMIN_USERS.some(a => lowerUser.includes(a));
+
+  // Restricción de Seguridad: Un conductor no-admin solo puede borrar fotos de su propio perfil
+  if (!isAdmin && lowerTargetDriver && lowerUser !== lowerTargetDriver) {
+    return res.status(403).json({
+      success: false,
+      error: `Seguridad: Como conductor solo puedes borrar capturas de tu propio perfil (${cleanUser}).`
+    });
   }
 
   const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
@@ -33,6 +43,11 @@ module.exports = async function handler(req, res) {
       deleteQuery = `image_url=eq.${encodeURIComponent(imageUrl)}`;
     } else {
       return res.status(400).json({ success: false, error: "Falta el ID o la URL de la imagen a eliminar." });
+    }
+
+    // Si no es admin, forzar que la foto en DB pertenezca al usuario
+    if (!isAdmin) {
+      deleteQuery += `&driver_name=eq.${encodeURIComponent(cleanUser)}`;
     }
 
     const deleteRes = await fetch(`${supabaseUrl}/rest/v1/fotos_conductores?${deleteQuery}`, {
