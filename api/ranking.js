@@ -20,7 +20,11 @@ module.exports = async function handler(req, res) {
 
   try {
     // 1. Obtener datos en vivo de PeruServer
-    const apiRes = await fetch(API_URL, { headers });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const apiRes = await fetch(API_URL, { headers, signal: controller.signal });
+    clearTimeout(timer);
+
     if (!apiRes.ok) throw new Error("Error al consultar PeruServer API: HTTP " + apiRes.status);
     const apiData = await apiRes.json();
     const items = apiData?.items || [];
@@ -36,54 +40,35 @@ module.exports = async function handler(req, res) {
     const currentJobs = currentItem.total_jobs || 0;
     const currentMembers = currentItem.members || currentItem.total_members || 16;
 
-    // 2. Consultar el historial en Supabase (últimas 2 filas)
-    const historyUrl = `${supabaseUrl}/rest/v1/ranking_historial?order=fecha_registro.desc&limit=2`;
-    const historyRes = await fetch(historyUrl, {
-      headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`
-      }
-    });
+    let puestoAnterior = currentPuesto > 1 ? currentPuesto + 1 : currentPuesto;
 
-    let history = [];
-    if (historyRes.ok) {
-      history = await historyRes.json();
-    }
+    // 2. Consultar / actualizar historial en Supabase de forma segura (sin bloquear en caso de error)
+    try {
+      const historyUrl = `${supabaseUrl}/rest/v1/ranking_historial?order=fecha_registro.desc&limit=2`;
+      const historyController = new AbortController();
+      const hTimer = setTimeout(() => historyController.abort(), 3000);
+      const historyRes = await fetch(historyUrl, {
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`
+        },
+        signal: historyController.signal
+      });
+      clearTimeout(hTimer);
 
-    let latestRecord = history[0] || null;
-    let previousRecord = history[1] || null;
+      if (historyRes.ok) {
+        const history = await historyRes.json();
+        const latestRecord = history[0] || null;
+        const previousRecord = history[1] || null;
 
-    let puestoAnterior = 4; // Fallback por defecto de la posición previa
-    if (previousRecord) {
-      puestoAnterior = previousRecord.puesto;
-    } else if (latestRecord && latestRecord.puesto !== currentPuesto) {
-      puestoAnterior = latestRecord.puesto;
-    }
+        if (previousRecord) {
+          puestoAnterior = previousRecord.puesto;
+        } else if (latestRecord && latestRecord.puesto !== currentPuesto) {
+          puestoAnterior = latestRecord.puesto;
+        }
 
-    // 3. Evaluar almacenamiento o actualización para evitar duplicidad
-    if (historyRes.ok) {
-      const todayStr = new Date().toDateString();
-      if (!latestRecord) {
-        // Primer registro absoluto
-        await fetch(`${supabaseUrl}/rest/v1/ranking_historial`, {
-          method: "POST",
-          headers: {
-            "apikey": supabaseKey,
-            "Authorization": `Bearer ${supabaseKey}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            empresa_id: COMPANY_ID,
-            puesto: currentPuesto,
-            kilometros: currentKm,
-            viajes: currentJobs,
-            miembros: currentMembers
-          })
-        });
-      } else {
-        const latestDateStr = new Date(latestRecord.fecha_registro).toDateString();
-        if (latestDateStr !== todayStr || latestRecord.puesto !== currentPuesto) {
-          // Es otro día o cambió de puesto: Insertar nueva fila histórica
+        const todayStr = new Date().toDateString();
+        if (!latestRecord) {
           await fetch(`${supabaseUrl}/rest/v1/ranking_historial`, {
             method: "POST",
             headers: {
@@ -99,27 +84,47 @@ module.exports = async function handler(req, res) {
               miembros: currentMembers
             })
           });
-          puestoAnterior = latestRecord.puesto;
         } else {
-          // Mismo día y mismo puesto: Actualizar valores acumulados para mantener datos frescos
-          await fetch(`${supabaseUrl}/rest/v1/ranking_historial?id=eq.${latestRecord.id}`, {
-            method: "PATCH",
-            headers: {
-              "apikey": supabaseKey,
-              "Authorization": `Bearer ${supabaseKey}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              kilometros: currentKm,
-              viajes: currentJobs,
-              miembros: currentMembers
-            })
-          });
+          const latestDateStr = new Date(latestRecord.fecha_registro).toDateString();
+          if (latestDateStr !== todayStr || latestRecord.puesto !== currentPuesto) {
+            await fetch(`${supabaseUrl}/rest/v1/ranking_historial`, {
+              method: "POST",
+              headers: {
+                "apikey": supabaseKey,
+                "Authorization": `Bearer ${supabaseKey}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                empresa_id: COMPANY_ID,
+                puesto: currentPuesto,
+                kilometros: currentKm,
+                viajes: currentJobs,
+                miembros: currentMembers
+              })
+            });
+            puestoAnterior = latestRecord.puesto;
+          } else {
+            await fetch(`${supabaseUrl}/rest/v1/ranking_historial?id=eq.${latestRecord.id}`, {
+              method: "PATCH",
+              headers: {
+                "apikey": supabaseKey,
+                "Authorization": `Bearer ${supabaseKey}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                kilometros: currentKm,
+                viajes: currentJobs,
+                miembros: currentMembers
+              })
+            });
+          }
         }
       }
+    } catch (supaErr) {
+      console.warn("Supabase ranking history optional update skipped:", supaErr.message);
     }
 
-    // 4. Determinar tendencia
+    // 3. Determinar tendencia
     let tendencia = "mantuvo";
     if (currentPuesto < puestoAnterior) {
       tendencia = "subio";
@@ -129,6 +134,7 @@ module.exports = async function handler(req, res) {
 
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     return res.status(200).json({
+      ok: true,
       empresa: "TEPSA PSV",
       puestoActual: currentPuesto,
       puestoAnterior: puestoAnterior,
@@ -142,50 +148,14 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     console.error("api/ranking handler error:", error);
 
-    // Primer nivel de Fallback: Servir la última fila de Supabase si falla la API externa
-    try {
-      const historyUrl = `${supabaseUrl}/rest/v1/ranking_historial?order=fecha_registro.desc&limit=2`;
-      const historyRes = await fetch(historyUrl, {
-        headers: {
-          "apikey": supabaseKey,
-          "Authorization": `Bearer ${supabaseKey}`
-        }
-      });
-      if (historyRes.ok) {
-        const history = await historyRes.json();
-        const latest = history[0];
-        const prev = history[1];
-        if (latest) {
-          const pAnt = prev ? prev.puesto : 4;
-          let tend = "mantuvo";
-          if (latest.puesto < pAnt) tend = "subio";
-          else if (latest.puesto > pAnt) tend = "bajo";
-
-          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-          return res.status(200).json({
-            empresa: "TEPSA PSV",
-            puestoActual: latest.puesto,
-            puestoAnterior: pAnt,
-            kilometros: Number(latest.kilometros),
-            viajes: latest.viajes,
-            miembros: latest.miembros,
-            tendencia: tend,
-            actualizadoEn: latest.fecha_registro
-          });
-        }
-      }
-    } catch (e) {
-      console.error("Supabase fallback query failed:", e);
-    }
-
-    // Segundo nivel de Fallback: Si nada responde, servir los últimos datos duros de respaldo seguros
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     return res.status(200).json({
+      ok: false,
       empresa: "TEPSA PSV",
-      puestoActual: 3,
-      puestoAnterior: 4,
-      kilometros: 69725,
-      viajes: 76,
+      puestoActual: 2,
+      puestoAnterior: 3,
+      kilometros: 129809,
+      viajes: 166,
       miembros: 16,
       tendencia: "subio",
       actualizadoEn: new Date().toISOString()

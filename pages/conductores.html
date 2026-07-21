@@ -77,6 +77,7 @@
       <button class="filter-btn" data-sort="damage">Daño</button>
       <button class="filter-btn" data-sort="points">Puntos</button>
       <button class="filter-btn" data-sort="name">Nombre</button>
+      <button id="btnOpenAdminModal" class="admin-panel-btn" style="display: none;">⚙️ Panel Admin</button>
     </div>
   </div>
 
@@ -123,7 +124,7 @@
       <!-- Avatar circular superior -->
       <div class="login-avatar-wrap">
         <svg viewBox="0 0 24 24">
-          <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A3,3 0 0,1 15,7A3,3 0 0,1 12,10A3,3 0 0,1 9,7A3,3 0 0,1 12,4M12,20C9.97,20 8.2,18.83 7.28,17.12C7.3,15.5 10.5,14.6 12,14.6C13.5,14.6 16.7,15.5 16.72,17.12C15.8,18.83 14.03,20 12,20Z" />
+          <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,4M12,4A3,3 0 0,1 15,7A3,3 0 0,1 12,10A3,3 0 0,1 9,7A3,3 0 0,1 12,4M12,20C9.97,20 8.2,18.83 7.28,17.12C7.3,15.5 10.5,14.6 12,14.6C13.5,14.6 16.7,15.5 16.72,17.12C15.8,18.83 14.03,20 12,20Z" />
         </svg>
       </div>
 
@@ -165,6 +166,55 @@
           <div id="uploadPopupSuccess" class="form-success-global" style="display:none; margin-top: 15px; text-align: center; color: #4ecdc4; font-weight: 500;"></div>
           <a href="#" id="linkLogout" style="display: block; text-align: center; font-size: 11px; color: #555; margin-top: 15px; text-decoration: none; transition: color .2s;">Cerrar Sesión / Cambiar Contraseña</a>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Administración de Cuentas y Conductores -->
+  <div id="adminControlModal" class="auth-popup-modal" style="display:none;">
+    <div class="auth-popup-content admin-box-wide">
+      <button class="auth-popup-close" id="closeAdminModal">&times;</button>
+
+      <div class="admin-header">
+        <h2 style="font-size: 18px; color: #fff; margin-bottom: 5px;">⚙️ Panel de Administración (3 Admins)</h2>
+        <span style="font-size: 12px; color: #ff2d2d; font-weight: 600;">Alexander · Cesar · Cristofer</span>
+      </div>
+
+      <div class="admin-tabs" style="display: flex; gap: 10px; margin: 15px 0;">
+        <button class="admin-tab-btn active" id="tabDriversListBtn">👥 Cuentas de Conductores</button>
+        <button class="admin-tab-btn" id="tabCreateDriverBtn">➕ Crear Nuevo Acceso</button>
+      </div>
+
+      <!-- TAB 1: LISTA Y ESTADOS -->
+      <div id="adminTabDriversView" class="admin-tab-content">
+        <p style="font-size: 12px; color: #888; margin-bottom: 15px;">Inhabilita las cuentas de conductores que se hayan retirado para ocultarlos del sitio o activa nuevos accesos.</p>
+        <div id="adminDriversListContainer" class="admin-table-wrap">
+          <!-- Cuentas cargadas dinámicamente -->
+        </div>
+      </div>
+
+      <!-- TAB 2: CREAR CONDUCTOR -->
+      <div id="adminTabCreateView" class="admin-tab-content" style="display:none;">
+        <form id="adminCreateForm" style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="login-input-group">
+            <span class="input-icon">👤</span>
+            <input type="text" id="adminNewDriverName" placeholder="Nombre del Conductor (Ej: [TPS] NuevoPiloto)" required>
+          </div>
+          <div class="login-input-group">
+            <span class="input-icon">🔑</span>
+            <input type="password" id="adminNewDriverPassword" placeholder="Contraseña de Acceso Inicial" required>
+          </div>
+          <div class="login-input-group">
+            <span class="input-icon">🔰</span>
+            <select id="adminNewDriverRole" style="background: transparent; border: none; color: #fff; width: 100%; font-family: inherit; padding: 10px 0;">
+              <option value="Conductor" style="background: #111; color: #fff;">Conductor</option>
+              <option value="Conductor VIP" style="background: #111; color: #fff;">Conductor VIP</option>
+              <option value="Moderador" style="background: #111; color: #fff;">Moderador</option>
+              <option value="Fundador / Admin" style="background: #111; color: #fff;">Administrador</option>
+            </select>
+          </div>
+          <button type="submit" id="btnSubmitCreateDriver" class="login-submit">Crear Cuenta de Conductor</button>
+          <div id="adminCreateMsg" class="form-success-global" style="display:none; margin-top: 10px; text-align: center; font-size: 13px;"></div>
       </div>
     </div>
   </div>

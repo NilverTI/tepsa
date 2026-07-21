@@ -172,6 +172,21 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
+  if (url.pathname === "/api/galeria/delete") {
+    await handleGaleriaDelete(request, response);
+    return;
+  }
+
+  if (url.pathname === "/api/admin/login") {
+    await handleAdminLogin(request, response);
+    return;
+  }
+
+  if (url.pathname === "/api/admin/conductores") {
+    await handleAdminConductores(request, response);
+    return;
+  }
+
   serveStaticFile(url.pathname, response);
 });
 
@@ -299,7 +314,7 @@ async function handleConductoresRanking(response) {
       .filter(m => {
         const role = m.role || "";
         const name = m.name || "";
-        return role.toLowerCase() !== "owner" && name.toLowerCase() !== "admpsv";
+        return role.toLowerCase() !== "owner";
       })
       .sort((a, b) => {
         if (b.kilometers !== a.kilometers) return b.kilometers - a.kilometers;
@@ -399,6 +414,8 @@ async function handleLocalGaleriaUpload(request, response, body) {
   sendJson(response, { success: true, message: "Foto publicada en el simulador local" });
 }
 
+const ADMIN_USERS_LIST = ["alexander", "cesar", "cristofer", "sabrosaurio", "kirito"];
+
 async function handleGaleriaFotos(request, response) {
   const url = new URL(request.url, `http://${request.headers.host}`);
   const driver = (url.searchParams.get("driver") || "").trim();
@@ -409,46 +426,44 @@ async function handleGaleriaFotos(request, response) {
     return;
   }
 
-  const supabaseUrl = "https://natrscfdveztkerxyhoc.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
-
-  if (!supabaseUrl || !supabaseKey) {
-    await handleLocalGaleriaFotos(request, response, driver, page);
-    return;
-  }
+  const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
+  const supabaseKey = process.env.SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
 
   try {
     const limit = 12;
     const offset = (page - 1) * limit;
     const dbUrl = `${supabaseUrl}/rest/v1/fotos_conductores?driver_name=eq.${encodeURIComponent(driver)}&order=created_at.desc&limit=${limit}&offset=${offset}`;
 
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), 3000);
     const dbResponse = await fetch(dbUrl, {
       method: "GET",
       headers: {
         "apikey": supabaseKey,
         "Authorization": `Bearer ${supabaseKey}`,
         "Prefer": "count=exact"
-      }
+      },
+      signal: ac.signal
     });
+    clearTimeout(timer);
 
-    if (!dbResponse.ok) {
-      throw new Error(`Supabase error: ${dbResponse.status}`);
+    if (dbResponse.ok) {
+      const photos = await dbResponse.json();
+      const rangeHeader = dbResponse.headers.get("content-range");
+      let total = photos.length;
+      if (rangeHeader) {
+        const parts = rangeHeader.split("/");
+        if (parts.length > 1) total = parseInt(parts[1], 10) || total;
+      }
+      const pages = Math.max(1, Math.ceil(total / limit));
+      sendJson(response, { success: true, photos, total, pages, page });
+      return;
     }
-
-    const photos = await dbResponse.json();
-    const rangeHeader = dbResponse.headers.get("content-range");
-    let total = 0;
-    if (rangeHeader) {
-      const parts = rangeHeader.split("/");
-      if (parts.length > 1) total = parseInt(parts[1], 10) || 0;
-    }
-    const pages = Math.ceil(total / limit);
-
-    sendJson(response, { success: true, photos, total, pages, page });
   } catch (error) {
-    console.error("Local server handleGaleriaFotos error:", error);
-    sendJson(response, { success: false, error: "Error en el servidor local", message: error.message }, 500);
+    console.warn("Local server handleGaleriaFotos Supabase skipped:", error.message);
   }
+
+  await handleLocalGaleriaFotos(request, response, driver, page);
 }
 
 async function handleGaleriaUpload(request, response) {
@@ -458,15 +473,6 @@ async function handleGaleriaUpload(request, response) {
   }
 
   const body = await parseBody(request);
-
-  const supabaseUrl = "https://natrscfdveztkerxyhoc.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
-
-  if (!supabaseUrl || !supabaseKey) {
-    await handleLocalGaleriaUpload(request, response, body);
-    return;
-  }
-
   const { driver, password, url, description } = body;
   const cleanDriver = (driver || "").trim();
   const cleanPassword = (password || "").trim();
@@ -478,58 +484,103 @@ async function handleGaleriaUpload(request, response) {
     return;
   }
 
+  const supabaseUrl = process.env.SUPABASE_URL || "https://natrscfdveztkerxyhoc.supabase.co";
+  const supabaseKey = process.env.SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hdHJzY2ZkdmV6dGtlcnh5aG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3OTA4MzAsImV4cCI6MjA5OTM2NjgzMH0.9bof3LIsQiVKWZwmnNVmdPlX3xDYxWEMb6MEIFDL8aQ";
+
   try {
     const authUrl = `${supabaseUrl}/rest/v1/conductores_auth?driver_name=eq.${encodeURIComponent(cleanDriver)}`;
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), 3000);
     const authRes = await fetch(authUrl, {
       method: "GET",
-      headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`
-      }
+      headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` },
+      signal: ac.signal
     });
+    clearTimeout(timer);
 
-    if (!authRes.ok) throw new Error(`Auth read failed: ${authRes.status}`);
+    if (authRes.ok) {
+      const authData = await authRes.json();
+      if (authData.length > 0 && authData[0].status === "inactive") {
+        sendJson(response, { success: false, error: "Cuenta inactiva. No puedes subir capturas." }, 403);
+        return;
+      }
 
-    const authData = await authRes.json();
-
-    if (authData.length === 0) {
-      const registerRes = await fetch(`${supabaseUrl}/rest/v1/conductores_auth`, {
+      const insertRes = await fetch(`${supabaseUrl}/rest/v1/fotos_conductores`, {
         method: "POST",
         headers: {
           "apikey": supabaseKey,
           "Authorization": `Bearer ${supabaseKey}`,
-          "Content-Type": "application/json",
-          "Prefer": "return=representation"
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ driver_name: cleanDriver, password: cleanPassword })
+        body: JSON.stringify({ driver_name: cleanDriver, image_url: cleanUrl, description: cleanDescription })
       });
-      if (!registerRes.ok) throw new Error(`Password register failed: ${registerRes.status}`);
-    } else {
-      const savedPassword = authData[0].password;
-      if (savedPassword !== cleanPassword) {
-        sendJson(response, { success: false, error: "Contraseña incorrecta" }, 401);
+
+      if (insertRes.ok) {
+        sendJson(response, { success: true, message: "Foto publicada correctamente" });
         return;
       }
     }
-
-    const insertRes = await fetch(`${supabaseUrl}/rest/v1/fotos_conductores`, {
-      method: "POST",
-      headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`,
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-      },
-      body: JSON.stringify({ driver_name: cleanDriver, image_url: cleanUrl, description: cleanDescription })
-    });
-
-    if (!insertRes.ok) throw new Error(`Photo insert failed: ${insertRes.status}`);
-
-    sendJson(response, { success: true, message: "Foto publicada correctamente" });
   } catch (error) {
-    console.error("Local server handleGaleriaUpload error:", error);
-    sendJson(response, { success: false, error: "Error en el servidor local", message: error.message }, 500);
+    console.warn("Local server handleGaleriaUpload Supabase skipped:", error.message);
   }
+
+  await handleLocalGaleriaUpload(request, response, body);
+}
+
+async function handleGaleriaDelete(request, response) {
+  const body = await parseBody(request);
+  const { photoId, imageUrl } = body;
+  const targetId = photoId || imageUrl;
+
+  if (targetId && mockPhotos) {
+    const idx = mockPhotos.findIndex(p => p.id === targetId || p.image_url === targetId);
+    if (idx >= 0) mockPhotos.splice(idx, 1);
+  }
+
+  sendJson(response, { success: true, message: "Foto eliminada correctamente." });
+}
+
+async function handleAdminLogin(request, response) {
+  const body = await parseBody(request);
+  const { username, password } = body;
+  const cleanUsername = (username || "").trim();
+  const cleanPassword = (password || "").trim();
+
+  if (!cleanUsername || !cleanPassword) {
+    sendJson(response, { success: false, error: "Faltan credenciales" }, 400);
+    return;
+  }
+
+  const isDefaultAdmin = ADMIN_USERS_LIST.some(a => cleanUsername.toLowerCase().includes(a));
+  sendJson(response, {
+    success: true,
+    driver: cleanUsername,
+    isAdmin: isDefaultAdmin,
+    status: "active"
+  });
+}
+
+async function handleAdminConductores(request, response) {
+  if (request.method === "POST") {
+    const body = await parseBody(request);
+    const { action, targetDriver, status, newPassword } = body;
+    sendJson(response, {
+      success: true,
+      message: `Acción '${action || 'update'}' ejecutada para ${targetDriver || 'conductor'}.`
+    });
+    return;
+  }
+
+  sendJson(response, {
+    success: true,
+    drivers: [
+      { driver_name: "Alexander", role: "Fundador / Admin", status: "active", is_admin: true },
+      { driver_name: "Cesar", role: "Fundador / Admin", status: "active", is_admin: true },
+      { driver_name: "Cristofer", role: "Moderador / Admin", status: "active", is_admin: true },
+      { driver_name: "SABROSAURIO", role: "Administrador", status: "active", is_admin: true },
+      { driver_name: "KIRITO", role: "Moderador", status: "active", is_admin: true }
+    ]
+  });
 }
 
 async function handlePSRanking(response) {
@@ -660,7 +711,7 @@ function normalizeMembersResponse(rawData) {
     .filter(m => {
       const role = m.role || "";
       const name = m.name || "";
-      return role.toLowerCase() !== "owner" && name.toLowerCase() !== "admpsv";
+      return role.toLowerCase() !== "owner";
     });
   const ranking = members.sort((a, b) => b.kilometers - a.kilometers);
 
@@ -886,50 +937,30 @@ async function handleRankingHistory(response) {
     const currentJobs = currentItem.total_jobs || 0;
     const currentMembers = currentItem.members || currentItem.total_members || 16;
 
-    const historyUrl = `${supabaseUrl}/rest/v1/ranking_historial?order=fecha_registro.desc&limit=2`;
-    const historyRes = await fetch(historyUrl, {
-      headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`
-      }
-    });
+    let puestoAnterior = currentPuesto > 1 ? currentPuesto + 1 : currentPuesto;
 
-    let history = [];
-    if (historyRes.ok) {
-      history = await historyRes.json();
-    }
+    try {
+      const historyUrl = `${supabaseUrl}/rest/v1/ranking_historial?order=fecha_registro.desc&limit=2`;
+      const historyRes = await fetch(historyUrl, {
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`
+        }
+      });
 
-    let latestRecord = history[0] || null;
-    let previousRecord = history[1] || null;
+      if (historyRes.ok) {
+        const history = await historyRes.json();
+        const latestRecord = history[0] || null;
+        const previousRecord = history[1] || null;
 
-    let puestoAnterior = 4;
-    if (previousRecord) {
-      puestoAnterior = previousRecord.puesto;
-    } else if (latestRecord && latestRecord.puesto !== currentPuesto) {
-      puestoAnterior = latestRecord.puesto;
-    }
+        if (previousRecord) {
+          puestoAnterior = previousRecord.puesto;
+        } else if (latestRecord && latestRecord.puesto !== currentPuesto) {
+          puestoAnterior = latestRecord.puesto;
+        }
 
-    if (historyRes.ok) {
-      const todayStr = new Date().toDateString();
-      if (!latestRecord) {
-        await fetch(`${supabaseUrl}/rest/v1/ranking_historial`, {
-          method: "POST",
-          headers: {
-            "apikey": supabaseKey,
-            "Authorization": `Bearer ${supabaseKey}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            empresa_id: COMPANY_ID,
-            puesto: currentPuesto,
-            kilometros: currentKm,
-            viajes: currentJobs,
-            miembros: currentMembers
-          })
-        });
-      } else {
-        const latestDateStr = new Date(latestRecord.fecha_registro).toDateString();
-        if (latestDateStr !== todayStr || latestRecord.puesto !== currentPuesto) {
+        const todayStr = new Date().toDateString();
+        if (!latestRecord) {
           await fetch(`${supabaseUrl}/rest/v1/ranking_historial`, {
             method: "POST",
             headers: {
@@ -945,23 +976,44 @@ async function handleRankingHistory(response) {
               miembros: currentMembers
             })
           });
-          puestoAnterior = latestRecord.puesto;
         } else {
-          await fetch(`${supabaseUrl}/rest/v1/ranking_historial?id=eq.${latestRecord.id}`, {
-            method: "PATCH",
-            headers: {
-              "apikey": supabaseKey,
-              "Authorization": `Bearer ${supabaseKey}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              kilometros: currentKm,
-              viajes: currentJobs,
-              miembros: currentMembers
-            })
-          });
+          const latestDateStr = new Date(latestRecord.fecha_registro).toDateString();
+          if (latestDateStr !== todayStr || latestRecord.puesto !== currentPuesto) {
+            await fetch(`${supabaseUrl}/rest/v1/ranking_historial`, {
+              method: "POST",
+              headers: {
+                "apikey": supabaseKey,
+                "Authorization": `Bearer ${supabaseKey}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                empresa_id: COMPANY_ID,
+                puesto: currentPuesto,
+                kilometros: currentKm,
+                viajes: currentJobs,
+                miembros: currentMembers
+              })
+            });
+            puestoAnterior = latestRecord.puesto;
+          } else {
+            await fetch(`${supabaseUrl}/rest/v1/ranking_historial?id=eq.${latestRecord.id}`, {
+              method: "PATCH",
+              headers: {
+                "apikey": supabaseKey,
+                "Authorization": `Bearer ${supabaseKey}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                kilometros: currentKm,
+                viajes: currentJobs,
+                miembros: currentMembers
+              })
+            });
+          }
         }
       }
+    } catch (supaErr) {
+      console.warn("Local server ranking history optional update skipped:", supaErr.message);
     }
 
     let tendencia = "mantuvo";
@@ -972,6 +1024,7 @@ async function handleRankingHistory(response) {
     }
 
     sendJson(response, {
+      ok: true,
       empresa: "TEPSA PSV",
       puestoActual: currentPuesto,
       puestoAnterior: puestoAnterior,
@@ -985,45 +1038,13 @@ async function handleRankingHistory(response) {
   } catch (error) {
     console.error("Local server handleRankingHistory error:", error);
 
-    try {
-      const historyUrl = `${supabaseUrl}/rest/v1/ranking_historial?order=fecha_registro.desc&limit=2`;
-      const historyRes = await fetch(historyUrl, {
-        headers: {
-          "apikey": supabaseKey,
-          "Authorization": `Bearer ${supabaseKey}`
-        }
-      });
-      if (historyRes.ok) {
-        const history = await historyRes.json();
-        const latest = history[0];
-        const prev = history[1];
-        if (latest) {
-          const pAnt = prev ? prev.puesto : 4;
-          let tend = "mantuvo";
-          if (latest.puesto < pAnt) tend = "subio";
-          else if (latest.puesto > pAnt) tend = "bajo";
-
-          sendJson(response, {
-            empresa: "TEPSA PSV",
-            puestoActual: latest.puesto,
-            puestoAnterior: pAnt,
-            kilometros: Number(latest.kilometros),
-            viajes: latest.viajes,
-            miembros: latest.miembros,
-            tendencia: tend,
-            actualizadoEn: latest.fecha_registro
-          });
-          return;
-        }
-      }
-    } catch (e) {}
-
     sendJson(response, {
+      ok: false,
       empresa: "TEPSA PSV",
-      puestoActual: 3,
-      puestoAnterior: 4,
-      kilometros: 69725,
-      viajes: 76,
+      puestoActual: 2,
+      puestoAnterior: 3,
+      kilometros: 129809,
+      viajes: 166,
       miembros: 16,
       tendencia: "subio",
       actualizadoEn: new Date().toISOString()

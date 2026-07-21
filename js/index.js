@@ -2,7 +2,7 @@
    INDEX/HOME SCRIPT - TEPSA PSV
    ========================================================================== */
 
-const FOUNDER_NAMES = ["Alexander", "Cesar", "Cristofer", "admpsv"];
+const FOUNDER_NAMES = ["Alexander", "Cesar", "Cristofer", "Sabrosaurio", "Kirito"];
 
 const fallbackTruckyData = {
     source: "demo",
@@ -25,7 +25,7 @@ const fallbackTruckyData = {
 
 const CACHE_KEY_TRUCKY = "tepsa_index_v3";
 const CACHE_TTL_TRUCKY = 5 * 60 * 1000;
-const CACHE_KEY_PS_RANKING = "tepsa:ps-ranking:v6";
+const CACHE_KEY_PS_RANKING = "tepsa:ps-ranking:v8";
 
 let activeTruckyFetchPromise = null;
 
@@ -380,7 +380,7 @@ async function loadTruckyData(force) {
                     .filter(m => {
                         const role = m.role || "";
                         const name = m.name || "";
-                        return role.toLowerCase() !== "owner" && name.toLowerCase() !== "admpsv";
+                        return role.toLowerCase() !== "owner";
                     });
                 const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
                 const active = members.filter(d => Number(d.lastJobDays ?? 9999) <= 7).length;
@@ -508,14 +508,14 @@ async function loadPSRanking() {
     if (!els.heroRank) return;
 
     const render = (pos, prevPos, km, jobs, members, tendencia, actualizadoEn) => {
-        const p = pos || "3";
-        const pp = prevPos || "4";
+        const p = pos || "2";
+        const pp = prevPos || "3";
         const tend = tendencia || "subio";
-        const formattedKm = typeof km === "number" || !isNaN(Number(km)) ? Number(km).toLocaleString("es-PE") : (km || "69.725");
+        const formattedKm = typeof km === "number" || !isNaN(Number(km)) ? Number(km).toLocaleString("es-PE") : (km || "129,809");
         
         els.heroRank.textContent = "#" + p;
         if (els.centerRank) els.centerRank.textContent = p;
-        if (els.stats) els.stats.textContent = formattedKm + " KM · " + (jobs || "76") + " Viajes";
+        if (els.stats) els.stats.textContent = formattedKm + " KM · " + (jobs || "166") + " Viajes";
         if (els.monthRank) els.monthRank.textContent = "#" + p;
         if (els.members) els.members.textContent = members || "16";
         if (els.title) els.title.textContent = "TEPSA PSV";
@@ -547,17 +547,19 @@ async function loadPSRanking() {
                 cachedData.actualizadoEn
             );
         } else {
-            render(3, 4, 69725, 76, 16, "subio", null);
+            render(2, 3, 129809, 166, 16, "subio", null);
         }
     } catch (e) {
-        render(3, 4, 69725, 76, 16, "subio", null);
+        render(2, 3, 129809, 166, 16, "subio", null);
     }
 
     const urls = [
+        "/api/ps-ranking",
+        "https://tepsa.vercel.app/api/ps-ranking",
         "/api/ranking",
-        "http://127.0.0.1:3000/api/ranking",
-        "http://127.0.0.1:3001/api/ranking",
-        "https://tepsa.vercel.app/api/ranking"
+        "https://tepsa.vercel.app/api/ranking",
+        "http://127.0.0.1:3000/api/ps-ranking",
+        "http://127.0.0.1:3000/api/ranking"
     ];
 
     let fetchedData = null;
@@ -571,8 +573,27 @@ async function loadPSRanking() {
             clearTimeout(tid);
             if (r.ok) {
                 const d = await r.json();
-                if (d && d.puestoActual) {
-                    fetchedData = d;
+                if (d && d.ok !== false && (d.puestoActual || d.puestoActual === 0)) {
+                    fetchedData = {
+                        pos: d.puestoActual,
+                        prevPos: d.puestoAnterior || (d.puestoActual > 1 ? d.puestoActual + 1 : 1),
+                        km: d.kilometros,
+                        jobs: d.viajes,
+                        members: d.miembros,
+                        tendencia: d.tendencia || "subio",
+                        actualizadoEn: d.actualizadoEn
+                    };
+                    break;
+                } else if (d && d.ok !== false && (d.position || d.item)) {
+                    fetchedData = {
+                        pos: d.position || 2,
+                        prevPos: (d.position || 2) + 1,
+                        km: d.item?.total_distance || 0,
+                        jobs: d.item?.total_jobs || 0,
+                        members: d.item?.members || 16,
+                        tendencia: "subio",
+                        actualizadoEn: new Date().toISOString()
+                    };
                     break;
                 }
             }
@@ -581,23 +602,52 @@ async function loadPSRanking() {
         }
     }
 
-    if (fetchedData) {
-        const pos = fetchedData.puestoActual;
-        const prevPos = fetchedData.puestoAnterior;
-        const km = fetchedData.kilometros;
-        const jobs = fetchedData.viajes;
-        const members = fetchedData.miembros;
-        const tendencia = fetchedData.tendencia;
-        const actualizadoEn = fetchedData.actualizadoEn;
+    if (!fetchedData) {
+        try {
+            const ac = new AbortController();
+            const tid = setTimeout(() => ac.abort(), 5000);
+            const r = await fetch("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100", { signal: ac.signal });
+            clearTimeout(tid);
+            if (r.ok) {
+                const data = await r.json();
+                const items = data?.items || [];
+                const idx = items.findIndex(x => x.id === 44302);
+                if (idx >= 0) {
+                    const item = items[idx];
+                    const pos = idx + 1;
+                    fetchedData = {
+                        pos: pos,
+                        prevPos: pos + 1,
+                        km: item.total_distance || 0,
+                        jobs: item.total_jobs || 0,
+                        members: item.members || 16,
+                        tendencia: "subio",
+                        actualizadoEn: new Date().toISOString()
+                    };
+                }
+            }
+        } catch (e) {
+            console.warn("loadPSRanking: direct fallback API failed", e);
+        }
+    }
 
-        render(pos, prevPos, km, jobs, members, tendencia, actualizadoEn);
+    if (fetchedData) {
+        render(
+            fetchedData.pos,
+            fetchedData.prevPos,
+            fetchedData.km,
+            fetchedData.jobs,
+            fetchedData.members,
+            fetchedData.tendencia,
+            fetchedData.actualizadoEn
+        );
         try { 
-            localStorage.setItem(CACHE_KEY_PS_RANKING, JSON.stringify({ pos, prevPos, km, jobs, members, tendencia, actualizadoEn })); 
+            localStorage.setItem(CACHE_KEY_PS_RANKING, JSON.stringify(fetchedData)); 
         } catch (e) { }
     } else {
-        console.warn("loadPSRanking: all fetch URLs failed. Maintaining previous/default values.");
+        console.warn("loadPSRanking: all fetch sources failed. Maintaining current values.");
         if (!cachedData) {
-            render(3, 4, 69725, 76, 16, "subio", null);
+            render(2, 3, 129809, 166, 16, "subio", null);
         }
     }
 }
@@ -655,6 +705,8 @@ try { localStorage.removeItem("tepsa:ps-ranking:v2"); } catch (e) { }
 try { localStorage.removeItem("tepsa:ps-ranking:v3"); } catch (e) { }
 try { localStorage.removeItem("tepsa:ps-ranking:v4"); } catch (e) { }
 try { localStorage.removeItem("tepsa:ps-ranking:v5"); } catch (e) { }
+try { localStorage.removeItem("tepsa:ps-ranking:v6"); } catch (e) { }
+try { localStorage.removeItem("tepsa:ps-ranking:v7"); } catch (e) { }
 
 document.addEventListener("DOMContentLoaded", () => {
     setupDisclaimerModal();
@@ -664,8 +716,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loadTruckyData();
     loadPSRanking();
     
-    // Auto refresh rankings every 5 minutes
-    setInterval(loadPSRanking, 5 * 60 * 1000);
+    // Auto refresh rankings every 60 seconds automatically
+    setInterval(loadPSRanking, 60 * 1000);
 
     // Refresh when user returns to the tab
     document.addEventListener("visibilitychange", () => {

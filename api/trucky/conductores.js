@@ -111,7 +111,7 @@ module.exports = async function handler(req, res) {
       .filter(m => {
         const role = m.role || "";
         const name = m.name || "";
-        return role.toLowerCase() !== "owner" && name.toLowerCase() !== "admpsv";
+        return role.toLowerCase() !== "owner";
       })
       .sort((a, b) => {
         if (b.kilometers !== a.kilometers) return b.kilometers - a.kilometers;
