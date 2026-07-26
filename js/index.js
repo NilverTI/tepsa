@@ -23,7 +23,7 @@ const fallbackTruckyData = {
     recentJobs: [],
 };
 
-const CACHE_KEY_TRUCKY = "tepsa_index_v3";
+const CACHE_KEY_TRUCKY = "tepsa_conductores_monthly_v5";
 const CACHE_TTL_TRUCKY = 5 * 60 * 1000;
 const PS_RANKING_STORAGE_KEY = "tepsa_ps_ranking_store";
 
@@ -201,7 +201,7 @@ function renderTruckyData(data) {
         status.textContent = "Mostrando datos de ejemplo.";
         return;
     }
-    status.innerHTML = `📡 <strong>Trucky Hub</strong> · Actualizado: ${updatedAt}`;
+    status.innerHTML = `📡 <strong>Trucky Hub (Ranking Mensual)</strong> · Actualizado: ${updatedAt}`;
 }
 
 function setTruckyCache(data) {
@@ -213,7 +213,7 @@ function setTruckyCache(data) {
 function transformMember(m) {
     return {
         name: m.name || m.username || "Sin nombre",
-        kilometers: Math.round(Number(m.total_driven_distance_km || m.kilometers || 0)),
+        kilometers: Math.round(Number(m.kilometers || 0)),
         points: Math.round(Number(m.points || 0)),
         lastJobDays: m.last_job_days != null && Number.isFinite(Number(m.last_job_days)) ? Number(m.last_job_days) : 9999,
         role: m.role?.name || m.role || "",
@@ -242,7 +242,7 @@ async function loadTruckyData(force) {
     if (cached) {
         renderTruckyData(cached);
         if (status) {
-            status.innerHTML = `📡 <strong>Datos locales</strong> · Actualizado: ${formatTimeAgo(cacheTime)}`;
+            status.innerHTML = `📡 <strong>Datos locales (Ranking Mensual)</strong> · Actualizado: ${formatTimeAgo(cacheTime)}`;
         }
         if (cacheTime && (Date.now() - cacheTime < CACHE_TTL_TRUCKY) && !force) {
             return;
@@ -260,32 +260,97 @@ async function loadTruckyData(force) {
 
     activeTruckyFetchPromise = (async () => {
         const controller = new AbortController();
-        const timerId = setTimeout(() => controller.abort(), 8000);
+        const timerId = setTimeout(() => controller.abort(), 10000);
+
+        const endpoints = [
+            "/api/trucky/conductores",
+            "/api/conductores"
+        ];
+
+        for (const baseUrl of endpoints) {
+            try {
+                const res = await fetch(`${baseUrl}?_=${Date.now()}`, {
+                    headers: { "Accept": "application/json" },
+                    signal: controller.signal
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && Array.isArray(json.ranking) && json.ranking.length > 0) {
+                        clearTimeout(timerId);
+                        return json;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // Direct Fallback: Calculate current month's jobs directly from Trucky API
         try {
-            const res = await fetch("https://e.truckyapp.com/api/v1/company/44302/members", {
-                headers: {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                    "Accept": "application/json, text/plain, */*"
-                },
-                signal: controller.signal
-            });
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, "0");
+            const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
+
+            const jobsUrl = `https://e.truckyapp.com/api/v1/company/44302/jobs?dateFrom=${y}-${m}-01&dateTo=${y}-${m}-${lastDay}`;
+            const membersUrl = `https://e.truckyapp.com/api/v1/company/44302/members`;
+
+            const [membersRes, jobsRes] = await Promise.all([
+                fetch(membersUrl, { headers: { "Accept": "application/json" }, signal: controller.signal }),
+                fetch(jobsUrl, { headers: { "Accept": "application/json" }, signal: controller.signal })
+            ]);
+
             clearTimeout(timerId);
+            if (!membersRes.ok) throw new Error("HTTP " + membersRes.status);
 
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            const rawData = await res.json();
-            const members = (rawData.data || [])
-                .map(transformMember)
-                .filter(m => (m.role || "").toLowerCase() !== "owner");
-            members.sort((a, b) => b.kilometers - a.kilometers);
+            const membersRaw = await membersRes.json();
+            const jobsRaw = jobsRes.ok ? await jobsRes.json() : { data: [] };
 
-            const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
-            const activeCount = members.filter(d => d.lastJobDays <= 7).length;
+            const kmByDriver = new Map();
+            const damageByDriver = new Map();
+            const jobsByDriver = new Map();
+
+            (jobsRaw.data || []).forEach(j => {
+                const driverObj = j.driver || {};
+                const name = typeof driverObj === "object" ? driverObj.name || driverObj.username : driverObj;
+                if (!name) return;
+                const norm = String(name).toLowerCase().replace(/\[.*?\]/g, "").replace(/[^a-z0-9]/g, "").trim();
+                const km = Number(j.driven_distance_km || j.kilometers || j.km || 0);
+                const dmg = Number(j.damage || j.cargoDamage || 0);
+                kmByDriver.set(norm, (kmByDriver.get(norm) || 0) + km);
+                damageByDriver.set(norm, (damageByDriver.get(norm) || 0) + dmg);
+                jobsByDriver.set(norm, (jobsByDriver.get(norm) || 0) + 1);
+            });
+
+            const ranking = (membersRaw.data || [])
+                .map(m => {
+                    const rawName = m.name || m.username || "Sin nombre";
+                    const norm = String(rawName).toLowerCase().replace(/\[.*?\]/g, "").replace(/[^a-z0-9]/g, "").trim();
+                    const monthlyKm = Math.round(kmByDriver.get(norm) || 0);
+                    const damage = Math.round(damageByDriver.get(norm) || 0);
+                    const lastJobDays = m.last_job_days != null && Number.isFinite(Number(m.last_job_days)) ? Number(m.last_job_days) : 9999;
+                    return {
+                        name: rawName,
+                        kilometers: monthlyKm,
+                        damage: damage,
+                        points: Math.round(Number(m.points || 0)),
+                        lastJobDays: lastJobDays,
+                        role: m.role?.name || m.role || "",
+                        avatar: m.avatar_url || m.avatar || "",
+                        level: Number(m.level || 0),
+                        rank: m.rank?.name || "",
+                        totalJobs: jobsByDriver.get(norm) || 0
+                    };
+                })
+                .filter(m => (m.role || "").toLowerCase() !== "owner")
+                .sort((a, b) => b.kilometers - a.kilometers);
+
+            const totalKm = ranking.reduce((s, d) => s + d.kilometers, 0);
+            const activeCount = ranking.filter(d => d.lastJobDays <= 7).length;
 
             return {
                 source: "trucky",
                 updatedAt: new Date().toISOString(),
-                stats: { kilometers: totalKm, drivers: members.length, active: activeCount },
-                ranking: members,
+                stats: { kilometers: totalKm, drivers: ranking.length, active: activeCount },
+                ranking,
                 recentJobs: []
             };
         } catch (err) {
@@ -298,7 +363,7 @@ async function loadTruckyData(force) {
     try {
         data = await activeTruckyFetchPromise;
     } catch (e) {
-        console.warn("loadTruckyData direct fetch failed, trying fallback:", e.message);
+        console.warn("loadTruckyData fetch failed, trying fallback:", e.message);
     } finally {
         activeTruckyFetchPromise = null;
     }
