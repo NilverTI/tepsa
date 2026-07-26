@@ -19,18 +19,14 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const forceNoCache = req.query && (req.query.nocache === "1" || req.query.force === "1");
-  if (forceNoCache) {
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  } else {
-    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=30");
-  }
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
   const requestedAt = new Date().toISOString();
 
   try {
     // 1. Consultar API en vivo de PeruServer con timeout de 8000ms
-    const apiRes = await fetchWithTimeout(PERUSERVER_API_URL, { headers: PERUSERVER_HEADERS }, 8000);
+    const targetUrl = `${PERUSERVER_API_URL}${PERUSERVER_API_URL.includes("?") ? "&" : "?"}_=${Date.now()}`;
+    const apiRes = await fetchWithTimeout(targetUrl, { headers: PERUSERVER_HEADERS, cache: "no-store" }, 8000);
     if (!apiRes.ok) {
       throw new Error(`PeruServer HTTP ${apiRes.status}`);
     }

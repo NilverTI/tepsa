@@ -311,7 +311,10 @@ async function loadTruckyData(force) {
     }
 }
 
-/* ===== PURE CLIENT-SIDE PERUSERVER MONTHLY RANKING (STALE-WHILE-REVALIDATE) ===== */
+/* ===== PERUSERVER MONTHLY RANKING (STALE-WHILE-REVALIDATE WITH CANCELLATION & NO-CACHE) ===== */
+
+let hasRenderedLiveData = false;
+let lastLiveFetchTimestamp = 0;
 
 function normalizeCompanyNameClient(str) {
     return String(str || "")
@@ -321,34 +324,76 @@ function normalizeCompanyNameClient(str) {
         .trim();
 }
 
-function findTepsaCompanyClient(apiData) {
-    if (!apiData) return { item: null, index: -1 };
+function extractTepsaDataClient(apiData) {
+    if (!apiData) return null;
 
+    // A. TEPSA Backend API Format (/api/ranking or /api/ps-ranking)
+    if (apiData.company && (apiData.company.position || apiData.company.kilometers)) {
+        const c = apiData.company;
+        return {
+            position: Math.floor(Number(c.position || apiData.puestoActual || 1)),
+            previousPosition: Math.floor(Number(c.previousPosition || apiData.puestoAnterior || (c.position > 1 ? c.position + 1 : 2))),
+            kilometers: Math.round(Number(c.kilometers || apiData.kilometros || 0)),
+            trips: Math.round(Number(c.trips || apiData.viajes || 0)),
+            members: Math.round(Number(c.members || apiData.miembros || 16)),
+            movement: c.movement || apiData.tendencia || "same",
+            month: Number(c.month || (new Date().getMonth() + 1)),
+            year: Number(c.year || new Date().getFullYear()),
+        };
+    }
+    if (apiData.puestoActual != null && apiData.kilometros != null) {
+        const pos = Math.floor(Number(apiData.puestoActual));
+        return {
+            position: pos,
+            previousPosition: Math.floor(Number(apiData.puestoAnterior || (pos > 1 ? pos + 1 : 2))),
+            kilometers: Math.round(Number(apiData.kilometros || 0)),
+            trips: Math.round(Number(apiData.viajes || 0)),
+            members: Math.round(Number(apiData.miembros || 16)),
+            movement: apiData.tendencia || "same",
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
+        };
+    }
+
+    // B. Raw PeruServer API Format (items, data, array)
     let items = [];
     if (Array.isArray(apiData)) items = apiData;
     else if (Array.isArray(apiData.items)) items = apiData.items;
     else if (Array.isArray(apiData.data)) items = apiData.data;
 
-    if (!items.length) return { item: null, index: -1 };
+    if (!items.length) return null;
 
-    const sorted = [...items].sort((a, b) => {
-        const kmA = Number(a.total_distance || a.kilometros || a.km || 0);
-        const kmB = Number(b.total_distance || b.kilometros || b.km || 0);
-        return kmB - kmA;
-    });
+    // 1. Search by exact official ID (44302)
+    let index = items.findIndex(x => x && String(x.id || x.company_id || x.empresa_id) === "44302");
 
-    let index = sorted.findIndex(x => x && String(x.id || x.company_id || x.empresa_id) === "44302");
-
+    // 2. Search by normalized name "TEPSA [PSV]" or starting with "tepsa"
     if (index === -1) {
-        index = sorted.findIndex(x => {
+        index = items.findIndex(x => {
             if (!x) return false;
             const norm = normalizeCompanyNameClient(x.name || x.empresa || x.company_name);
             return norm === "tepsa" || norm.startsWith("tepsa");
         });
     }
 
-    const item = index >= 0 ? sorted[index] : null;
-    return { item, index };
+    if (index === -1) return null;
+
+    const item = items[index];
+    const position = item.position != null && !isNaN(Number(item.position)) ? Math.floor(Number(item.position)) : index + 1;
+    const kilometers = Math.round(Number(item.total_distance || item.kilometros || item.km || 0));
+    const trips = Math.round(Number(item.total_jobs || item.viajes || item.jobs || 0));
+    const members = Math.round(Number(item.members || item.miembros || 16));
+
+    const month = apiData.period?.from?.month || (new Date().getMonth() + 1);
+    const year = apiData.period?.from?.year || new Date().getFullYear();
+
+    return {
+        position,
+        kilometers,
+        trips,
+        members,
+        month,
+        year
+    };
 }
 
 function renderPSRankingCertificate(data, statusText, isLive) {
@@ -409,73 +454,91 @@ function renderPSRankingCertificate(data, statusText, isLive) {
 }
 
 function renderSavedRankingImmediately() {
+    if (hasRenderedLiveData) return;
     let saved = null;
     try {
         const raw = localStorage.getItem(PS_RANKING_STORAGE_KEY);
         if (raw) saved = JSON.parse(raw);
     } catch (e) {}
 
-    if (saved && saved.position > 0) {
+    if (saved && saved.position > 0 && saved.kilometers > 0) {
         renderPSRankingCertificate(saved, "Actualizando en segundo plano…", false);
-    } else {
-        const defaultData = {
-            position: 1,
-            previousPosition: 2,
-            kilometers: 179634,
-            trips: 226,
-            members: 16,
-            movement: "up",
-            month: new Date().getMonth() + 1,
-            year: new Date().getFullYear(),
-            timestamp: new Date().toISOString()
-        };
-        renderPSRankingCertificate(defaultData, "Actualizando en segundo plano…", false);
     }
 }
 
 async function refreshRankingInBackground() {
-    // Avoid fetching if document is hidden
     if (document.visibilityState === "hidden") return;
 
-    // Abort any in-flight request to prevent duplication
     if (rankingAbortController) {
         rankingAbortController.abort();
     }
     rankingAbortController = new AbortController();
+    const currentFetchTime = Date.now();
 
-    const API_URL = "https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100";
+    const endpoints = [
+        "/api/ranking",
+        "/api/ps-ranking",
+        "https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100"
+    ];
 
-    try {
-        const timeoutId = setTimeout(() => {
-            if (rankingAbortController) rankingAbortController.abort();
-        }, 8000);
+    let liveData = null;
 
-        const response = await fetch(API_URL, {
-            headers: { "Accept": "application/json" },
-            signal: rankingAbortController.signal
-        });
-        clearTimeout(timeoutId);
+    for (const baseUrl of endpoints) {
+        if (rankingAbortController.signal.aborted) break;
 
-        if (!response.ok) throw new Error("HTTP Error " + response.status);
+        const separator = baseUrl.includes("?") ? "&" : "?";
+        const targetUrl = `${baseUrl}${separator}nocache=1&_=${Date.now()}`;
 
-        const apiData = await response.json();
-        const { item, index } = findTepsaCompanyClient(apiData);
+        try {
+            const timeoutId = setTimeout(() => {
+                if (rankingAbortController) rankingAbortController.abort();
+            }, 8000);
 
-        if (!item || index < 0) {
-            throw new Error("Empresa TEPSA PSV no encontrada en el ranking de PeruServer");
+            const res = await fetch(targetUrl, {
+                headers: { "Accept": "application/json" },
+                cache: "no-store",
+                signal: rankingAbortController.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (!res.ok) {
+                console.warn(`[Ranking Client] Endpoint ${baseUrl} status HTTP ${res.status}`);
+                continue;
+            }
+
+            const contentType = res.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                console.warn(`[Ranking Client] Endpoint ${baseUrl} Content-Type no es JSON: ${contentType}`);
+                continue;
+            }
+
+            const json = await res.json();
+            const extracted = extractTepsaDataClient(json);
+
+            if (extracted && extracted.position > 0 && extracted.kilometers > 0) {
+                liveData = extracted;
+                console.log(`[Ranking Client] Datos en vivo obtenidos correctamente desde ${baseUrl}:`, liveData);
+                break;
+            }
+        } catch (err) {
+            if (err.name === "AbortError") return;
+            console.warn(`[Ranking Client] Error en consulta a ${baseUrl}:`, err.message);
         }
+    }
 
-        const newPos = index + 1;
-        const newKm = Math.round(Number(item.total_distance || item.kilometros || item.km || 0));
-        const newTrips = Math.round(Number(item.total_jobs || item.viajes || item.jobs || 0));
-        const newMembers = Math.round(Number(item.members || item.miembros || 16));
+    if (rankingAbortController.signal.aborted) return;
 
-        let prevPos = newPos > 1 ? newPos + 1 : 2;
+    if (liveData) {
+        if (currentFetchTime < lastLiveFetchTimestamp) return;
+        lastLiveFetchTimestamp = currentFetchTime;
+        hasRenderedLiveData = true;
+
+        let prevPos = liveData.position > 1 ? liveData.position + 1 : 2;
         try {
             const raw = localStorage.getItem(PS_RANKING_STORAGE_KEY);
             if (raw) {
                 const prevStore = JSON.parse(raw);
-                if (prevStore.position && prevStore.position !== newPos) {
+                if (prevStore.position && prevStore.position !== liveData.position) {
                     prevPos = prevStore.position;
                 } else if (prevStore.previousPosition) {
                     prevPos = prevStore.previousPosition;
@@ -483,24 +546,22 @@ async function refreshRankingInBackground() {
             }
         } catch (e) {}
 
-        let movement = "same";
-        if (newPos < prevPos) movement = "up";
-        else if (newPos > prevPos) movement = "down";
-
-        const now = new Date();
-        const month = apiData.period?.from?.month || (now.getMonth() + 1);
-        const year = apiData.period?.from?.year || now.getFullYear();
+        let movement = liveData.movement || "same";
+        if (!liveData.movement || liveData.movement === "same") {
+            if (liveData.position < prevPos) movement = "up";
+            else if (liveData.position > prevPos) movement = "down";
+        }
 
         const freshData = {
-            position: newPos,
+            position: liveData.position,
             previousPosition: prevPos,
-            kilometers: newKm,
-            trips: newTrips,
-            members: newMembers,
+            kilometers: liveData.kilometers,
+            trips: liveData.trips,
+            members: liveData.members,
             movement: movement,
-            month: month,
-            year: year,
-            timestamp: now.toISOString()
+            month: liveData.month,
+            year: liveData.year,
+            timestamp: new Date().toISOString()
         };
 
         try {
@@ -508,36 +569,22 @@ async function refreshRankingInBackground() {
         } catch (e) {}
 
         renderPSRankingCertificate(freshData, "EN VIVO", true);
+    } else {
+        console.warn("[Ranking Client] No se pudieron obtener datos en vivo. Verificando caché local...");
+        if (!hasRenderedLiveData) {
+            let saved = null;
+            try {
+                const raw = localStorage.getItem(PS_RANKING_STORAGE_KEY);
+                if (raw) saved = JSON.parse(raw);
+            } catch (e) {}
 
-    } catch (err) {
-        if (err.name === "AbortError") return; // Ignore aborted requests
-        console.warn("refreshRankingInBackground: PeruServer API no disponible:", err.message);
-
-        let saved = null;
-        try {
-            const raw = localStorage.getItem(PS_RANKING_STORAGE_KEY);
-            if (raw) saved = JSON.parse(raw);
-        } catch (e) {}
-
-        if (saved && saved.position > 0) {
-            renderPSRankingCertificate(saved, "ÚLTIMO DATO DISPONIBLE", false);
-        } else {
-            const defaultData = {
-                position: 1,
-                previousPosition: 2,
-                kilometers: 179634,
-                trips: 226,
-                members: 16,
-                movement: "up",
-                month: new Date().getMonth() + 1,
-                year: new Date().getFullYear(),
-                timestamp: new Date().toISOString()
-            };
-            renderPSRankingCertificate(defaultData, "ÚLTIMO DATO DISPONIBLE", false);
+            if (saved && saved.position > 0 && saved.kilometers > 0) {
+                renderPSRankingCertificate(saved, "ÚLTIMO DATO DISPONIBLE", false);
+            }
         }
-    } finally {
-        rankingAbortController = null;
     }
+
+    rankingAbortController = null;
 }
 
 /**
