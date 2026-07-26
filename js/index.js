@@ -489,6 +489,8 @@ function setupDisclaimerModal() {
 }
 
 /* ===== PERUSERVER RANKING CERTIFICATE SWR ===== */
+let activePSFetchPromise = null;
+
 async function loadPSRanking() {
     const els = {
         heroRank: document.getElementById("psvCertHeroRank"),
@@ -502,131 +504,86 @@ async function loadPSRanking() {
     };
     if (!els.heroRank) return;
 
-    const render = (pos, prevPos, km, jobs, members, tendencia, actualizadoEn) => {
-        const p = pos || "2";
-        const pp = prevPos || "3";
-        const tend = tendencia || "subio";
-        const formattedKm = typeof km === "number" || !isNaN(Number(km)) ? Number(km).toLocaleString("es-PE") : (km || "129,809");
-        
-        els.heroRank.textContent = "#" + p;
-        if (els.centerRank) els.centerRank.textContent = p;
-        if (els.stats) els.stats.textContent = formattedKm + " KM · " + (jobs || "166") + " Viajes";
-        if (els.monthRank) els.monthRank.textContent = "#" + p;
-        if (els.members) els.members.textContent = members || "16";
+    const render = (data) => {
+        if (!data) return;
+        const comp = data.company || {};
+        const pos = comp.position ?? data.puestoActual ?? data.position;
+        const prevPos = comp.previousPosition ?? data.puestoAnterior;
+        const km = comp.kilometers ?? data.kilometros;
+        const jobs = comp.trips ?? data.viajes;
+        const members = comp.members ?? data.miembros;
+        const movement = comp.movement || (data.tendencia === "subio" ? "up" : data.tendencia === "bajo" ? "down" : "same");
+        const updatedAt = data.updatedAt || data.actualizadoEn || new Date().toISOString();
+
+        if (pos == null || isNaN(Number(pos)) || Number(pos) <= 0) {
+            console.warn("loadPSRanking: posición inválida recibida:", pos);
+            return;
+        }
+
+        const validPos = Math.floor(Number(pos));
+        const validPrevPos = prevPos != null && !isNaN(Number(prevPos)) ? Math.floor(Number(prevPos)) : (validPos > 1 ? validPos + 1 : 2);
+
+        const formattedKm = typeof km === "number" || !isNaN(Number(km)) ? Number(km).toLocaleString("es-PE") : "0";
+
+        if (els.heroRank) els.heroRank.textContent = "#" + validPos;
+        if (els.centerRank) els.centerRank.textContent = validPos;
+        if (els.stats) els.stats.textContent = formattedKm + " KM · " + (jobs != null ? jobs : "0") + " Viajes";
+        if (els.monthRank) els.monthRank.textContent = "#" + validPos;
+        if (els.members) els.members.textContent = members != null ? members : "16";
         if (els.title) els.title.textContent = "TEPSA PSV";
         if (els.subtitle) els.subtitle.textContent = "Ranking Mensual PeruServer";
 
-        const trendSymbol = tend === "subio" ? "▲" : tend === "bajo" ? "▼" : "●";
-        const trendText = tend === "subio" ? `subió de #${pp}` : tend === "bajo" ? `bajó de #${pp}` : "mantiene";
+        const trendSymbol = movement === "up" ? "▲" : movement === "down" ? "▼" : "●";
+        const trendText = movement === "up" ? `subió de #${validPrevPos}` : movement === "down" ? `bajó de #${validPrevPos}` : `mantiene en #${validPos}`;
 
-        const date = actualizadoEn ? new Date(actualizadoEn) : new Date();
+        const date = updatedAt ? new Date(updatedAt) : new Date();
         const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        const displayPeriod = `${months[date.getMonth()]} ${date.getFullYear()}`;
+        const monthName = comp.month ? months[comp.month - 1] : months[date.getMonth()];
+        const year = comp.year || date.getFullYear();
+        const displayPeriod = `${monthName} ${year}`;
 
         if (els.meta) {
-            els.meta.textContent = `Top ${p} (${trendSymbol} ${trendText}) · En vivo · ${displayPeriod}`;
+            els.meta.textContent = `Top ${validPos} (${trendSymbol} ${trendText}) · En vivo · ${displayPeriod}`;
         }
     };
 
     let cachedData = null;
     try {
-        cachedData = JSON.parse(localStorage.getItem(CACHE_KEY_PS_RANKING));
-        if (cachedData) {
-            render(
-                cachedData.pos,
-                cachedData.prevPos,
-                cachedData.km,
-                cachedData.jobs,
-                cachedData.members,
-                cachedData.tendencia,
-                cachedData.actualizadoEn
-            );
-        } else {
-            render(2, 3, 132010, 170, 16, "subio", null);
+        const rawCache = localStorage.getItem(CACHE_KEY_PS_RANKING);
+        if (rawCache) {
+            cachedData = JSON.parse(rawCache);
+            if (cachedData) render(cachedData);
         }
-    } catch (e) {
-        render(2, 3, 132010, 170, 16, "subio", null);
-    }
+    } catch (e) {}
 
     if (activePSFetchPromise) return;
 
     let fetchedData = null;
 
     activePSFetchPromise = (async () => {
-        // 1. Direct fetch to PeruServer Monthly API
-        try {
-            const ac = new AbortController();
-            const tid = setTimeout(() => ac.abort(), 4000);
-            const res = await fetch("https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100", {
-                headers: {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                    "Accept": "application/json",
-                    "Origin": "https://peruserver.pe",
-                    "Referer": "https://peruserver.pe/"
-                },
-                signal: ac.signal
-            });
-            clearTimeout(tid);
-            if (res.ok) {
-                const data = await res.json();
-                const items = data?.items || [];
-                const idx = items.findIndex(x => x.id === 44302 || (x.name || "").includes("TEPSA"));
-                if (idx >= 0) {
-                    const item = items[idx];
-                    const pos = idx + 1;
-                    return {
-                        pos: pos,
-                        prevPos: pos > 1 ? pos + 1 : 1,
-                        km: Math.round(item.total_distance || 132010),
-                        jobs: item.total_jobs || 170,
-                        members: item.members || 16,
-                        tendencia: "subio",
-                        actualizadoEn: new Date().toISOString()
-                    };
-                }
-            }
-        } catch (e) {
-            console.warn("loadPSRanking: direct monthly API error, trying endpoints", e);
-        }
-
-        // 2. Fallback to API proxies
         const urls = [
-            ...getApiEndpointsList("/api/ps-ranking"),
-            ...getApiEndpointsList("/api/ranking")
+            ...getApiEndpointsList("/api/ranking"),
+            ...getApiEndpointsList("/api/ps-ranking")
         ];
 
-        for (const url of urls) {
+        for (const baseUrl of urls) {
             try {
                 const ac = new AbortController();
-                const tid = setTimeout(() => ac.abort(), 3500);
-                const cleanUrl = url + (url.includes("?") ? "&" : "?") + "_=" + Date.now();
-                const r = await fetch(cleanUrl, { cache: "no-store", signal: ac.signal });
+                const tid = setTimeout(() => ac.abort(), 6000);
+                const separator = baseUrl.includes("?") ? "&" : "?";
+                const cleanUrl = `${baseUrl}${separator}_=${Date.now()}`;
+
+                const res = await fetch(cleanUrl, { cache: "no-store", signal: ac.signal });
                 clearTimeout(tid);
-                if (r.ok) {
-                    const d = await r.json();
-                    if (d && d.ok !== false && (d.puestoActual || d.puestoActual === 0)) {
-                        return {
-                            pos: d.puestoActual,
-                            prevPos: d.puestoAnterior || (d.puestoActual > 1 ? d.puestoActual + 1 : 1),
-                            km: d.kilometros,
-                            jobs: d.viajes,
-                            members: d.miembros,
-                            tendencia: d.tendencia || "subio",
-                            actualizadoEn: d.actualizadoEn
-                        };
-                    } else if (d && d.ok !== false && (d.position || d.item)) {
-                        return {
-                            pos: d.position || 2,
-                            prevPos: (d.position || 2) + 1,
-                            km: d.item?.total_distance || 0,
-                            jobs: d.item?.total_jobs || 0,
-                            members: d.item?.members || 16,
-                            tendencia: "subio",
-                            actualizadoEn: new Date().toISOString()
-                        };
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && (data.success || data.ok) && (data.company?.position || data.puestoActual)) {
+                        return data;
                     }
                 }
-            } catch (e) {}
+            } catch (err) {
+                console.warn(`loadPSRanking fetch error for ${baseUrl}:`, err.message);
+            }
         }
         return null;
     })();
@@ -638,25 +595,15 @@ async function loadPSRanking() {
     }
 
     if (fetchedData) {
-        render(
-            fetchedData.pos,
-            fetchedData.prevPos,
-            fetchedData.km,
-            fetchedData.jobs,
-            fetchedData.members,
-            fetchedData.tendencia,
-            fetchedData.actualizadoEn
-        );
-        try { 
-            localStorage.setItem(CACHE_KEY_PS_RANKING, JSON.stringify(fetchedData)); 
-        } catch (e) { }
-    } else {
-        console.warn("loadPSRanking: all fetch sources failed. Maintaining current values.");
-        if (!cachedData) {
-            render(2, 3, 132010, 170, 16, "subio", null);
-        }
+        render(fetchedData);
+        try {
+            localStorage.setItem(CACHE_KEY_PS_RANKING, JSON.stringify(fetchedData));
+        } catch (e) {}
+    } else if (!cachedData) {
+        console.warn("loadPSRanking: no se pudo obtener datos del servidor ni del caché.");
     }
 }
+
 
 /* ===== RECRUITMENT POSTULATION FORM ===== */
 function setupPostulationForm() {

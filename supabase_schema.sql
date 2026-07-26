@@ -57,7 +57,29 @@ SET is_admin = TRUE, status = 'active';
 -- Borrar admpsv si existía previamente
 DELETE FROM public.conductores_auth WHERE LOWER(driver_name) = 'admpsv';
 
+-- 5. Crear Tabla de Historial de Ranking Mensual (PeruServer)
+CREATE TABLE IF NOT EXISTS public.ranking_historial (
+    id BIGSERIAL PRIMARY KEY,
+    empresa_id BIGINT NOT NULL DEFAULT 44302,
+    puesto INT NOT NULL,
+    kilometros BIGINT DEFAULT 0,
+    viajes INT DEFAULT 0,
+    miembros INT DEFAULT 0,
+    fecha_registro TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.ranking_historial ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Permitir lectura publica ranking_historial" ON public.ranking_historial;
+DROP POLICY IF EXISTS "Permitir insercion publica ranking_historial" ON public.ranking_historial;
+DROP POLICY IF EXISTS "Permitir actualizacion publica ranking_historial" ON public.ranking_historial;
+
+CREATE POLICY "Permitir lectura publica ranking_historial" ON public.ranking_historial FOR SELECT USING (true);
+CREATE POLICY "Permitir insercion publica ranking_historial" ON public.ranking_historial FOR INSERT WITH CHECK (true);
+CREATE POLICY "Permitir actualizacion publica ranking_historial" ON public.ranking_historial FOR UPDATE USING (true);
+
 -- Indices para optimización de consultas
 CREATE INDEX IF NOT EXISTS idx_conductores_name ON public.conductores_auth(driver_name);
 CREATE INDEX IF NOT EXISTS idx_fotos_driver ON public.fotos_conductores(driver_name);
 CREATE INDEX IF NOT EXISTS idx_fotos_created ON public.fotos_conductores(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ranking_empresa_fecha ON public.ranking_historial(empresa_id, fecha_registro DESC);
+
