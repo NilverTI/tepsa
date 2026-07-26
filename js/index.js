@@ -25,9 +25,11 @@ const fallbackTruckyData = {
 
 const CACHE_KEY_TRUCKY = "tepsa_index_v3";
 const CACHE_TTL_TRUCKY = 5 * 60 * 1000;
-const CACHE_KEY_PS_RANKING = "tepsa:ps-ranking:v9";
+const PS_RANKING_STORAGE_KEY = "tepsa_ps_ranking_store";
 
 let activeTruckyFetchPromise = null;
+let rankingPollingIntervalId = null;
+let rankingAbortController = null;
 
 function smoothUpdate(element, newHtml) {
     if (!element) return;
@@ -202,76 +204,25 @@ function renderTruckyData(data) {
     status.innerHTML = `📡 <strong>Trucky Hub</strong> · Actualizado: ${updatedAt}`;
 }
 
-function getTruckyCache() {
-    try {
-        const raw = localStorage.getItem(CACHE_KEY_TRUCKY);
-        if (!raw) return null;
-        const entry = JSON.parse(raw);
-        return entry.data;
-    } catch { return null; }
-}
-
 function setTruckyCache(data) {
     try {
         localStorage.setItem(CACHE_KEY_TRUCKY, JSON.stringify({ ts: Date.now(), data }));
-        localStorage.removeItem("tepsa_index_v2");
     } catch { }
 }
 
 function transformMember(m) {
     return {
-        name: m.name,
-        kilometers: m.kilometers || m.total_driven_distance_km || 0,
-        points: m.points || 0,
-        lastJobDays: m.lastJobDays ?? m.last_job_days,
+        name: m.name || m.username || "Sin nombre",
+        kilometers: Math.round(Number(m.total_driven_distance_km || m.kilometers || 0)),
+        points: Math.round(Number(m.points || 0)),
+        lastJobDays: m.last_job_days != null && Number.isFinite(Number(m.last_job_days)) ? Number(m.last_job_days) : 9999,
         role: m.role?.name || m.role || "",
         avatar: m.avatar_url || m.avatar || "",
-        damage: m.damage || 0,
-        level: m.level || 0,
-        revenue: m.revenue || m.total_revenue || 0,
-        cargo: m.cargoMass || m.cargo || m.total_cargo_mass_t || 0,
+        damage: Math.round(Number(m.damage || 0)),
+        level: Number(m.level || 0),
+        revenue: Math.round(Number(m.total_revenue || m.revenue || 0)),
+        cargo: Math.round(Number(m.total_cargo_mass_t || m.cargoMass || m.cargo || 0)),
     };
-}
-
-async function tryFetch(url) {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-}
-
-async function fetchMonthJobs() {
-    const stats = new Map();
-    try {
-        const now = new Date();
-        const y = now.getFullYear();
-        const m = String(now.getMonth() + 1).padStart(2, "0");
-        const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
-        const base = `https://e.truckyapp.com/api/v1/company/44302/jobs?dateFrom=${y}-${m}-01&dateTo=${y}-${m}-${lastDay}`;
-        const p1 = await tryFetch(base + "&page=1");
-        if (!p1 || !p1.data) return stats;
-        const total = p1.last_page || 1;
-        const pages = [p1];
-        for (let s = 2; s <= total; s += 4) {
-            const batch = [];
-            for (let p = s; p < s + 4 && p <= total; p++) batch.push(tryFetch(base + "&page=" + p));
-            const results = await Promise.allSettled(batch);
-            for (const r of results) if (r.status === "fulfilled" && r.value) pages.push(r.value);
-        }
-        for (const page of pages) {
-            if (!page || !page.data) continue;
-            for (const job of page.data) {
-                const name = job.in_game_profile_name || job.driver?.name || "";
-                if (!name) continue;
-                const prev = stats.get(name) || { kilometers: 0, damage: 0 };
-                prev.kilometers += Number(job.driven_distance_km || job.kilometers || 0);
-                prev.damage += (job.vehicle_damage || 0) + (job.cargo_damage || 0) + (job.trailers_damage || 0);
-                stats.set(name, prev);
-            }
-        }
-    } catch (e) {
-        console.error("fetchMonthJobs:", e);
-    }
-    return stats;
 }
 
 async function loadTruckyData(force) {
@@ -293,7 +244,6 @@ async function loadTruckyData(force) {
         if (status) {
             status.innerHTML = `📡 <strong>Datos locales</strong> · Actualizado: ${formatTimeAgo(cacheTime)}`;
         }
-        
         if (cacheTime && (Date.now() - cacheTime < CACHE_TTL_TRUCKY) && !force) {
             return;
         }
@@ -304,196 +254,64 @@ async function loadTruckyData(force) {
     }
 
     if (activeTruckyFetchPromise) {
-        try {
-            await activeTruckyFetchPromise;
-        } catch (e) {}
+        try { await activeTruckyFetchPromise; } catch (e) {}
         return;
     }
 
-    let data = null;
-
     activeTruckyFetchPromise = (async () => {
-        const urls = getApiEndpointsList("/api/trucky/conductores");
-
-        let fetchedData = null;
-
-        const promises = urls.map(async (url) => {
-            const isLocal = url.startsWith("/") || url.includes("127.0.0.1") || url.includes("localhost");
-            const timeoutMs = isLocal ? 1500 : 8000;
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeoutMs);
-            try {
-                const res = await fetch(url, { cache: "no-store", signal: controller.signal });
-                clearTimeout(id);
-                if (!res.ok) throw new Error("HTTP " + res.status);
-                const d = await res.json();
-                return {
-                    source: "trucky",
-                    updatedAt: new Date().toISOString(),
-                    stats: d.stats || {},
-                    ranking: (d.ranking || []).map(transformMember),
-                    recentJobs: d.recentJobs || [],
-                };
-            } catch (err) {
-                clearTimeout(id);
-                throw err;
-            }
-        });
-
+        const controller = new AbortController();
+        const timerId = setTimeout(() => controller.abort(), 8000);
         try {
-            fetchedData = await Promise.any(promises);
-        } catch (e) {
-            console.warn("loadTruckyData: falló API proxy, probando alternativa directa...");
-        }
+            const res = await fetch("https://e.truckyapp.com/api/v1/company/44302/members", {
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Accept": "application/json, text/plain, */*"
+                },
+                signal: controller.signal
+            });
+            clearTimeout(timerId);
 
-        if (!fetchedData) {
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), 8000);
-            try {
-                const [raw, monthStats] = await Promise.all([
-                    fetch("https://e.truckyapp.com/api/v1/company/44302/members", { cache: "no-store", signal: controller.signal }).then(r => r.json()),
-                    fetchMonthJobs(),
-                ]);
-                clearTimeout(id);
-                const members = (raw.data || [])
-                    .map(m => {
-                        const name = m.name || "Sin nombre";
-                        const ms = monthStats.get(name) || { kilometers: 0, damage: 0 };
-                        return {
-                            name,
-                            kilometers: Math.round(ms.kilometers),
-                            points: Math.round(m.points || 0),
-                            lastJobDays: m.lastJobDays ?? m.last_job_days,
-                            role: m.role?.name || m.role || "",
-                            avatar: m.avatar_url || m.avatar || "",
-                            damage: Math.round(ms.damage),
-                            level: m.level || 0,
-                            revenue: m.revenue || m.total_revenue || 0,
-                            cargo: m.cargoMass || m.cargo || m.total_cargo_mass_t || 0,
-                        };
-                    })
-                    .filter(m => {
-                        const role = m.role || "";
-                        const name = m.name || "";
-                        return role.toLowerCase() !== "owner";
-                    });
-                const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
-                const active = members.filter(d => Number(d.lastJobDays ?? 9999) <= 7).length;
-                const drivers = members.length;
-                members.sort((a, b) => b.kilometers - a.kilometers);
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const rawData = await res.json();
+            const members = (rawData.data || [])
+                .map(transformMember)
+                .filter(m => (m.role || "").toLowerCase() !== "owner");
+            members.sort((a, b) => b.kilometers - a.kilometers);
 
-                fetchedData = {
-                    source: "trucky",
-                    updatedAt: new Date().toISOString(),
-                    stats: { kilometers: Math.round(totalKm), drivers, active },
-                    ranking: members,
-                    recentJobs: [],
-                };
-            } catch (e) {
-                clearTimeout(id);
-                console.error("loadTruckyData: todos los orígenes fallaron en segundo plano", e);
-            }
+            const totalKm = members.reduce((s, d) => s + d.kilometers, 0);
+            const activeCount = members.filter(d => d.lastJobDays <= 7).length;
+
+            return {
+                source: "trucky",
+                updatedAt: new Date().toISOString(),
+                stats: { kilometers: totalKm, drivers: members.length, active: activeCount },
+                ranking: members,
+                recentJobs: []
+            };
+        } catch (err) {
+            clearTimeout(timerId);
+            throw err;
         }
-        return fetchedData;
     })();
 
+    let data = null;
     try {
         data = await activeTruckyFetchPromise;
     } catch (e) {
-        console.error("loadTruckyData fetch error:", e);
+        console.warn("loadTruckyData direct fetch failed, trying fallback:", e.message);
     } finally {
         activeTruckyFetchPromise = null;
     }
 
     if (data) {
-        const isChanged = !cached || 
-            JSON.stringify(cached.stats) !== JSON.stringify(data.stats) ||
-            JSON.stringify(cached.ranking) !== JSON.stringify(data.ranking) ||
-            JSON.stringify(cached.recentJobs) !== JSON.stringify(data.recentJobs);
-
         setTruckyCache(data);
-
-        if (isChanged) {
-            renderTruckyData(data);
-        } else {
-            if (status) {
-                status.innerHTML = `📡 <strong>Trucky Hub</strong> · Actualizado: hace un momento`;
-            }
-        }
-    } else {
-        if (cached) {
-            if (status) {
-                status.innerHTML = `⚠️ Mostrando datos guardados. Última actualización: ${formatTimeAgo(cacheTime)}`;
-            }
-        } else {
-            renderTruckyData(fallbackTruckyData);
-            if (status) {
-                status.innerHTML = `⚠️ Error al conectar. Mostrando datos por defecto.`;
-            }
-        }
+        renderTruckyData(data);
+    } else if (!cached) {
+        renderTruckyData(fallbackTruckyData);
     }
 }
 
-/* ===== ANIMATIONS AND UI OVERLAYS ===== */
-function setupRevealAnimation() {
-    const sections = document.querySelectorAll("section");
-    sections.forEach(s => { 
-        s.style.opacity = "0"; 
-        s.style.transform = "translateY(50px)"; 
-        s.style.transition = "all 1s ease"; 
-    });
-    
-    const observer = new IntersectionObserver(entries => {
-        entries.forEach(e => { 
-            if (e.isIntersecting) { 
-                e.target.style.opacity = "1"; 
-                e.target.style.transform = "translateY(0)"; 
-            } 
-        });
-    }, { threshold: 0.12 });
-    
-    sections.forEach(s => observer.observe(s));
-}
-
-function setupBackToTopButton() {
-    const btn = document.getElementById("back-to-top");
-    if (!btn) return;
-    
-    function toggleBtn() {
-        btn.classList.toggle("show", window.scrollY > 300);
-    }
-    
-    window.addEventListener("scroll", toggleBtn, { passive: true });
-    toggleBtn();
-    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-}
-
-function setupDisclaimerModal() {
-    const modal = document.getElementById("disclaimer-modal");
-    const closeBtn = document.getElementById("modal-close-btn");
-    const acceptBtn = document.getElementById("modal-accept-btn");
-    if (!modal) return;
-    
-    function close() { 
-        modal.classList.add("hidden"); 
-    }
-    
-    closeBtn?.addEventListener("click", close);
-    acceptBtn?.addEventListener("click", close);
-    modal.addEventListener("click", (e) => { 
-        if (e.target === modal) close(); 
-    });
-    document.addEventListener("keydown", (e) => { 
-        if (e.key === "Escape") close(); 
-    });
-}
-
-/* ==========================================================================
-   PURE CLIENT-SIDE PERUSERVER MONTHLY RANKING (STALE-WHILE-REVALIDATE)
-   Runs 100% in browser / static hosting without serverless/Node.js dependencies
-   ========================================================================== */
-
-const PS_RANKING_STORAGE_KEY = "tepsa_ps_ranking_store";
+/* ===== PURE CLIENT-SIDE PERUSERVER MONTHLY RANKING (STALE-WHILE-REVALIDATE) ===== */
 
 function normalizeCompanyNameClient(str) {
     return String(str || "")
@@ -510,24 +328,17 @@ function findTepsaCompanyClient(apiData) {
     if (Array.isArray(apiData)) items = apiData;
     else if (Array.isArray(apiData.items)) items = apiData.items;
     else if (Array.isArray(apiData.data)) items = apiData.data;
-    else if (Array.isArray(apiData.rankings)) items = apiData.rankings;
-    else if (Array.isArray(apiData.empresas)) items = apiData.empresas;
-    else if (Array.isArray(apiData.results)) items = apiData.results;
-    else if (Array.isArray(apiData.monthlyRanking)) items = apiData.monthlyRanking;
 
     if (!items.length) return { item: null, index: -1 };
 
-    // Sort by kilometers / total_distance descending if not pre-sorted
     const sorted = [...items].sort((a, b) => {
         const kmA = Number(a.total_distance || a.kilometros || a.km || 0);
         const kmB = Number(b.total_distance || b.kilometros || b.km || 0);
         return kmB - kmA;
     });
 
-    // 1. Search by exact ID (44302)
     let index = sorted.findIndex(x => x && String(x.id || x.company_id || x.empresa_id) === "44302");
 
-    // 2. Search by normalized name
     if (index === -1) {
         index = sorted.findIndex(x => {
             if (!x) return false;
@@ -597,9 +408,6 @@ function renderPSRankingCertificate(data, statusText, isLive) {
     }
 }
 
-/**
- * 1. Render saved ranking immediately from localStorage on startup.
- */
 function renderSavedRankingImmediately() {
     let saved = null;
     try {
@@ -625,19 +433,26 @@ function renderSavedRankingImmediately() {
     }
 }
 
-/**
- * 2. Fetch fresh ranking in background asynchronously from PeruServer API directly.
- */
 async function refreshRankingInBackground() {
+    // Avoid fetching if document is hidden
+    if (document.visibilityState === "hidden") return;
+
+    // Abort any in-flight request to prevent duplication
+    if (rankingAbortController) {
+        rankingAbortController.abort();
+    }
+    rankingAbortController = new AbortController();
+
     const API_URL = "https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100";
 
     try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const timeoutId = setTimeout(() => {
+            if (rankingAbortController) rankingAbortController.abort();
+        }, 8000);
 
         const response = await fetch(API_URL, {
             headers: { "Accept": "application/json" },
-            signal: controller.signal
+            signal: rankingAbortController.signal
         });
         clearTimeout(timeoutId);
 
@@ -655,7 +470,6 @@ async function refreshRankingInBackground() {
         const newTrips = Math.round(Number(item.total_jobs || item.viajes || item.jobs || 0));
         const newMembers = Math.round(Number(item.members || item.miembros || 16));
 
-        // Get saved data to calculate movement direction
         let prevPos = newPos > 1 ? newPos + 1 : 2;
         try {
             const raw = localStorage.getItem(PS_RANKING_STORAGE_KEY);
@@ -689,18 +503,16 @@ async function refreshRankingInBackground() {
             timestamp: now.toISOString()
         };
 
-        // Save fresh snapshot to localStorage
         try {
             localStorage.setItem(PS_RANKING_STORAGE_KEY, JSON.stringify(freshData));
         } catch (e) {}
 
-        // Render UI with EN VIVO status
         renderPSRankingCertificate(freshData, "EN VIVO", true);
 
     } catch (err) {
+        if (err.name === "AbortError") return; // Ignore aborted requests
         console.warn("refreshRankingInBackground: PeruServer API no disponible:", err.message);
 
-        // On error, maintain last valid data from localStorage
         let saved = null;
         try {
             const raw = localStorage.getItem(PS_RANKING_STORAGE_KEY);
@@ -723,7 +535,101 @@ async function refreshRankingInBackground() {
             };
             renderPSRankingCertificate(defaultData, "ÚLTIMO DATO DISPONIBLE", false);
         }
+    } finally {
+        rankingAbortController = null;
     }
+}
+
+/**
+ * Starts 20-second polling interval ONLY when tab is visible.
+ */
+function startRankingPolling() {
+    stopRankingPolling();
+    if (document.visibilityState !== "visible") return;
+
+    refreshRankingInBackground();
+
+    rankingPollingIntervalId = setInterval(() => {
+        if (document.visibilityState === "visible") {
+            refreshRankingInBackground();
+        }
+    }, 20000); // Poll every 20 seconds
+}
+
+/**
+ * Stops polling and aborts any active fetch.
+ */
+function stopRankingPolling() {
+    if (rankingPollingIntervalId) {
+        clearInterval(rankingPollingIntervalId);
+        rankingPollingIntervalId = null;
+    }
+    if (rankingAbortController) {
+        rankingAbortController.abort();
+        rankingAbortController = null;
+    }
+}
+
+/* ===== ANIMATIONS AND UI OVERLAYS ===== */
+function setupRevealAnimation() {
+    const sections = document.querySelectorAll("section");
+    sections.forEach(s => { 
+        s.style.opacity = "0"; 
+        s.style.transform = "translateY(50px)"; 
+        s.style.transition = "all 1s ease"; 
+    });
+    
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { 
+            if (e.isIntersecting) { 
+                e.target.style.opacity = "1"; 
+                e.target.style.transform = "translateY(0)";
+                observer.unobserve(e.target); // Unobserve to free memory
+            } 
+        });
+    }, { threshold: 0.12 });
+    
+    sections.forEach(s => observer.observe(s));
+}
+
+function setupBackToTopButton() {
+    const btn = document.getElementById("back-to-top");
+    if (!btn) return;
+    
+    let ticking = false;
+    function toggleBtn() {
+        btn.classList.toggle("show", window.scrollY > 300);
+        ticking = false;
+    }
+    
+    window.addEventListener("scroll", () => {
+        if (!ticking) {
+            window.requestAnimationFrame(toggleBtn);
+            ticking = true;
+        }
+    }, { passive: true });
+    toggleBtn();
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+}
+
+function setupDisclaimerModal() {
+    const modal = document.getElementById("disclaimer-modal");
+    const closeBtn = document.getElementById("modal-close-btn");
+    const acceptBtn = document.getElementById("modal-accept-btn");
+    if (!modal) return;
+    
+    function close() { 
+        modal.classList.add("hidden"); 
+    }
+    
+    closeBtn?.addEventListener("click", close);
+    acceptBtn?.addEventListener("click", close);
+    modal.addEventListener("click", (e) => { 
+        if (e.target === modal) close(); 
+    });
+    document.addEventListener("keydown", (e) => { 
+        if (e.key === "Escape") close(); 
+    });
 }
 
 /* ===== RECRUITMENT POSTULATION FORM ===== */
@@ -774,14 +680,6 @@ function setupPostulationForm() {
     });
 }
 
-// Clean old localStorage entries
-try { localStorage.removeItem("tepsa:ps-ranking:v2"); } catch (e) { }
-try { localStorage.removeItem("tepsa:ps-ranking:v3"); } catch (e) { }
-try { localStorage.removeItem("tepsa:ps-ranking:v4"); } catch (e) { }
-try { localStorage.removeItem("tepsa:ps-ranking:v5"); } catch (e) { }
-try { localStorage.removeItem("tepsa:ps-ranking:v6"); } catch (e) { }
-try { localStorage.removeItem("tepsa:ps-ranking:v7"); } catch (e) { }
-
 document.addEventListener("DOMContentLoaded", () => {
     setupDisclaimerModal();
     setupRevealAnimation();
@@ -789,23 +687,24 @@ document.addEventListener("DOMContentLoaded", () => {
     setupPostulationForm();
     loadTruckyData();
 
-    // 1. Mostrar inmediatamente el último dato guardado en localStorage
+    // 1. Render saved ranking immediately from localStorage
     renderSavedRankingImmediately();
 
-    // 2. Cargar datos frescos en segundo plano sin bloquear la UI
+    // 2. Start background polling (20s) if tab is visible
     requestAnimationFrame(() => {
         setTimeout(() => {
-            refreshRankingInBackground();
+            if (document.visibilityState === "visible") {
+                startRankingPolling();
+            }
         }, 50);
     });
 
-    // Auto-actualizar ranking en segundo plano cada 60 segundos
-    setInterval(refreshRankingInBackground, 60 * 1000);
-
-    // Actualizar al regresar a la pestaña
+    // 3. Tab visibility controller
     document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") {
-            refreshRankingInBackground();
+            startRankingPolling();
+        } else {
+            stopRankingPolling();
         }
     });
 });

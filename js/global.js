@@ -7,10 +7,11 @@ const numberFormat = new Intl.NumberFormat("es-PE", {
 });
 
 /**
- * Formats a numeric value to Peru Spanish locale formatting.
+ * Formats a numeric value to Peru Spanish locale formatting safely.
  */
 function formatNumber(value) {
-    return numberFormat.format(Number(value) || 0);
+    const num = Number(value);
+    return isNaN(num) ? "0" : numberFormat.format(num);
 }
 
 /**
@@ -26,53 +27,32 @@ function escapeHtml(value) {
 }
 
 /**
- * Retrieves the initials of a driver name.
+ * Retrieves the initials of a driver name, stripping tags.
  */
 function getInitials(name) {
-    return (name || "?").charAt(0).toUpperCase();
+    const clean = String(name || "?").replace(/\[.*?\]/g, "").trim();
+    return (clean.charAt(0) || "?").toUpperCase();
 }
 
 /**
- * Resolves optimal API endpoint based on current environment.
- * Prevents 404 console errors when running under VS Code Live Server.
- */
-function getApiEndpoint(path) {
-    const cleanPath = path.startsWith('/') ? path : '/' + path;
-    const port = window.location.port;
-
-    if (port && port !== '3000' && port !== '3001' && port !== '80' && port !== '443') {
-        return `https://tepsa.vercel.app${cleanPath}`;
-    }
-
-    return cleanPath;
-}
-
-/**
- * Returns prioritized fallback API endpoints array.
- */
-function getApiEndpointsList(path) {
-    const cleanPath = path.startsWith('/') ? path : '/' + path;
-    const primary = getApiEndpoint(cleanPath);
-    const list = [
-        primary,
-        `https://tepsa.vercel.app${cleanPath}`,
-        `http://127.0.0.1:3000${cleanPath}`
-    ];
-    return Array.from(new Set(list));
-}
-
-/**
- * Enables smooth scrolling classes for the navbar header.
+ * Enables smooth scrolling classes for the navbar header with rAF throttling.
  */
 function setupNavbarScroll() {
     const navbar = document.querySelector(".navbar");
     if (!navbar) return;
     
+    let ticking = false;
     function updateNavbarState() {
         navbar.classList.toggle("scrolled", window.scrollY > 60);
+        ticking = false;
     }
     
-    window.addEventListener("scroll", updateNavbarState, { passive: true });
+    window.addEventListener("scroll", () => {
+        if (!ticking) {
+            window.requestAnimationFrame(updateNavbarState);
+            ticking = true;
+        }
+    }, { passive: true });
     updateNavbarState();
 }
 

@@ -302,42 +302,20 @@ function transformTruckyMember(m, monthStats) {
 }
 
 async function fetchFresh() {
-    const urls = [
-        "/api/trucky/conductores",
-        "http://127.0.0.1:3000/api/trucky/conductores",
-        "http://127.0.0.1:3001/api/trucky/conductores",
-        "https://tepsa.vercel.app/api/trucky/conductores"
-    ];
-
-    const promises = urls.map(async (url) => {
-        const isLocal = url.startsWith("/") || url.includes("127.0.0.1") || url.includes("localhost");
-        const timeoutMs = isLocal ? 1500 : 8000;
-        
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeoutMs);
-        
-        try {
-            const res = await fetch(url, { cache: "no-store", signal: controller.signal });
-            clearTimeout(id);
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            return await res.json();
-        } catch (err) {
-            clearTimeout(id);
-            throw err;
-        }
-    });
-
-    try {
-        return await Promise.any(promises);
-    } catch (err) {
-        console.warn("All primary URLs failed or timed out, trying direct Trucky backup...");
-    }
-
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 8000);
     try {
         const [raw, monthStats] = await Promise.all([
-            fetch("https://e.truckyapp.com/api/v1/company/44302/members", { cache: "no-store", signal: controller.signal }).then(r => r.json()),
+            fetch("https://e.truckyapp.com/api/v1/company/44302/members", {
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Accept": "application/json, text/plain, */*"
+                },
+                signal: controller.signal
+            }).then(r => {
+                if (!r.ok) throw new Error("HTTP " + r.status);
+                return r.json();
+            }),
             fetchMonthJobsData(),
         ]);
         clearTimeout(id);
@@ -351,6 +329,7 @@ async function fetchFresh() {
         throw err;
     }
 }
+
 
 async function loadData(force) {
     let cached = null;
