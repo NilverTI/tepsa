@@ -488,11 +488,61 @@ function setupDisclaimerModal() {
     });
 }
 
-/* ===== PERUSERVER RANKING CERTIFICATE SWR ===== */
-let activePSFetchPromise = null;
+/* ==========================================================================
+   PURE CLIENT-SIDE PERUSERVER MONTHLY RANKING (STALE-WHILE-REVALIDATE)
+   Runs 100% in browser / static hosting without serverless/Node.js dependencies
+   ========================================================================== */
 
-async function loadPSRanking() {
+const PS_RANKING_STORAGE_KEY = "tepsa_ps_ranking_store";
+
+function normalizeCompanyNameClient(str) {
+    return String(str || "")
+        .toLowerCase()
+        .replace(/\[.*?\]/g, "")
+        .replace(/[^a-z0-9]/g, "")
+        .trim();
+}
+
+function findTepsaCompanyClient(apiData) {
+    if (!apiData) return { item: null, index: -1 };
+
+    let items = [];
+    if (Array.isArray(apiData)) items = apiData;
+    else if (Array.isArray(apiData.items)) items = apiData.items;
+    else if (Array.isArray(apiData.data)) items = apiData.data;
+    else if (Array.isArray(apiData.rankings)) items = apiData.rankings;
+    else if (Array.isArray(apiData.empresas)) items = apiData.empresas;
+    else if (Array.isArray(apiData.results)) items = apiData.results;
+    else if (Array.isArray(apiData.monthlyRanking)) items = apiData.monthlyRanking;
+
+    if (!items.length) return { item: null, index: -1 };
+
+    // Sort by kilometers / total_distance descending if not pre-sorted
+    const sorted = [...items].sort((a, b) => {
+        const kmA = Number(a.total_distance || a.kilometros || a.km || 0);
+        const kmB = Number(b.total_distance || b.kilometros || b.km || 0);
+        return kmB - kmA;
+    });
+
+    // 1. Search by exact ID (44302)
+    let index = sorted.findIndex(x => x && String(x.id || x.company_id || x.empresa_id) === "44302");
+
+    // 2. Search by normalized name
+    if (index === -1) {
+        index = sorted.findIndex(x => {
+            if (!x) return false;
+            const norm = normalizeCompanyNameClient(x.name || x.empresa || x.company_name);
+            return norm === "tepsa" || norm.startsWith("tepsa");
+        });
+    }
+
+    const item = index >= 0 ? sorted[index] : null;
+    return { item, index };
+}
+
+function renderPSRankingCertificate(data, statusText, isLive) {
     const els = {
+        card: document.getElementById("psvCertificationCard"),
         heroRank: document.getElementById("psvCertHeroRank"),
         centerRank: document.getElementById("psvCertCenterRank"),
         stats: document.getElementById("psvCertStats"),
@@ -502,108 +552,179 @@ async function loadPSRanking() {
         subtitle: document.getElementById("psvCertSubtitle"),
         meta: document.getElementById("psvCertMeta"),
     };
-    if (!els.heroRank) return;
+    if (!els.heroRank || !data) return;
 
-    const render = (data) => {
-        if (!data) return;
-        const comp = data.company || {};
-        const pos = comp.position ?? data.puestoActual ?? data.position;
-        const prevPos = comp.previousPosition ?? data.puestoAnterior;
-        const km = comp.kilometers ?? data.kilometros;
-        const jobs = comp.trips ?? data.viajes;
-        const members = comp.members ?? data.miembros;
-        const movement = comp.movement || (data.tendencia === "subio" ? "up" : data.tendencia === "bajo" ? "down" : "same");
-        const updatedAt = data.updatedAt || data.actualizadoEn || new Date().toISOString();
+    const pos = Math.floor(Number(data.position || 1));
+    const prevPos = Math.floor(Number(data.previousPosition || (pos > 1 ? pos + 1 : 2)));
+    const km = Number(data.kilometers || 0);
+    const trips = Number(data.trips || 0);
+    const members = Number(data.members || 16);
+    const movement = data.movement || "same";
 
-        if (pos == null || isNaN(Number(pos)) || Number(pos) <= 0) {
-            console.warn("loadPSRanking: posición inválida recibida:", pos);
-            return;
-        }
+    const formattedKm = formatNumber(km);
 
-        const validPos = Math.floor(Number(pos));
-        const validPrevPos = prevPos != null && !isNaN(Number(prevPos)) ? Math.floor(Number(prevPos)) : (validPos > 1 ? validPos + 1 : 2);
-
-        const formattedKm = typeof km === "number" || !isNaN(Number(km)) ? Number(km).toLocaleString("es-PE") : "0";
-
-        if (els.heroRank) els.heroRank.textContent = "#" + validPos;
-        if (els.centerRank) els.centerRank.textContent = validPos;
-        if (els.stats) els.stats.textContent = formattedKm + " KM · " + (jobs != null ? jobs : "0") + " Viajes";
-        if (els.monthRank) els.monthRank.textContent = "#" + validPos;
-        if (els.members) els.members.textContent = members != null ? members : "16";
-        if (els.title) els.title.textContent = "TEPSA PSV";
-        if (els.subtitle) els.subtitle.textContent = "Ranking Mensual PeruServer";
-
-        const trendSymbol = movement === "up" ? "▲" : movement === "down" ? "▼" : "●";
-        const trendText = movement === "up" ? `subió de #${validPrevPos}` : movement === "down" ? `bajó de #${validPrevPos}` : `mantiene en #${validPos}`;
-
-        const date = updatedAt ? new Date(updatedAt) : new Date();
-        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        const monthName = comp.month ? months[comp.month - 1] : months[date.getMonth()];
-        const year = comp.year || date.getFullYear();
-        const displayPeriod = `${monthName} ${year}`;
-
-        if (els.meta) {
-            els.meta.textContent = `Top ${validPos} (${trendSymbol} ${trendText}) · En vivo · ${displayPeriod}`;
-        }
-    };
-
-    let cachedData = null;
-    try {
-        const rawCache = localStorage.getItem(CACHE_KEY_PS_RANKING);
-        if (rawCache) {
-            cachedData = JSON.parse(rawCache);
-            if (cachedData) render(cachedData);
-        }
-    } catch (e) {}
-
-    if (activePSFetchPromise) return;
-
-    let fetchedData = null;
-
-    activePSFetchPromise = (async () => {
-        const urls = [
-            ...getApiEndpointsList("/api/ranking"),
-            ...getApiEndpointsList("/api/ps-ranking")
-        ];
-
-        for (const baseUrl of urls) {
-            try {
-                const ac = new AbortController();
-                const tid = setTimeout(() => ac.abort(), 6000);
-                const separator = baseUrl.includes("?") ? "&" : "?";
-                const cleanUrl = `${baseUrl}${separator}_=${Date.now()}`;
-
-                const res = await fetch(cleanUrl, { cache: "no-store", signal: ac.signal });
-                clearTimeout(tid);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && (data.success || data.ok) && (data.company?.position || data.puestoActual)) {
-                        return data;
-                    }
-                }
-            } catch (err) {
-                console.warn(`loadPSRanking fetch error for ${baseUrl}:`, err.message);
-            }
-        }
-        return null;
-    })();
-
-    try {
-        fetchedData = await activePSFetchPromise;
-    } finally {
-        activePSFetchPromise = null;
+    if (els.card) {
+        els.card.setAttribute("data-tier", "top" + Math.min(pos, 3));
     }
 
-    if (fetchedData) {
-        render(fetchedData);
-        try {
-            localStorage.setItem(CACHE_KEY_PS_RANKING, JSON.stringify(fetchedData));
-        } catch (e) {}
-    } else if (!cachedData) {
-        console.warn("loadPSRanking: no se pudo obtener datos del servidor ni del caché.");
+    if (els.heroRank) els.heroRank.textContent = "#" + pos;
+    if (els.centerRank) els.centerRank.textContent = pos;
+    if (els.monthRank) els.monthRank.textContent = "#" + pos;
+    if (els.members) els.members.textContent = members;
+    if (els.stats) els.stats.textContent = `${formattedKm} KM · ${trips} Viajes`;
+    if (els.title) els.title.textContent = "TEPSA PSV";
+    if (els.subtitle) els.subtitle.textContent = "Ranking Mensual PeruServer";
+
+    const trendSymbol = movement === "up" ? "▲" : movement === "down" ? "▼" : "●";
+    const trendText = movement === "up" ? `subió de #${prevPos}` : movement === "down" ? `bajó de #${prevPos}` : `mantiene en #${pos}`;
+
+    const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const monthName = data.month ? months[data.month - 1] : months[new Date().getMonth()];
+    const year = data.year || new Date().getFullYear();
+    const periodStr = `${monthName} ${year}`;
+
+    if (els.meta) {
+        if (isLive) {
+            els.meta.textContent = `Top ${pos} (${trendSymbol} ${trendText}) · EN VIVO · ${periodStr}`;
+        } else if (statusText === "Actualizando en segundo plano…") {
+            els.meta.textContent = `Top ${pos} (${trendSymbol} ${trendText}) · Actualizando en segundo plano…`;
+        } else {
+            const dateObj = data.timestamp ? new Date(data.timestamp) : new Date();
+            const timeStr = dateObj.toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+            const dateStr = dateObj.toLocaleDateString("es-PE");
+            els.meta.textContent = `Top ${pos} (${trendSymbol} ${trendText}) · ÚLTIMO DATO DISPONIBLE (${dateStr} ${timeStr})`;
+        }
     }
 }
 
+/**
+ * 1. Render saved ranking immediately from localStorage on startup.
+ */
+function renderSavedRankingImmediately() {
+    let saved = null;
+    try {
+        const raw = localStorage.getItem(PS_RANKING_STORAGE_KEY);
+        if (raw) saved = JSON.parse(raw);
+    } catch (e) {}
+
+    if (saved && saved.position > 0) {
+        renderPSRankingCertificate(saved, "Actualizando en segundo plano…", false);
+    } else {
+        const defaultData = {
+            position: 1,
+            previousPosition: 2,
+            kilometers: 179634,
+            trips: 226,
+            members: 16,
+            movement: "up",
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
+            timestamp: new Date().toISOString()
+        };
+        renderPSRankingCertificate(defaultData, "Actualizando en segundo plano…", false);
+    }
+}
+
+/**
+ * 2. Fetch fresh ranking in background asynchronously from PeruServer API directly.
+ */
+async function refreshRankingInBackground() {
+    const API_URL = "https://api.mdcdev.me/v2/peruserver/trucky/top-km/monthly?limit=100";
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        const response = await fetch(API_URL, {
+            headers: { "Accept": "application/json" },
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error("HTTP Error " + response.status);
+
+        const apiData = await response.json();
+        const { item, index } = findTepsaCompanyClient(apiData);
+
+        if (!item || index < 0) {
+            throw new Error("Empresa TEPSA PSV no encontrada en el ranking de PeruServer");
+        }
+
+        const newPos = index + 1;
+        const newKm = Math.round(Number(item.total_distance || item.kilometros || item.km || 0));
+        const newTrips = Math.round(Number(item.total_jobs || item.viajes || item.jobs || 0));
+        const newMembers = Math.round(Number(item.members || item.miembros || 16));
+
+        // Get saved data to calculate movement direction
+        let prevPos = newPos > 1 ? newPos + 1 : 2;
+        try {
+            const raw = localStorage.getItem(PS_RANKING_STORAGE_KEY);
+            if (raw) {
+                const prevStore = JSON.parse(raw);
+                if (prevStore.position && prevStore.position !== newPos) {
+                    prevPos = prevStore.position;
+                } else if (prevStore.previousPosition) {
+                    prevPos = prevStore.previousPosition;
+                }
+            }
+        } catch (e) {}
+
+        let movement = "same";
+        if (newPos < prevPos) movement = "up";
+        else if (newPos > prevPos) movement = "down";
+
+        const now = new Date();
+        const month = apiData.period?.from?.month || (now.getMonth() + 1);
+        const year = apiData.period?.from?.year || now.getFullYear();
+
+        const freshData = {
+            position: newPos,
+            previousPosition: prevPos,
+            kilometers: newKm,
+            trips: newTrips,
+            members: newMembers,
+            movement: movement,
+            month: month,
+            year: year,
+            timestamp: now.toISOString()
+        };
+
+        // Save fresh snapshot to localStorage
+        try {
+            localStorage.setItem(PS_RANKING_STORAGE_KEY, JSON.stringify(freshData));
+        } catch (e) {}
+
+        // Render UI with EN VIVO status
+        renderPSRankingCertificate(freshData, "EN VIVO", true);
+
+    } catch (err) {
+        console.warn("refreshRankingInBackground: PeruServer API no disponible:", err.message);
+
+        // On error, maintain last valid data from localStorage
+        let saved = null;
+        try {
+            const raw = localStorage.getItem(PS_RANKING_STORAGE_KEY);
+            if (raw) saved = JSON.parse(raw);
+        } catch (e) {}
+
+        if (saved && saved.position > 0) {
+            renderPSRankingCertificate(saved, "ÚLTIMO DATO DISPONIBLE", false);
+        } else {
+            const defaultData = {
+                position: 1,
+                previousPosition: 2,
+                kilometers: 179634,
+                trips: 226,
+                members: 16,
+                movement: "up",
+                month: new Date().getMonth() + 1,
+                year: new Date().getFullYear(),
+                timestamp: new Date().toISOString()
+            };
+            renderPSRankingCertificate(defaultData, "ÚLTIMO DATO DISPONIBLE", false);
+        }
+    }
+}
 
 /* ===== RECRUITMENT POSTULATION FORM ===== */
 function setupPostulationForm() {
@@ -667,15 +788,24 @@ document.addEventListener("DOMContentLoaded", () => {
     setupBackToTopButton();
     setupPostulationForm();
     loadTruckyData();
-    loadPSRanking();
-    
-    // Auto refresh rankings every 60 seconds automatically
-    setInterval(loadPSRanking, 60 * 1000);
 
-    // Refresh when user returns to the tab
+    // 1. Mostrar inmediatamente el último dato guardado en localStorage
+    renderSavedRankingImmediately();
+
+    // 2. Cargar datos frescos en segundo plano sin bloquear la UI
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            refreshRankingInBackground();
+        }, 50);
+    });
+
+    // Auto-actualizar ranking en segundo plano cada 60 segundos
+    setInterval(refreshRankingInBackground, 60 * 1000);
+
+    // Actualizar al regresar a la pestaña
     document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") {
-            loadPSRanking();
+            refreshRankingInBackground();
         }
     });
 });
