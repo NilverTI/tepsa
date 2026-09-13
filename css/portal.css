@@ -1,0 +1,498 @@
+/* ==========================================================================
+   MINIMALIST DUAL PORTAL - TEPSA & ZBUSS (PERUSERVER ETS2)
+   Human-crafted, editorial, full-screen zero-scroll experience
+   ========================================================================== */
+
+:root {
+    --bg-dark: #07090c;
+    --text-pure: #ffffff;
+    --text-muted: #8a94a6;
+    --text-dim: #505866;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+
+    /* ZBUSS Signature */
+    --zbuss-color: #00b894;
+    --zbuss-hover: #00d2a8;
+    --zbuss-glow: rgba(0, 184, 148, 0.25);
+    --zbuss-accent-bg: rgba(0, 184, 148, 0.08);
+
+    /* TEPSA Signature */
+    --tepsa-color: #ff2d2d;
+    --tepsa-hover: #ff4747;
+    --tepsa-glow: rgba(255, 45, 45, 0.25);
+    --tepsa-accent-bg: rgba(255, 45, 45, 0.08);
+
+    --font: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-dark);
+    color: var(--text-pure);
+    font-family: var(--font);
+    overflow: hidden; /* Strict full screen without scrolling on desktop */
+    -webkit-font-smoothing: antialiased;
+}
+
+.portal-viewport {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* ==========================================================================
+   TOP MINIMAL NAVIGATION
+   ========================================================================== */
+.portal-nav {
+    height: 56px;
+    min-height: 56px;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(7, 9, 12, 0.9);
+    border-bottom: 1px solid var(--border-subtle);
+    backdrop-filter: blur(12px);
+    z-index: 20;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.brand-community {
+    color: #e2e8f0;
+}
+
+.brand-divider {
+    color: var(--text-dim);
+    font-weight: 300;
+}
+
+.brand-game {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.nav-center-prompt {
+    font-size: 11px;
+    letter-spacing: 3px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.nav-discord {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+}
+
+.nav-discord:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   MAIN DUAL SPLIT STAGE
+   ========================================================================== */
+.portal-stage {
+    flex: 1;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+}
+
+.portal-panel {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 48px 56px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: flex 0.6s var(--ease-out), opacity 0.5s ease;
+}
+
+/* Background image & cinematic layers */
+.panel-bg {
+    position: absolute;
+    inset: -10px;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.65) contrast(1.1);
+    transform: scale(1);
+    transition: transform 0.8s var(--ease-out), filter 0.8s var(--ease-out);
+    z-index: 1;
+}
+
+.panel-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    transition: background 0.5s ease;
+}
+
+.panel-zbuss .panel-overlay {
+    background: linear-gradient(
+        180deg,
+        rgba(7, 9, 12, 0.3) 0%,
+        rgba(7, 9, 12, 0.5) 40%,
+        rgba(7, 9, 12, 0.92) 80%,
+        rgba(7, 9, 12, 0.98) 100%
+    );
+}
+
+.panel-tepsa .panel-overlay {
+    background: linear-gradient(
+        180deg,
+        rgba(7, 9, 12, 0.3) 0%,
+        rgba(7, 9, 12, 0.5) 40%,
+        rgba(7, 9, 12, 0.92) 80%,
+        rgba(7, 9, 12, 0.98) 100%
+    );
+}
+
+/* Panel content */
+.panel-content {
+    position: relative;
+    z-index: 5;
+    max-width: 520px;
+    transform: translateY(0);
+    transition: transform 0.5s var(--ease-out);
+}
+
+/* Tags */
+.company-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.panel-zbuss .company-tag {
+    color: var(--zbuss-color);
+}
+
+.panel-tepsa .company-tag {
+    color: var(--tepsa-color);
+}
+
+.tag-bullet {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.panel-zbuss .tag-bullet {
+    background: var(--zbuss-color);
+    box-shadow: 0 0 8px var(--zbuss-color);
+}
+
+.panel-tepsa .tag-bullet {
+    background: var(--tepsa-color);
+    box-shadow: 0 0 8px var(--tepsa-color);
+}
+
+.tag-id {
+    color: var(--text-dim);
+    font-weight: 400;
+}
+
+/* Titles */
+.company-title {
+    font-size: clamp(30px, 3.4vw, 46px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+    margin-bottom: 6px;
+}
+
+.company-motto {
+    font-size: 15px;
+    font-weight: 300;
+    font-style: italic;
+    color: #a0aec0;
+    margin-bottom: 20px;
+}
+
+/* Specs */
+.company-specs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.spec-sep {
+    color: var(--text-dim);
+}
+
+/* Action Buttons */
+.panel-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.btn-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 26px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.panel-zbuss .btn-main {
+    background: var(--zbuss-color);
+    color: #041410;
+}
+
+.panel-zbuss .btn-main:hover {
+    background: var(--zbuss-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--zbuss-glow);
+}
+
+.panel-tepsa .btn-main {
+    background: var(--tepsa-color);
+    color: #ffffff;
+}
+
+.panel-tepsa .btn-main:hover {
+    background: var(--tepsa-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--tepsa-glow);
+}
+
+.btn-sub {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #cbd5e1;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+}
+
+.btn-sub:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+/* Direct Badge */
+.direct-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    color: var(--text-dim);
+}
+
+.direct-badge code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: #94a3b8;
+}
+
+/* ==========================================================================
+   INTERACTIVE HOVER BEHAVIOR (SPLIT SCREEN EXPANSION)
+   ========================================================================== */
+.portal-stage:hover .portal-panel {
+    opacity: 0.65;
+}
+
+.portal-stage .portal-panel:hover {
+    flex: 1.15;
+    opacity: 1;
+}
+
+.portal-panel:hover .panel-bg {
+    transform: scale(1.04);
+    filter: brightness(0.75) contrast(1.15);
+}
+
+.portal-panel:hover .panel-content {
+    transform: translateY(-6px);
+}
+
+/* Specific Panel Glows */
+.panel-zbuss:hover {
+    box-shadow: inset 0 0 60px rgba(0, 184, 148, 0.15);
+}
+
+.panel-tepsa:hover {
+    box-shadow: inset 0 0 60px rgba(255, 45, 45, 0.15);
+}
+
+/* ==========================================================================
+   CENTRAL SEAM DIVIDER
+   ========================================================================== */
+.portal-divider {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(-50%);
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.divider-badge {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-dark);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   BOTTOM MINIMALIST FOOTER BAR
+   ========================================================================== */
+.portal-bar {
+    height: 42px;
+    min-height: 42px;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(7, 9, 12, 0.95);
+    border-top: 1px solid var(--border-subtle);
+    font-size: 11.5px;
+    color: var(--text-dim);
+    z-index: 20;
+}
+
+.bar-center a {
+    color: var(--text-muted);
+    text-decoration: none;
+    margin: 0 2px;
+    transition: color 0.2s ease;
+}
+
+.bar-center a:hover {
+    color: #ffffff;
+}
+
+.bar-right {
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUT (TABLET & MOBILE)
+   ========================================================================== */
+@media (max-width: 900px) {
+    html, body {
+        overflow-y: auto; /* Allow natural scrolling on small devices if necessary */
+    }
+
+    .portal-viewport {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .nav-center-prompt {
+        display: none;
+    }
+
+    .portal-stage {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .portal-panel {
+        min-height: 48vh;
+        padding: 36px 28px;
+    }
+
+    .portal-stage:hover .portal-panel {
+        opacity: 1;
+    }
+
+    .portal-stage .portal-panel:hover {
+        flex: 1;
+    }
+
+    .portal-divider {
+        display: none;
+    }
+
+    .portal-bar {
+        height: auto;
+        padding: 16px 24px;
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+}

@@ -340,7 +340,7 @@ async function loadTruckyData(force) {
                         totalJobs: jobsByDriver.get(norm) || 0
                     };
                 })
-                .filter(m => (m.role || "").toLowerCase() !== "owner")
+                .filter(m => !/\bowner\b/i.test(m.role || ""))
                 .sort((a, b) => b.kilometers - a.kilometers);
 
             const totalKm = ranking.reduce((s, d) => s + d.kilometers, 0);

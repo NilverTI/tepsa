@@ -4,26 +4,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conductores | TEPSA PSV</title>
-  <meta property="og:title" content="Conductores | TEPSA PSV">
-  <meta property="og:description" content="Lista oficial y estadísticas de la tripulación de TEPSA PSV en Euro Truck Simulator 2">
-  <meta property="og:url" content="https://tepsa.vercel.app/conductores.html">
+  <title>Conductores | ZBUSS PSV</title>
+  <meta property="og:title" content="Conductores | ZBUSS PSV">
+  <meta property="og:description" content="Lista oficial y estadísticas de la tripulación de ZBUSS PSV en Euro Truck Simulator 2">
+  <meta property="og:url" content="https://tepsa.vercel.app/zbuss/conductores">
   <meta property="og:image" content="https://tepsa.vercel.app/assets/img/galeria3.png">
   <meta property="og:image:secure_url" content="https://tepsa.vercel.app/assets/img/galeria3.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="TEPSA PSV">
+  <meta property="og:image:alt" content="ZBUSS PSV">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_PE">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Conductores | TEPSA PSV">
-  <meta name="twitter:description" content="Lista oficial y estadísticas de la tripulación de TEPSA PSV en Euro Truck Simulator 2">
+  <meta name="twitter:title" content="Conductores | ZBUSS PSV">
+  <meta name="twitter:description" content="Lista oficial y estadísticas de la tripulación de ZBUSS PSV en Euro Truck Simulator 2">
   <meta name="twitter:image" content="https://tepsa.vercel.app/assets/img/galeria3.png">
 
   <!-- Style Sheets Reorganized -->
-  <link rel="stylesheet" href="../css/global.css">
-  <link rel="stylesheet" href="../css/conductores.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/conductores.css">
   <link rel="icon" href="../assets/img/logo1.png" type="image/png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,7 +35,7 @@
   <!-- Header Section -->
   <header>
     <nav class="navbar">
-      <a href="index.html" class="logo">TEPSA PSV</a>
+      <a href="index.html" class="logo">ZBUSS PSV</a>
       <ul class="menu" id="mainMenu">
         <li><a href="index.html">Inicio</a></li>
         <li><a href="index.html#nosotros">Nosotros</a></li>
@@ -44,9 +44,9 @@
         <li><a href="conductores.html">Conductores</a></li>
         <li><a href="index.html#reclutamiento">Reclutamiento</a></li>
         <li><a href="index.html#galeria">Galería</a></li>
-        <li><a href="index.html#fundadores">Fundadores</a></li>
+        <li><a href="index.html#fundadores">Equipo</a></li>
         <li><a href="../index.html" class="nav-btn-switch portal-btn" title="Ir al Portal de Empresas">🏠 Portal</a></li>
-        <li><a href="../zbuss/index.html" class="nav-btn-switch zbuss-btn">🟢 ZBUSS</a></li>
+        <li><a href="../pages/index.html" class="nav-btn-switch tepsa-btn">🔴 TEPSA</a></li>
       </ul>
       <button class="hamburger" id="hamburger" aria-label="Menú">
         <span></span><span></span><span></span>
@@ -57,7 +57,7 @@
   <!-- Hero Section -->
   <section class="conductores-hero">
     <h1>Nuestra Tripulación</h1>
-    <p class="hero-subtitle">Profesionalismo y excelencia en cada kilómetro recorrido</p>
+    <p class="hero-subtitle">Profesionalismo y excelencia en cada kilómetro recorrido con ZBUSS PSV</p>
   </section>
 
   <!-- Stats Bar -->
@@ -89,7 +89,7 @@
   <div id="drivers-grid" class="drivers-grid">
     <div class="loading-spinner" id="loading-spinner">
       <div class="spinner"></div>
-      <p>Cargando conductores...</p>
+      <p>Cargando conductores de ZBUSS...</p>
     </div>
   </div>
 
@@ -151,7 +151,7 @@
       <!-- ESTADO B: Formulario de Subida -->
       <div id="uploadFormState" style="display: none;">
         <form id="popupUploadForm">
-          <p class="upload-state-title">Subir captura para <strong id="uploadActiveDriverText" style="color: #ff2d2d;"></strong></p>
+          <p class="upload-state-title">Subir captura para <strong id="uploadActiveDriverText" style="color: #00b894;"></strong></p>
 
           <div class="login-input-group">
             <span class="input-icon">🔗</span>
@@ -165,7 +165,7 @@
 
           <button type="submit" id="btnSubmitPopupUpload" class="login-submit">Publicar Captura</button>
           <div id="uploadPopupError" class="form-error-global" style="display:none; margin-top: 15px;"></div>
-          <div id="uploadPopupSuccess" class="form-success-global" style="display:none; margin-top: 15px; text-align: center; color: #4ecdc4; font-weight: 500;"></div>
+          <div id="uploadPopupSuccess" class="form-success-global" style="display:none; margin-top: 15px; text-align: center; color: #00b894; font-weight: 500;"></div>
           <a href="#" id="linkLogout" style="display: block; text-align: center; font-size: 11px; color: #555; margin-top: 15px; text-decoration: none; transition: color .2s;">Cerrar Sesión / Cambiar Contraseña</a>
         </form>
       </div>
@@ -178,8 +178,8 @@
       <button class="auth-popup-close" id="closeAdminModal">&times;</button>
 
       <div class="admin-header">
-        <h2 style="font-size: 18px; color: #fff; margin-bottom: 5px;">⚙️ Panel de Administración (3 Admins)</h2>
-        <span style="font-size: 12px; color: #ff2d2d; font-weight: 600;">Alexander · Cesar · Cristofer</span>
+        <h2 style="font-size: 18px; color: #fff; margin-bottom: 5px;">⚙️ Panel de Administración ZBUSS</h2>
+        <span style="font-size: 12px; color: #00b894; font-weight: 600;">Admin PSV · SENTINEL · TioPepex</span>
       </div>
 
       <div class="admin-tabs" style="display: flex; gap: 10px; margin: 15px 0;">
@@ -200,7 +200,7 @@
         <form id="adminCreateForm" style="display: flex; flex-direction: column; gap: 12px;">
           <div class="login-input-group">
             <span class="input-icon">👤</span>
-            <input type="text" id="adminNewDriverName" placeholder="Nombre del Conductor (Ej: [TPS] NuevoPiloto)" required>
+            <input type="text" id="adminNewDriverName" placeholder="Nombre del Conductor (Ej: [ZBSS] NuevoPiloto)" required>
           </div>
           <div class="login-input-group">
             <span class="input-icon">🔑</span>
@@ -212,11 +212,12 @@
               <option value="Conductor" style="background: #111; color: #fff;">Conductor</option>
               <option value="Conductor VIP" style="background: #111; color: #fff;">Conductor VIP</option>
               <option value="Moderador" style="background: #111; color: #fff;">Moderador</option>
-              <option value="Fundador / Admin" style="background: #111; color: #fff;">Administrador</option>
+              <option value="Administrador" style="background: #111; color: #fff;">Administrador</option>
             </select>
           </div>
           <button type="submit" id="btnSubmitCreateDriver" class="login-submit">Crear Cuenta de Conductor</button>
           <div id="adminCreateMsg" class="form-success-global" style="display:none; margin-top: 10px; text-align: center; font-size: 13px;"></div>
+        </form>
       </div>
     </div>
   </div>
@@ -232,8 +233,8 @@
   <footer>
     <div class="footer-content">
       <div class="footer-brand">
-        <h3>TEPSA PSV</h3>
-        <p>Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2</p>
+        <h3>ZBUSS PSV</h3>
+        <p>Empresa Virtual de Transporte Peruano en Euro Truck Simulator 2 · Iniciando tu viaje</p>
       </div>
       <div class="footer-links">
         <h4>Navegación</h4>
@@ -245,6 +246,10 @@
       </div>
       <div class="footer-social">
         <h4>Comunidad</h4>
+        <a href="https://hub.truckyapp.com/company/41534" target="_blank" class="discord-link">
+          <span>🚛</span>
+          <span>Trucky Hub (ID: 41534)</span>
+        </a>
         <a href="https://discord.gg/PUCdan2d8M" target="_blank" class="discord-link" aria-label="Discord">
           <svg class="discord-icon" viewBox="0 0 127.14 96.36" width="28" height="28">
             <path fill="currentColor" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
@@ -254,13 +259,13 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 TEPSA PSV — Todos los derechos reservados</p>
+      <p>© 2026 ZBUSS PSV — Todos los derechos reservados</p>
     </div>
   </footer>
 
   <!-- Scripts Reorganized -->
   <script src="../js/global.js"></script>
-  <script src="../js/conductores.js"></script>
+  <script src="js/conductores.js"></script>
 </body>
 
 </html>

@@ -1,9 +1,23 @@
 {
   "cleanUrls": false,
   "rewrites": [
-    { "source": "/", "destination": "/pages/index.html" },
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/tepsa", "destination": "/pages/index.html" },
+    { "source": "/tepsa/", "destination": "/pages/index.html" },
+    { "source": "/tepsa/conductores", "destination": "/pages/conductores.html" },
+    { "source": "/tepsa/conductores.html", "destination": "/pages/conductores.html" },
+    { "source": "/tepsa/css/(.*)", "destination": "/css/$1" },
+    { "source": "/tepsa/js/(.*)", "destination": "/js/$1" },
+    { "source": "/tepsa/assets/(.*)", "destination": "/assets/$1" },
     { "source": "/conductores", "destination": "/pages/conductores.html" },
     { "source": "/conductores.html", "destination": "/pages/conductores.html" },
+    { "source": "/zbuss", "destination": "/zbuss/index.html" },
+    { "source": "/zbuss/", "destination": "/zbuss/index.html" },
+    { "source": "/zbuss/conductores", "destination": "/zbuss/conductores.html" },
+    { "source": "/zbuss/conductores.html", "destination": "/zbuss/conductores.html" },
+    { "source": "/zbuss/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/api/zbuss/trucky/conductores", "destination": "/api/zbuss/conductores.js" },
+    { "source": "/api/zbuss/conductores", "destination": "/api/zbuss/conductores.js" },
     { "source": "/img/(.*)", "destination": "/assets/img/$1" }
   ],
   "headers": [

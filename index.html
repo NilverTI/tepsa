@@ -3,40 +3,154 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=pages/index.html" />
-  <script type="text/javascript">
-    window.location.href = "pages/index.html";
-  </script>
-  <title>TEPSA PSV - Redireccionando...</title>
-  <style>
-    body {
-      background-color: #0f0f0f;
-      color: #fff;
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      text-align: center;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeruServer PSV | Portal Oficial: TEPSA y ZBUSS</title>
+  <meta name="description" content="Central oficial de empresas virtuales de transporte interprovincial de PeruServer en Euro Truck Simulator 2.">
+  <link rel="icon" href="assets/img/logo1.png" type="image/png">
 
-    a {
-      color: #ff2d2d;
-      text-decoration: none;
-      font-weight: bold;
-    }
+  <!-- Typography: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
 
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <!-- Portal Styles -->
+  <link rel="stylesheet" href="css/portal.css">
 </head>
 
 <body>
-  <div>
-    <p>Redireccionando al sitio principal de TEPSA PSV...</p>
-    <p>Si no eres redireccionado automáticamente, haz <a href="pages/index.html">clic aquí</a>.</p>
+  <div class="portal-viewport">
+    
+    <!-- Top Minimal Navigation -->
+    <header class="portal-nav">
+      <div class="nav-brand">
+        <span class="brand-community">PERUSERVER</span>
+        <span class="brand-divider">/</span>
+        <span class="brand-game">ETS2 VTC</span>
+      </div>
+
+      <div class="nav-center-prompt">
+        <span>SELECCIONA TU DESTINO</span>
+      </div>
+
+      <div class="nav-links">
+        <a href="https://discord.gg/PUCdan2d8M" target="_blank" rel="noopener" class="nav-discord">
+          <svg viewBox="0 0 127.14 96.36" width="16" height="16" fill="currentColor">
+            <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
+          </svg>
+          <span>Discord Comunidad</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Dual Split Stage -->
+    <main class="portal-stage">
+      
+      <!-- Panel 1: ZBUSS -->
+      <section class="portal-panel panel-zbuss" onclick="if(event.target.tagName !== 'A') window.location.href='zbuss/index.html'">
+        <div class="panel-bg" style="background-image: url('assets/img/zbuss_bus.jpg');"></div>
+        <div class="panel-overlay"></div>
+        
+        <div class="panel-content">
+          <div class="company-tag">
+            <span class="tag-bullet"></span>
+            <span>ZBUSS [PSV]</span>
+            <span class="tag-id">· ID 41534</span>
+          </div>
+
+          <h2 class="company-title">Transportes ZBUSS</h2>
+          <p class="company-motto">"Iniciando tu viaje"</p>
+
+          <div class="company-specs">
+            <span class="spec-item">13 Conductores</span>
+            <span class="spec-sep">/</span>
+            <span class="spec-item">Rutas Interprovinciales</span>
+            <span class="spec-sep">/</span>
+            <span class="spec-item">ETS2 PeruServer</span>
+          </div>
+
+          <div class="panel-actions">
+            <a href="zbuss/index.html" class="btn-main">
+              <span>Ingresar a ZBUSS</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+            <a href="zbuss/conductores.html" class="btn-sub">
+              <span>Conductores</span>
+            </a>
+          </div>
+
+          <div class="direct-badge">
+            <span>Acceso directo:</span>
+            <code>/zbuss</code>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center Seam Divider -->
+      <div class="portal-divider">
+        <span class="divider-badge">VS</span>
+      </div>
+
+      <!-- Panel 2: TEPSA -->
+      <section class="portal-panel panel-tepsa" onclick="if(event.target.tagName !== 'A') window.location.href='pages/index.html'">
+        <div class="panel-bg" style="background-image: url('assets/img/bus_in_motion.jpg');"></div>
+        <div class="panel-overlay"></div>
+        
+        <div class="panel-content">
+          <div class="company-tag">
+            <span class="tag-bullet"></span>
+            <span>TEPSA [PSV]</span>
+            <span class="tag-id">· ID 41516</span>
+          </div>
+
+          <h2 class="company-title">TEPSA PSV</h2>
+          <p class="company-motto">"La línea del Perú"</p>
+
+          <div class="company-specs">
+            <span class="spec-item">Tripulación Oficial</span>
+            <span class="spec-sep">/</span>
+            <span class="spec-item">Transporte Peruano</span>
+            <span class="spec-sep">/</span>
+            <span class="spec-item">ETS2 PeruServer</span>
+          </div>
+
+          <div class="panel-actions">
+            <a href="pages/index.html" class="btn-main">
+              <span>Ingresar a TEPSA</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+            <a href="pages/conductores.html" class="btn-sub">
+              <span>Conductores</span>
+            </a>
+          </div>
+
+          <div class="direct-badge">
+            <span>Acceso directo:</span>
+            <code>/tepsa</code>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Minimalist Footer Bar -->
+    <footer class="portal-bar">
+      <div class="bar-left">
+        <span>Euro Truck Simulator 2 · PeruServer</span>
+      </div>
+      <div class="bar-center">
+        <span>Enlaces directos: <a href="pages/index.html">/tepsa</a> · <a href="pages/conductores.html">/tepsa/conductores</a> · <a href="zbuss/index.html">/zbuss</a> · <a href="zbuss/conductores.html">/zbuss/conductores</a></span>
+      </div>
+      <div class="bar-right">
+        <span>© 2026 PSV</span>
+      </div>
+    </footer>
+
   </div>
 </body>
 

@@ -346,7 +346,7 @@ async function loadData(force) {
     const statusEl = document.getElementById("data-status");
 
     if (cached) {
-        allDrivers = (cached.ranking || []).filter(d => d.role?.toLowerCase() !== "owner");
+        allDrivers = (cached.ranking || []).filter(d => !/\bowner\b/i.test(d.role || ""));
         renderStats(cached.stats);
         renderDrivers();
         if (statusEl) {
@@ -388,7 +388,7 @@ async function loadData(force) {
 
         setCache(data);
 
-        allDrivers = (data.ranking || []).filter(d => d.role?.toLowerCase() !== "owner");
+        allDrivers = (data.ranking || []).filter(d => !/\bowner\b/i.test(d.role || ""));
         
         if (isChanged) {
             renderStats(data.stats);

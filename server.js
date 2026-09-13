@@ -7,6 +7,9 @@ const publicDir = __dirname;
 const COMPANY_ID = "44302";
 const MEMBERS_URL = `https://e.truckyapp.com/api/v1/company/${COMPANY_ID}/members`;
 
+const ZBUSS_COMPANY_ID = "41534";
+const ZBUSS_MEMBERS_URL = `https://e.truckyapp.com/api/v1/company/${ZBUSS_COMPANY_ID}/members`;
+
 const port = Number(process.env.PORT) || 3000;
 
 const CACHE_TTL = 5 * 60 * 1000;
@@ -19,8 +22,8 @@ function getCache(key) {
   return null;
 }
 
-function pruneCache() {
-  const now = Date.now();
+      function pruneCache() {
+        const now = Date.now();
   for (const [key, entry] of cache.entries()) {
     if (now - entry.ts >= CACHE_TTL) {
       cache.delete(key);
@@ -149,6 +152,11 @@ const server = http.createServer(async (request, response) => {
 
   if (url.pathname === "/api/trucky/conductores") {
     await handleConductoresRanking(response);
+    return;
+  }
+
+  if (url.pathname === "/api/zbuss/trucky/conductores" || url.pathname === "/api/zbuss/conductores") {
+    await handleZbussConductoresRanking(response);
     return;
   }
 
@@ -315,7 +323,7 @@ async function handleConductoresRanking(response) {
       .filter(m => {
         const role = m.role || "";
         const name = m.name || "";
-        return role.toLowerCase() !== "owner";
+        return !/\bowner\b/i.test(role);
       })
       .sort((a, b) => {
         if (b.kilometers !== a.kilometers) return b.kilometers - a.kilometers;
@@ -345,6 +353,129 @@ async function handleConductoresRanking(response) {
       source: "demo",
       ranking: [],
       stats: { kilometers: 0, drivers: 0, active: 0 },
+    }, 502);
+  }
+}
+
+async function handleZbussConductoresRanking(response) {
+  const cacheKey = "trucky:zbuss:conductores";
+  const cached = getCache(cacheKey);
+  if (cached) {
+    sendJson(response, cached);
+    return;
+  }
+
+  try {
+    const membersUrl = ZBUSS_MEMBERS_URL;
+    const companyId = ZBUSS_COMPANY_ID;
+    const jobsUrl = `https://e.truckyapp.com/api/v1/company/${companyId}/jobs?limit=100`;
+    const headers = { ...TRUCKY_HEADERS };
+
+    const [membersRaw, jobsRaw] = await Promise.all([
+      fetchJSON(membersUrl, headers),
+      fetchJSON(jobsUrl, headers).catch(() => ({ data: [] })),
+    ]);
+
+    const members = membersRaw.data || [];
+    const jobs = (jobsRaw && jobsRaw.data) ? jobsRaw.data : [];
+
+    const statsById = new Map();
+    const statsByName = new Map();
+
+    function norm(name) {
+      return String(name || "").toLowerCase().replace(/\[.*?\]/g, "").replace(/[^a-z0-9]/g, "").trim();
+    }
+
+    jobs.forEach(job => {
+      const uid = job.user_id || job.driver?.id;
+      const rawName = job.driver?.name || job.driver?.username || job.in_game_profile_name || "";
+      const nName = norm(rawName);
+
+      const km = Number(job.driven_distance_km || job.planned_distance_km || job.kilometers || 0);
+      const rawDamage = job.total_damage != null ? job.total_damage : (job.vehicle_damage != null ? job.vehicle_damage : 0);
+      const dmg = Math.min(100, Math.max(0, Math.round(Number(rawDamage))));
+
+      if (uid) {
+        if (!statsById.has(uid)) statsById.set(uid, { km: 0, sumDamage: 0, jobs: 0 });
+        const s = statsById.get(uid);
+        s.km += km;
+        s.sumDamage += dmg;
+        s.jobs += 1;
+      }
+
+      if (nName) {
+        if (!statsByName.has(nName)) statsByName.set(nName, { km: 0, sumDamage: 0, jobs: 0 });
+        const sn = statsByName.get(nName);
+        sn.km += km;
+        sn.sumDamage += dmg;
+        sn.jobs += 1;
+      }
+    });
+
+    const ranking = members
+      .map(m => {
+        const rawName = m.name || m.username || "Sin nombre";
+        const nName = norm(rawName);
+        const lastJobDays = m.last_job_days != null && Number.isFinite(Number(m.last_job_days))
+          ? Number(m.last_job_days)
+          : 9999;
+
+        const s = statsById.get(m.id) || statsByName.get(nName) || { km: 0, sumDamage: 0, jobs: 0 };
+        const avgDamage = s.jobs > 0 ? Math.min(100, Math.round(s.sumDamage / s.jobs)) : 0;
+        const totalKm = s.km > 0 ? Math.round(s.km) : Math.round(Number(m.total_driven_distance_km || 0));
+
+        return {
+          id: m.id,
+          name: rawName,
+          kilometers: totalKm,
+          damage: avgDamage,
+          totalJobs: s.jobs || Number(m.total_jobs || 0),
+          points: Math.round(m.points || 0),
+          lastJob: formatLastJob(m.last_job_days),
+          lastJobDays,
+          rank: m.rank?.name || "",
+          role: m.role?.name || "Conductor",
+          avatar: m.avatar_url || "",
+          level: m.level || 0,
+          country: m.country || "PE",
+          cargoMass: Math.round(m.total_cargo_mass_t || 0),
+          revenue: Math.round(m.total_revenue || 0),
+        };
+      })
+      .filter(m => {
+        const role = (m.role || "").toLowerCase();
+        return !/\bowner\b/i.test(role);
+      })
+      .sort((a, b) => {
+        if (b.kilometers !== a.kilometers) return b.kilometers - a.kilometers;
+        return a.damage - b.damage;
+      });
+
+    const result = {
+      source: "trucky",
+      updatedAt: new Date().toISOString(),
+      ranking,
+      stats: {
+        kilometers: ranking.reduce((s, d) => s + d.kilometers, 0) || 29012,
+        drivers: ranking.length || 13,
+        active: ranking.filter(d => d.lastJobDays <= 7).length || 10,
+        founded: 2026,
+      },
+    };
+
+    setCache(cacheKey, result);
+    sendJson(response, result);
+  } catch (error) {
+    const cached = getCache(cacheKey);
+    if (cached) {
+      sendJson(response, cached);
+      return;
+    }
+    sendJson(response, {
+      source: "demo",
+      ranking: [],
+      stats: { kilometers: 29012, drivers: 13, active: 10 },
+      error: error.message,
     }, 502);
   }
 }
@@ -685,7 +816,7 @@ function normalizeMembersResponse(rawData) {
     .filter(m => {
       const role = m.role || "";
       const name = m.name || "";
-      return role.toLowerCase() !== "owner";
+      return !/\bowner\b/i.test(role);
     });
   const ranking = members.sort((a, b) => b.kilometers - a.kilometers);
 
@@ -836,10 +967,34 @@ function serveStaticFile(urlPath, response) {
   let cleanPath = decodeURIComponent(urlPath.split("?")[0]);
 
   // Ruteo inteligente local para mantener la estructura modular
-  if (cleanPath === "/") {
+  if (cleanPath === "/" || cleanPath === "/index.html") {
+    cleanPath = "/index.html";
+  } else if (cleanPath === "/tepsa") {
+    response.writeHead(301, { Location: "/tepsa/" });
+    response.end();
+    return;
+  } else if (cleanPath === "/tepsa/") {
     cleanPath = "/pages/index.html";
+  } else if (cleanPath === "/tepsa/conductores" || cleanPath === "/tepsa/conductores.html") {
+    cleanPath = "/pages/conductores.html";
+  } else if (cleanPath.startsWith("/tepsa/css/")) {
+    cleanPath = cleanPath.replace("/tepsa/css/", "/css/");
+  } else if (cleanPath.startsWith("/tepsa/js/")) {
+    cleanPath = cleanPath.replace("/tepsa/js/", "/js/");
+  } else if (cleanPath.startsWith("/tepsa/assets/")) {
+    cleanPath = cleanPath.replace("/tepsa/assets/", "/assets/");
   } else if (cleanPath === "/conductores" || cleanPath === "/conductores.html") {
     cleanPath = "/pages/conductores.html";
+  } else if (cleanPath === "/zbuss") {
+    response.writeHead(301, { Location: "/zbuss/" });
+    response.end();
+    return;
+  } else if (cleanPath === "/zbuss/") {
+    cleanPath = "/zbuss/index.html";
+  } else if (cleanPath === "/zbuss/conductores" || cleanPath === "/zbuss/conductores.html") {
+    cleanPath = "/zbuss/conductores.html";
+  } else if (cleanPath.startsWith("/zbuss/assets/")) {
+    cleanPath = cleanPath.replace("/zbuss/assets/", "/assets/");
   } else if (cleanPath.startsWith("/img/")) {
     cleanPath = cleanPath.replace("/img/", "/assets/img/");
   }
